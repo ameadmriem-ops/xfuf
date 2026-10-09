@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">BLACK ANIME</string>
+    <string name="google_app_id" translatable="false">1:595903053058:android:3745c8d9876284a4d4561b</string>
+    <string name="google_api_key" translatable="false">AIzaSyB_9ZOotR4uZtYYn08OSIZXJczM-WC0MM8</string>
+    <string name="project_id" translatable="false">hamza-4b70c</string>
+    <string name="gcm_defaultSenderId" translatable="false">595903053058</string>
+    <string name="default_web_client_id" translatable="false">595903053058.apps.googleusercontent.com</string>
+    <string name="firebase_database_url" translatable="false">https://hamza-4b70c.firebaseio.com</string>
+</resources>

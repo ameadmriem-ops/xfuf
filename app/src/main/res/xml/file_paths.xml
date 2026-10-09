@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <cache-path name="shared_apk" path="shared_apk/" />
+    <cache-path name="cache_root" path="." />
+    <files-path name="files_root" path="." />
+    <external-cache-path name="ext_cache" path="." />
+</paths>

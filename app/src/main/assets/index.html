@@ -1,0 +1,2631 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BLACK ANIME</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#000;color:#fff;font-family:Arial,sans-serif;-webkit-tap-highlight-color:transparent}
+#app{max-width:600px;margin:auto;padding-bottom:80px;min-height:100vh;position:relative}
+.top-bar{height:55px;display:flex;justify-content:space-between;align-items:center;padding:0 16px;background:#000;position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:600px;z-index:50;border-bottom:1px solid #111}
+.logo{font-size:24px;font-weight:900}.logo b{color:#e50914}.logo span{color:#fff}
+.hero{margin-top:55px;height:200px;background:linear-gradient(to bottom,rgba(0,0,0,.2),#000),url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=600&q=80') center/cover;display:flex;justify-content:center;align-items:center}
+.hero h1{font-size:38px;font-weight:900}
+.movies-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;padding:16px 14px;justify-items:center}
+.movie-card{text-align:center;position:relative;background:#111;border-radius:16px;padding:10px;overflow:hidden;width:100%;max-width:170px;min-width:0}
+.poster{width:140px;height:140px;object-fit:contain;background:#1e1e1e;border-radius:14px;display:block;border:1px solid #222;margin:0 auto}
+.favorite-btn{position:absolute;top:8px;left:8px;width:30px;height:30px;border-radius:50%;border:none;background:rgba(0,0,0,.6);color:#fff;z-index:2;cursor:pointer}
+.favorite-btn.active{color:#e50914}
+.movie-card h3{font-size:14px;font-weight:800;margin-top:8px;min-height:36px;line-height:18px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
+.movie-card p{font-size:12px;color:#777;margin-top:4px}
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:600px;height:78px;background:#080808;border-top:1px solid #1a1a1a;display:flex;justify-content:space-around;align-items:center;z-index:40}
+.bottom-nav button{background:none;border:none;color:#555;display:flex;flex-direction:column;align-items:center;gap:5px;font-size:22px;padding:6px 12px;border-radius:10px;border:2px solid transparent;cursor:pointer}
+.bottom-nav button span{font-size:11px}
+.bottom-nav button.active{color:#e50914;border-color:#e50914}
+.input{width:100%;background:#151515;color:#fff;border:1px solid #333;border-radius:10px;padding:12px;font-size:14px}
+.back-btn{margin:65px 12px 0 12px;background:#181818;border:1px solid #333;color:#fff;padding:8px 18px;border-radius:24px;font-size:14px;font-weight:bold;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .2s;box-shadow:0 2px 10px rgba(0,0,0,.5)}
+.back-btn:active{transform:scale(.95);background:#222}
+.back-btn:hover{border-color:#e50914;color:#ff5a5a}
+.episode-btn{width:100%;background:#151515;color:#fff;border:1px solid #2a2a2a;border-radius:10px;padding:14px;display:flex;justify-content:space-between;cursor:pointer;transition:all .2s ease}
+.episode-btn.watched{background:linear-gradient(135deg,#0d2012,#14331d)!important;border:1.5px solid #22c55e!important;box-shadow:0 0 16px rgba(34,197,94,0.3),inset 0 0 10px rgba(34,197,94,0.15)!important;color:#f0fdf4!important}
+.episode-btn.watched b{color:#4ade80!important}
+.watch-check-icon{background:rgba(34,197,94,0.22);color:#22c55e;border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;margin-left:8px;border:1px solid rgba(34,197,94,0.5);flex-shrink:0}
+.drop-zone{border:2px dashed #333;border-radius:10px;padding:14px;text-align:center;color:#777;background:#0f0f0f;cursor:pointer}
+.page-header{margin-top:55px;padding:10px}
+.ep-order-btn{background:#181818;border:1px solid #333;color:#fff;padding:8px 16px;border-radius:24px;font-size:13px;font-weight:bold;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .2s;box-shadow:0 2px 10px rgba(0,0,0,.5)}
+.ep-order-btn:active{transform:scale(.95);background:#222}
+.ep-order-btn:hover{border-color:#00d2ff;color:#00d2ff}
+.ep-order-btn.desc{border-color:#00d2ff;color:#00d2ff;background:#0d1a24;box-shadow:0 0 14px rgba(0,210,255,0.25)}
+
+/* ================= AdMob Support System Styles ================= */
+.ad-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px)}
+.ad-popup-card{background:linear-gradient(145deg,#161616,#101010);border:1px solid #262626;border-radius:24px;padding:26px 20px;max-width:360px;width:100%;text-align:center;box-shadow:0 12px 35px rgba(0,0,0,0.9);animation:adPopAnim 0.3s cubic-bezier(0.175,0.885,0.32,1.275)}
+.ad-popup-icon{font-size:42px;margin-bottom:12px;display:inline-block;animation:heartBeat 1.5s infinite}
+.ad-popup-title{font-size:20px;font-weight:900;color:#fff;margin-bottom:10px}
+.ad-popup-desc{font-size:13px;color:#aaa;line-height:1.6;margin-bottom:22px}
+.ad-popup-actions{display:flex;flex-direction:column;gap:10px}
+.ad-btn-primary{background:linear-gradient(135deg,#e50914,#b80610);color:#fff;border:none;padding:14px 20px;border-radius:14px;font-size:16px;font-weight:900;cursor:pointer;box-shadow:0 4px 15px rgba(229,9,20,0.4);transition:all 0.2s}
+.ad-btn-primary:active{transform:scale(0.96)}
+.ad-btn-secondary{background:#1c1c1c;color:#888;border:1px solid #2d2d2d;padding:12px 20px;border-radius:14px;font-size:14px;font-weight:bold;cursor:pointer;transition:all 0.2s}
+.ad-btn-secondary:active{background:#252525;color:#ccc}
+
+/* Watching Screen */
+.ad-watch-view{position:fixed;top:0;left:0;right:0;bottom:0;background:#000;z-index:2000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
+.ad-counter-ring{position:relative;width:110px;height:110px;border-radius:50%;background:#111;border:3px solid #e50914;display:flex;align-items:center;justify-content:center;margin-bottom:28px;box-shadow:0 0 25px rgba(229,9,20,0.45)}
+.ad-counter-num{font-size:34px;font-weight:900;color:#fff;letter-spacing:1px}
+.ad-counter-num span{color:#e50914}
+.ad-loader-spinner{width:46px;height:46px;border:4px solid #222;border-top-color:#e50914;border-radius:50%;animation:adRotate 0.9s linear infinite;margin-bottom:20px}
+.ad-main-label{font-size:19px;font-weight:800;color:#fff;margin-bottom:8px}
+.ad-msg-banner{min-height:36px;display:flex;align-items:center;justify-content:center;padding:0 12px}
+.ad-toast-pill{background:rgba(229,9,20,0.18);border:1px solid rgba(229,9,20,0.4);color:#ff7878;padding:8px 16px;border-radius:20px;font-size:13px;font-weight:bold;animation:adFadeIn 0.3s ease-out}
+.ad-progress-bar-wrap{width:100%;max-width:240px;height:8px;background:#181818;border-radius:10px;overflow:hidden;margin-top:22px;border:1px solid #262626}
+.ad-progress-bar-fill{height:100%;background:linear-gradient(90deg,#b80610,#e50914);width:0%;transition:width 0.4s ease}
+
+@keyframes adRotate{to{transform:rotate(360deg)}}
+@keyframes adPopAnim{from{opacity:0;transform:scale(0.85)}to{opacity:1;transform:scale(1)}}
+@keyframes adFadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes heartBeat{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+
+/* Android TV & D-Pad Remote Focus Styling */
+button:focus, .movie-card:focus, input:focus, .episode-btn:focus, .back-btn:focus {
+  outline: 4px solid #e50914 !important;
+  transform: scale(1.06);
+  box-shadow: 0 0 25px rgba(229,9,20,0.7);
+  z-index: 50;
+  border-color: #ff3b3b !important;
+}
+.movie-card { cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+body { -webkit-user-select: none; user-select: none; }
+
+/* ================= Auth Code Screen Styles ================= */
+.auth-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:#000;z-index:3000;display:flex;align-items:center;justify-content:center;padding:20px}
+.auth-card{background:linear-gradient(145deg,#141414,#0a0a0a);border:1px solid #282828;border-radius:24px;padding:32px 24px;max-width:380px;width:100%;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,0.9),0 0 30px rgba(229,9,20,0.15);animation:authPopAnim 0.3s ease-out}
+.auth-logo-badge{margin-bottom:14px}
+.auth-logo-text{font-size:26px;font-weight:900}.auth-logo-text b{color:#e50914}.auth-logo-text span{color:#fff}
+.auth-icon-wrap{font-size:38px;margin-bottom:10px;display:inline-block}
+.auth-title{font-size:20px;font-weight:900;color:#fff;margin-bottom:8px}
+.auth-subtitle{font-size:13px;color:#888;margin-bottom:22px;line-height:1.5}
+.auth-input-wrap{position:relative;width:100%;margin-bottom:12px}
+.auth-input{width:100%;background:#1c1c1c;color:#fff;border:1.5px solid #333;border-radius:14px;padding:14px 44px 14px 16px;font-size:16px;text-align:center;letter-spacing:2px;outline:none;transition:border-color 0.2s,box-shadow 0.2s}
+.auth-input:focus{border-color:#e50914;box-shadow:0 0 12px rgba(229,9,20,0.4)}
+.auth-input.error{border-color:#ff4d4d;box-shadow:0 0 12px rgba(255,77,77,0.4);animation:authShake 0.3s ease-in-out}
+.auth-toggle-pwd{position:absolute;left:12px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:16px;cursor:pointer;color:#888;padding:4px}
+.auth-error-msg{background:rgba(229,9,20,0.15);border:1px solid rgba(229,9,20,0.4);color:#ff6b6b;padding:10px 14px;border-radius:10px;font-size:13px;font-weight:bold;margin-bottom:16px;animation:authFadeIn 0.25s ease-out}
+.auth-btn{width:100%;background:linear-gradient(135deg,#e50914,#b80610);color:#fff;border:none;padding:14px;border-radius:14px;font-size:16px;font-weight:900;cursor:pointer;box-shadow:0 4px 15px rgba(229,9,20,0.4);transition:all 0.2s}
+.auth-btn:active{transform:scale(0.97)}
+.auth-btn:disabled{opacity:0.6;cursor:not-allowed}
+@keyframes authPopAnim{from{opacity:0;transform:scale(0.92)}to{opacity:1;transform:scale(1)}}
+@keyframes authShake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+@keyframes authFadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ================= Settings & About Pages Styles ================= */
+.settings-container{padding:14px;display:flex;flex-direction:column;gap:12px}
+.settings-card{background:#111;border:1px solid #222;border-radius:16px;padding:15px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;transition:all 0.2s}
+.settings-card:active{transform:scale(0.98);background:#181818}
+.settings-card.no-click{cursor:default}
+.settings-card.no-click:active{transform:none;background:#111}
+.settings-left{display:flex;align-items:center;gap:12px;min-width:0;flex:1}
+.settings-icon{width:40px;height:40px;border-radius:12px;background:#1c1c1c;border:1px solid #2a2a2a;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.settings-text-wrap{display:flex;flex-direction:column;gap:3px;min-width:0}
+.settings-title{font-size:15px;font-weight:800;color:#fff}
+.settings-sub{font-size:12px;color:#888;line-height:1.4}
+.settings-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.settings-arrow{font-size:18px;color:#777;font-weight:bold}
+.theme-pills,.lang-select{background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:10px;padding:8px 12px;font-size:13px;font-weight:bold;outline:none;cursor:pointer}
+.theme-toggle-group{display:flex;background:#1a1a1a;border:1px solid #2d2d2d;border-radius:12px;padding:3px;gap:4px}
+.theme-pill-btn{background:transparent;color:#888;border:none;padding:6px 12px;border-radius:9px;font-size:12px;font-weight:bold;cursor:pointer;transition:all 0.2s}
+.theme-pill-btn.active{background:#e50914;color:#fff;box-shadow:0 2px 8px rgba(229,9,20,0.35)}
+.switch-wrap{position:relative;width:50px;height:28px;background:#2a2a2a;border-radius:20px;padding:3px;cursor:pointer;transition:background 0.25s;border:1px solid #3a3a3a;display:inline-flex;align-items:center}
+.switch-wrap.on{background:#e50914;border-color:#ff3b3b}
+.switch-knob{width:20px;height:20px;border-radius:50%;background:#fff;transition:transform 0.25s;box-shadow:0 2px 5px rgba(0,0,0,0.4)}
+html[dir="rtl"] .switch-wrap.on .switch-knob{transform:translateX(-22px)}
+html[dir="ltr"] .switch-wrap.on .switch-knob{transform:translateX(22px)}
+.notif-note-box{background:#121212;border:1px solid #262626;border-radius:14px;padding:12px 14px;font-size:12px;color:#999;line-height:1.6;display:flex;flex-direction:column;gap:8px}
+.sys-notif-btn{align-self:flex-start;background:#1f1f1f;color:#fff;border:1px solid #333;padding:7px 12px;border-radius:8px;font-size:12px;font-weight:bold;cursor:pointer}
+.about-card{background:#111;border:1px solid #222;border-radius:20px;padding:24px 18px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px}
+.about-app-icon{width:84px;height:84px;border-radius:22px;background:linear-gradient(135deg,#1a1a1a,#0d0d0d);border:2px solid #e50914;display:flex;align-items:center;justify-content:center;font-size:38px;box-shadow:0 8px 25px rgba(229,9,20,0.25)}
+.about-info-row{width:100%;background:#181818;border:1px solid #262626;border-radius:12px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.about-info-label{font-size:13px;color:#888;font-weight:bold}
+.about-info-val{font-size:14px;color:#fff;font-weight:900}
+.about-desc-box{width:100%;background:#181818;border:1px solid #262626;border-radius:12px;padding:14px;text-align:start;font-size:13px;color:#ccc;line-height:1.7}
+
+/* ================= Light Theme Styles (الوضع الفاتح) ================= */
+body.light-mode{background:#f4f5f7;color:#111}
+body.light-mode .top-bar{background:#ffffff;border-bottom:1px solid #e2e5ec;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+body.light-mode .hero{background:linear-gradient(to bottom,rgba(255,255,255,.15),#f4f5f7),url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=600&q=80') center/cover}
+body.light-mode .hero h1{color:#111;text-shadow:0 2px 12px rgba(255,255,255,0.9)}
+body.light-mode .movie-card{background:#ffffff;border:1px solid #e2e5ec;box-shadow:0 4px 12px rgba(0,0,0,0.05)}
+body.light-mode .movie-card h3{color:#111}
+body.light-mode .movie-card p{color:#555}
+body.light-mode .poster{background:#eef0f4;border:1px solid #dcdfe6}
+body.light-mode .bottom-nav{background:#ffffff;border-top:1px solid #e2e5ec;box-shadow:0 -2px 10px rgba(0,0,0,0.04)}
+body.light-mode .bottom-nav button{color:#666}
+body.light-mode .bottom-nav button.active{color:#e50914;border-color:#e50914}
+body.light-mode .input{background:#ffffff;color:#111;border:1px solid #cfd4de}
+body.light-mode .back-btn,body.light-mode .ep-order-btn{background:#ffffff;color:#111;border:1px solid #d0d5dd;box-shadow:0 2px 6px rgba(0,0,0,0.06)}
+body.light-mode .back-btn:active,body.light-mode .ep-order-btn:active{background:#f0f2f5}
+body.light-mode .episode-btn{background:#ffffff;color:#111;border:1px solid #dde1e8;box-shadow:0 2px 5px rgba(0,0,0,0.03)}
+body.light-mode .drop-zone{background:#ffffff;border-color:#cfd4de;color:#555}
+body.light-mode .settings-card{background:#ffffff;border:1px solid #e2e5ec;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+body.light-mode .settings-card:active{background:#f0f2f5}
+body.light-mode .settings-card.no-click:active{background:#ffffff}
+body.light-mode .settings-icon{background:#f2f4f8;border:1px solid #e0e3eb}
+body.light-mode .settings-title{color:#111}
+body.light-mode .settings-sub{color:#666}
+body.light-mode .theme-pills,body.light-mode .lang-select{background:#f4f5f7;color:#111;border:1px solid #cfd4de}
+body.light-mode .theme-toggle-group{background:#f0f2f5;border:1px solid #dcdfe6}
+body.light-mode .theme-pill-btn{color:#555}
+body.light-mode .theme-pill-btn.active{background:#e50914;color:#fff}
+body.light-mode .notif-note-box{background:#ffffff;border:1px solid #e2e5ec;color:#555}
+body.light-mode .sys-notif-btn{background:#f0f2f5;color:#111;border:1px solid #cfd4de}
+body.light-mode .about-card{background:#ffffff;border:1px solid #e2e5ec;box-shadow:0 4px 14px rgba(0,0,0,0.05)}
+body.light-mode .about-info-row,body.light-mode .about-desc-box{background:#f7f8fa;border:1px solid #e4e7ed;color:#222}
+body.light-mode .about-info-val{color:#111}
+body.light-mode .about-info-label{color:#666}
+body.light-mode .auth-overlay{background:#f4f5f7}
+body.light-mode .auth-card,body.light-mode .ad-popup-card{background:#ffffff;border:1px solid #dde1e8;color:#111;box-shadow:0 12px 35px rgba(0,0,0,0.12)}
+body.light-mode .auth-title,body.light-mode .ad-popup-title{color:#111}
+body.light-mode .auth-logo-text span{color:#111}
+body.light-mode .auth-input{background:#f7f8fa;color:#111;border:1.5px solid #cfd4de}
+</style>
+<script type="importmap">{"imports":{"firebase/app":"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js","firebase/firestore":"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"}}</script>
+</head>
+<body>
+<div id="app">
+  <header class="top-bar">
+    <button id="topSearchBtn" onclick="openSearch()" style="background:none;border:none;font-size:22px;cursor:pointer" title="بحث" aria-label="بحث">🔍</button>
+    <button id="topSettingsBtn" onclick="openSettings()" style="background:none;border:none;font-size:22px;cursor:pointer" title="الإعدادات" aria-label="الإعدادات">⚙️</button>
+  </header>
+
+  <main id="main-content">
+    <div style="padding:60px;text-align:center;color:#555">⏳ تحميل...</div>
+  </main>
+
+  <nav class="bottom-nav">
+    <button onclick="showPage('home')" id="nav-home" class="active">⌂<span>الرئيسية</span></button>
+    <button onclick="showPage('animation')" id="nav-animation">🎬<span>الأنميشن</span></button>
+    <button onclick="showPage('anime')" id="nav-anime">⚡<span>الأنمي</span></button>
+    <button onclick="renderAddPage()" id="nav-add" style="display:none">＋<span>إضافة</span></button>
+    <button onclick="showPage('favorites')" id="nav-favorites">♥<span>مفضلتي</span></button>
+  </nav>
+
+  <!-- Start Activation Code Entry Screen -->
+  <div id="authScreen" class="auth-overlay" style="display:none">
+    <div class="auth-card">
+      <div class="auth-logo-badge">
+        <span class="auth-logo-text"><b>BLACK</b><span>ANIME</span></span>
+      </div>
+      <div class="auth-icon-wrap">🔐</div>
+      <h2 class="auth-title">أدخل كود الدخول للمتابعة</h2>
+      <p class="auth-subtitle">يرجى إدخال رمز المرور الخاص بك للمتابعة إلى التطبيق</p>
+      
+      <div class="auth-input-wrap">
+        <input id="authCodeInput" class="auth-input" type="password" placeholder="أدخل الكود هنا" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+        <button type="button" class="auth-toggle-pwd" onclick="toggleAuthCodeVisibility()" title="إظهار/إخفاء الكود">👁️</button>
+      </div>
+      
+      <div id="authErrorMsg" class="auth-error-msg" style="display:none">الكود غير صحيح</div>
+      
+      <button id="authSubmitBtn" class="auth-btn" onclick="submitAuthCode()">متابعة</button>
+    </div>
+  </div>
+
+  <!-- Daily 5-Ads AdMob Support Dialog -->
+  <div id="adDailyPopup" class="ad-overlay" style="display:none">
+    <div class="ad-popup-card">
+      <div class="ad-popup-icon">❤️</div>
+      <h2 class="ad-popup-title">ادعمنا بمشاهدة 5 إعلانات</h2>
+      <p class="ad-popup-desc">دعمكم بمشاهدة 5 إعلانات يومياً يساعدنا في استمرار تقديم جميع القنوات والبثوث المباشرة مجاناً بجودة عالية.</p>
+      <div class="ad-popup-actions">
+        <button class="ad-btn-primary" onclick="startAdWatchingFlow()">ابدأ المشاهدة</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ad Watching Fullscreen Overlay -->
+  <div id="adWatchScreen" class="ad-watch-view" style="display:none">
+    <div class="ad-counter-ring">
+      <div id="adCounterText" class="ad-counter-num">0<span>/5</span></div>
+    </div>
+    <div id="adSpinner" class="ad-loader-spinner"></div>
+    <div id="adMainStatus" class="ad-main-label">جاري البحث عن إعلان...</div>
+    <div id="adMessageBanner" class="ad-msg-banner"></div>
+    <div class="ad-progress-bar-wrap">
+      <div id="adProgressFill" class="ad-progress-bar-fill"></div>
+    </div>
+  </div>
+
+  <!-- Edit Episode Stream Modal -->
+  <div id="editEpisodeModal" class="ad-overlay" style="display:none;z-index:3500">
+    <div class="ad-popup-card" style="max-width:440px;text-align:right">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;border-bottom:1px solid #222;padding-bottom:10px">
+        <h3 style="font-size:18px;font-weight:900;color:#fff;display:flex;align-items:center;gap:8px">✏️ تعديل رابط البث للحلقة</h3>
+        <button onclick="closeEditEpisodeModal()" style="background:none;border:none;color:#888;font-size:20px;cursor:pointer;padding:4px">✕</button>
+      </div>
+      
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div>
+          <label style="font-size:12px;color:#aaa;display:block;margin-bottom:4px">اسم / عنوان الحلقة:</label>
+          <input id="editEpTitleInput" class="input" placeholder="اسم الحلقة أو البث">
+        </div>
+
+        <div>
+          <label style="font-size:12px;color:#aaa;display:block;margin-bottom:4px">رابط البث المباشر (M3U8 أو MP4 أو Pixeldrain):</label>
+          <input id="editEpVideoInput" class="input" placeholder="رابط البث المباشر">
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">
+            <button type="button" onclick="document.getElementById('editEpVideoInput').value='https://pixeldrain.com/api/file/cnR9Z51'" style="background:#1f1f1f;color:#00d2ff;border:1px solid #333;padding:6px 10px;border-radius:6px;font-size:11px;cursor:pointer">⚡ رابط Pixeldrain تجريبي</button>
+            <button type="button" onclick="testPlayCurrentEditVideo()" style="background:#00d2ff;color:#000;border:none;padding:6px 10px;border-radius:6px;font-size:11px;font-weight:bold;cursor:pointer">▶ تجربة التشغيل</button>
+          </div>
+        </div>
+
+        <div>
+          <label style="font-size:12px;color:#aaa;display:block;margin-bottom:4px">رابط الموقع البديل (اختياري - YouTube أو موقع آخر):</label>
+          <input id="editEpAltUrlInput" class="input" placeholder="رابط الموقع البديل">
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:8px">
+          <button id="saveEditEpBtn" onclick="saveEditedEpisode()" style="flex:1;background:linear-gradient(135deg,#e50914,#b80610);color:#fff;border:none;padding:12px;border-radius:10px;font-weight:bold;font-size:15px;cursor:pointer">💾 حفظ التعديلات</button>
+          <button onclick="closeEditEpisodeModal()" style="background:#1c1c1c;color:#aaa;border:1px solid #333;padding:12px 18px;border-radius:10px;cursor:pointer;font-size:14px">إلغاء</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Content Poster Modal (Admin Only) -->
+  <div id="editPosterModal" class="ad-overlay" style="display:none;z-index:3600">
+    <div class="ad-popup-card" style="max-width:440px;text-align:right">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;border-bottom:1px solid #222;padding-bottom:10px">
+        <h3 style="font-size:18px;font-weight:900;color:#fff;display:flex;align-items:center;gap:8px">🖼️ تعديل البوستر</h3>
+        <button onclick="closeEditPosterModal()" style="background:none;border:none;color:#888;font-size:20px;cursor:pointer;padding:4px">✕</button>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div id="editPosterTargetTitle" style="font-size:14px;font-weight:bold;color:#00d2ff;text-align:center"></div>
+
+        <div>
+          <label style="font-size:12px;color:#aaa;display:block;margin-bottom:4px">رابط صورة البوستر الجديد:</label>
+          <input id="editPosterUrlInput" class="input" placeholder="https://... أدخل رابط صورة البوستر الجديد" oninput="onEditPosterInputChanged(this.value)">
+        </div>
+
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0d0d0d;border:1px solid #262626;border-radius:14px;padding:12px;min-height:175px">
+          <div style="font-size:11px;color:#888;margin-bottom:8px">معاينة البوستر المباشرة قبل الحفظ:</div>
+          <img id="editPosterPreviewImg" src="" alt="معاينة البوستر" style="width:130px;height:130px;object-fit:contain;background:#1a1a1a;border-radius:12px;border:1px solid #333;display:none">
+          <div id="editPosterStatusMsg" style="font-size:12px;color:#aaa;margin-top:8px;text-align:center"></div>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:6px">
+          <button id="saveEditPosterBtn" onclick="saveEditedPoster()" style="flex:1;background:linear-gradient(135deg,#e50914,#b80610);color:#fff;border:none;padding:12px;border-radius:10px;font-weight:bold;font-size:15px;cursor:pointer">💾 حفظ التعديلات</button>
+          <button onclick="closeEditPosterModal()" style="background:#1c1c1c;color:#aaa;border:1px solid #333;padding:12px 18px;border-radius:10px;cursor:pointer;font-size:14px">إلغاء</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Test / Send Custom Notification Modal -->
+  <div id="testNotificationModal" class="ad-overlay" style="display:none;z-index:99999">
+    <div class="ad-popup-card" style="max-width:440px;width:92%;background:#141414;border:1px solid #333;border-radius:16px;padding:20px;text-align:right;color:#fff;direction:rtl">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;border-bottom:1px solid #282828;padding-bottom:10px">
+        <h3 style="margin:0;font-size:17px;color:#00d2ff;display:flex;align-items:center;gap:6px">🔔 إرسال / تجربة إشعار مخصص</h3>
+        <button onclick="closeTestNotificationModal()" style="background:none;border:none;color:#aaa;font-size:20px;cursor:pointer">✕</button>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div>
+          <label style="font-size:12px;color:#aaa;display:block;margin-bottom:4px">عنوان الإشعار:</label>
+          <input id="notifTitleInput" class="input" value="حلقة جديدة" placeholder="مثال: حلقة جديدة">
+        </div>
+
+        <div>
+          <label style="font-size:12px;color:#aaa;display:block;margin-bottom:4px">نص / رسالة الإشعار:</label>
+          <input id="notifMsgInput" class="input" value="تم إصدار الحلقة الجديدة، اضغط للمشاهدة" placeholder="نص الإشعار">
+        </div>
+
+        <div>
+          <label style="font-size:12px;color:#aaa;display:block;margin-bottom:4px">العمل / الأنمي المستهدف:</label>
+          <select id="notifTargetSelect" class="input" onchange="handleNotifTargetChange(this.value)">
+            <option value="">-- اختر من الأعمال المضافة أو أدخل المعرف بالأسفل --</option>
+          </select>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div>
+            <label style="font-size:12px;color:#aaa;display:block;margin-bottom:4px">معرف العمل (ID):</label>
+            <input id="notifFidInput" class="input" placeholder="Document ID أو اتركه فارغاً">
+          </div>
+          <div>
+            <label style="font-size:12px;color:#aaa;display:block;margin-bottom:4px">رقم الحلقة:</label>
+            <input id="notifEpInput" class="input" value="25" placeholder="مثال: 25">
+          </div>
+        </div>
+
+        <div>
+          <label style="font-size:12px;color:#aaa;display:block;margin-bottom:4px">الإجراء عند الضغط:</label>
+          <select id="notifActionSelect" class="input">
+            <option value="play">▶ تشغيل الحلقة مباشرة عند الضغط (Play)</option>
+            <option value="details">📋 فتح صفحة تفاصيل العمل والحلقات (Details)</option>
+          </select>
+        </div>
+
+        <div>
+          <label style="font-size:12px;color:#aaa;display:block;margin-bottom:4px">رابط صورة البوستر (اختياري):</label>
+          <input id="notifImageInput" class="input" placeholder="https://... رابط صورة">
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:6px">
+          <button id="sendNotifBtn" onclick="sendTestNotificationFromModal()" style="flex:1;background:linear-gradient(135deg,#e50914,#b80610);color:#fff;border:none;padding:12px;border-radius:10px;font-weight:bold;font-size:15px;cursor:pointer">🚀 إرسال الإشعار الآن</button>
+          <button onclick="closeTestNotificationModal()" style="background:#1c1c1c;color:#aaa;border:1px solid #333;padding:12px 18px;border-radius:10px;cursor:pointer;font-size:14px">إلغاء</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import{initializeApp}from"firebase/app";
+import{getFirestore,collection,onSnapshot,addDoc,updateDoc,deleteDoc,doc,serverTimestamp,query,orderBy,limit}from"firebase/firestore";
+
+const firebaseConfig={
+  apiKey:"AIzaSyB_9ZOotR4uZtYYn08OSIZXJczM-WC0MM8",
+  authDomain:"hamza-4b70c.firebaseapp.com",
+  projectId:"hamza-4b70c",
+  storageBucket:"hamza-4b70c.firebasestorage.app",
+  messagingSenderId:"595903053058",
+  appId:"1:595903053058:web:3745c8d9876284a4d4561b"
+};
+const app=initializeApp(firebaseConfig);
+const db=getFirestore(app);
+const colRef=collection(db,"movies");
+
+// Android TV D-Pad Remote Control Navigation Listener
+window.addEventListener('keydown', (e) => {
+  const target = e.target;
+  const active = document.activeElement;
+  const isInput = (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) ||
+                  (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable));
+
+  // If user is typing in any input field or search bar, NEVER intercept keys (especially Backspace / Delete)!
+  if (isInput) {
+    return;
+  }
+
+  const focusable = Array.from(document.querySelectorAll('button, [tabindex="0"], input, a, video')).filter(el => !el.disabled && el.offsetParent !== null);
+  let index = focusable.indexOf(active);
+
+  if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+    e.preventDefault();
+    if (index === -1 || index >= focusable.length - 1) {
+      focusable[0]?.focus();
+    } else {
+      focusable[index + 1]?.focus();
+    }
+    document.activeElement?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+    e.preventDefault();
+    if (index <= 0) {
+      focusable[focusable.length - 1]?.focus();
+    } else {
+      focusable[index - 1]?.focus();
+    }
+    document.activeElement?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  } else if (e.key === 'Enter' || e.key === 'Select') {
+    if (active && active !== document.body) {
+      e.preventDefault();
+      active.click();
+    }
+  } else if (e.key === 'Escape' || e.key === 'XF86Back') {
+    e.preventDefault();
+    goBack();
+  }
+});
+
+window.currentUserRole = "";
+window.isAdminUnlocked = false;
+window.deleteMode = false;
+window.selectEpisodeMode = false;
+window.allContent = [];
+window.currentPage = "home";
+window.historyStack = [];
+window.favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
+window.main = document.getElementById("main-content");
+window.tempVideoData = "";
+window.tempPosterData = "";
+
+// ================= Settings & App Info Constants (Easy Single-Place Configuration) =================
+const OFFICIAL_WEBSITE_URL = "https://animeblack12.netlify.app";
+const APP_INFO_CONFIG = {
+  appName: "BLACK ANIME",
+  developerName: "HAMZA",
+  description: {
+    ar: "منصة لمشاهدة واستكشاف الأفلام والمسلسلات والأنمي، مع عرض الملصقات والأوصاف والتفاصيل والحلقات، وتوفير خيارات المشاهدة حسب الإمكانات المتاحة في التطبيق.",
+    en: "A platform for watching and exploring movies, series, and anime, featuring posters, descriptions, details, and episodes, with flexible viewing options.",
+    fr: "Une plateforme pour regarder et explorer des films, des séries et des animes, avec affichage des affiches, descriptions, détails et épisodes, offrant des options de visionnage adaptées."
+  }
+};
+
+// ================= Multi-Language Dictionary (AR / EN / FR) =================
+const I18N = {
+  ar: {
+    dir: "rtl",
+    nav_home: "الرئيسية",
+    nav_animation: "الأنميشن",
+    nav_anime: "الأنمي",
+    nav_add: "إضافة",
+    nav_favorites: "مفضلتي",
+    search_title: "بحث",
+    settings_title: "الإعدادات",
+    back_btn: "← رجوع",
+    search_placeholder: "ابحث...",
+    favorites_header: "مفضلتي ♥",
+    cat_animation: "الأنميشن",
+    cat_anime: "الأنمي",
+    cat_series: "مسلسل",
+    cat_movie: "فلم",
+    no_episodes: "لا توجد حلقات مضافة بعد",
+    live_stream: "البث المباشر",
+    no_link_alert: "لم تتم إضافة رابط لهذا العمل بعد",
+    add_ep_btn: "➕ إضافة حلقة / بث",
+    sort_asc_title: "الترتيب الحالي: تصاعدي (اضغط للتبديل إلى تنازلي)",
+    sort_desc_title: "الترتيب الحالي: تنازلي (اضغط للتبديل إلى تصاعدي)",
+    theme_label: "المظهر",
+    theme_sub_dark: "الوضع الداكن مفعل",
+    theme_sub_light: "الوضع الفاتح مفعل",
+    theme_dark: "الوضع الداكن",
+    theme_light: "الوضع الفاتح",
+    lang_label: "اللغة",
+    lang_sub: "اختر لغة واجهة التطبيق",
+    official_website: "الموقع الرسمي",
+    official_website_sub: "زيارة الموقع الرسمي للتطبيق",
+    invalid_website_alert: "لم تتم إضافة رابط صالح للموقع الرسمي بعد.",
+    share_app: "مشاركة التطبيق",
+    share_app_sub: "مشاركة ملف تثبيت التطبيق (APK) مع الأصدقاء",
+    share_chooser_title: "مشاركة تطبيق BLACK ANIME",
+    share_unavailable_alert: "ملف التثبيت (APK) غير متوفر للمشاركة حالياً.",
+    app_info: "معلومات التطبيق",
+    app_info_sub: "تعرف على التطبيق والمطور والإصدار",
+    notifications_label: "الإشعارات",
+    notifications_sub_on: "مفعلة - ستصلك إشعارات الحلقات والتحديثات",
+    notifications_sub_off: "متوقفة - لن تصلك إشعارات من التطبيق",
+    notifications_sys_blocked: "تنبيه: الإشعارات معطلة من إعدادات نظام Android. يرجى تفعيلها من إعدادات النظام للسماح بوصولها.",
+    notifications_note: "ملاحظة: بعض إعدادات الإشعارات وأذونات النظام لا يمكن التحكم بها إلا من إعدادات نظام Android.",
+    open_sys_notif_btn: "⚙️ إعدادات إشعارات النظام",
+    about_app_name: "اسم التطبيق",
+    about_dev_name: "اسم المطور",
+    about_version: "رقم الإصدار",
+    about_idea: "فكرة التطبيق",
+    auth_title: "أدخل كود الدخول للمتابعة",
+    auth_subtitle: "يرجى إدخال رمز المرور الخاص بك للمتابعة إلى التطبيق",
+    auth_placeholder: "أدخل الكود هنا",
+    auth_error: "الكود غير صحيح",
+    auth_submit: "متابعة",
+    ad_support_title: "ادعمنا بمشاهدة 5 إعلانات",
+    ad_support_desc: "دعمكم بمشاهدة 5 إعلانات يومياً يساعدنا في استمرار تقديم جميع القنوات والبثوث المباشرة مجاناً بجودة عالية.",
+    ad_start_btn: "ابدأ المشاهدة"
+  },
+  en: {
+    dir: "ltr",
+    nav_home: "Home",
+    nav_animation: "Animation",
+    nav_anime: "Anime",
+    nav_add: "Add",
+    nav_favorites: "Favorites",
+    search_title: "Search",
+    settings_title: "Settings",
+    back_btn: "← Back",
+    search_placeholder: "Search...",
+    favorites_header: "My Favorites ♥",
+    cat_animation: "Animation",
+    cat_anime: "Anime",
+    cat_series: "Series",
+    cat_movie: "Movie",
+    no_episodes: "No episodes added yet",
+    live_stream: "Live Stream",
+    no_link_alert: "No stream link has been added for this title yet",
+    add_ep_btn: "➕ Add Episode / Stream",
+    sort_asc_title: "Current order: Ascending (Click to switch to Descending)",
+    sort_desc_title: "Current order: Descending (Click to switch to Ascending)",
+    theme_label: "Appearance",
+    theme_sub_dark: "Dark Mode is active",
+    theme_sub_light: "Light Mode is active",
+    theme_dark: "Dark",
+    theme_light: "Light",
+    lang_label: "Language",
+    lang_sub: "Choose application interface language",
+    official_website: "Official Website",
+    official_website_sub: "Visit the official website",
+    invalid_website_alert: "No valid official website URL has been configured.",
+    share_app: "Share App",
+    share_app_sub: "Share the real application APK file with friends",
+    share_chooser_title: "Share BLACK ANIME",
+    share_unavailable_alert: "The installation APK file is currently unavailable for sharing.",
+    app_info: "App Info",
+    app_info_sub: "Learn about the app, developer, and version",
+    notifications_label: "Notifications",
+    notifications_sub_on: "Enabled - You will receive episode and update alerts",
+    notifications_sub_off: "Disabled - App notifications are turned off",
+    notifications_sys_blocked: "Notice: Notifications are blocked in Android system settings. Please allow them in system settings.",
+    notifications_note: "Note: Some notification channels and system permissions can only be controlled from Android system settings.",
+    open_sys_notif_btn: "⚙️ System Notification Settings",
+    about_app_name: "App Name",
+    about_dev_name: "Developer",
+    about_version: "Version",
+    about_idea: "About the App",
+    auth_title: "Enter Access Code to Continue",
+    auth_subtitle: "Please enter your passcode to access the application",
+    auth_placeholder: "Enter code here",
+    auth_error: "Invalid access code",
+    auth_submit: "Continue",
+    ad_support_title: "Support Us by Watching 5 Ads",
+    ad_support_desc: "Watching 5 daily ads helps us keep all streams and episodes free in high quality.",
+    ad_start_btn: "Start Watching"
+  },
+  fr: {
+    dir: "ltr",
+    nav_home: "Accueil",
+    nav_animation: "Animation",
+    nav_anime: "Anime",
+    nav_add: "Ajouter",
+    nav_favorites: "Favoris",
+    search_title: "Rechercher",
+    settings_title: "Paramètres",
+    back_btn: "← Retour",
+    search_placeholder: "Rechercher...",
+    favorites_header: "Mes Favoris ♥",
+    cat_animation: "Animation",
+    cat_anime: "Anime",
+    cat_series: "Série",
+    cat_movie: "Film",
+    no_episodes: "Aucun épisode ajouté pour le moment",
+    live_stream: "Diffusion en direct",
+    no_link_alert: "Aucun lien n'a encore été ajouté pour ce contenu",
+    add_ep_btn: "➕ Ajouter un épisode / flux",
+    sort_asc_title: "Ordre actuel : Croissant (Cliquer pour Décroissant)",
+    sort_desc_title: "Ordre actuel : Décroissant (Cliquer pour Croissant)",
+    theme_label: "Apparence",
+    theme_sub_dark: "Mode sombre activé",
+    theme_sub_light: "Mode clair activé",
+    theme_dark: "Sombre",
+    theme_light: "Clair",
+    lang_label: "Langue",
+    lang_sub: "Choisir la langue de l'interface",
+    official_website: "Site Officiel",
+    official_website_sub: "Visiter le site officiel de l'application",
+    invalid_website_alert: "Aucun lien de site officiel valide n'est configuré.",
+    share_app: "Partager l'application",
+    share_app_sub: "Partager le fichier APK de l'application",
+    share_chooser_title: "Partager BLACK ANIME",
+    share_unavailable_alert: "Le fichier d'installation APK n'est pas disponible pour le partage.",
+    app_info: "Infos sur l'application",
+    app_info_sub: "Détails sur l'application, le développeur et la version",
+    notifications_label: "Notifications",
+    notifications_sub_on: "Activées - Vous recevrez les alertes de nouveaux épisodes",
+    notifications_sub_off: "Désactivées - Les notifications sont coupées",
+    notifications_sys_blocked: "Attention : Les notifications sont bloquées dans les paramètres Android. Veuillez les activer dans le système.",
+    notifications_note: "Remarque : Certaines autorisations de notification ne peuvent être gérées que depuis les paramètres système Android.",
+    open_sys_notif_btn: "⚙️ Paramètres système Android",
+    about_app_name: "Nom de l'application",
+    about_dev_name: "Développeur",
+    about_version: "Version",
+    about_idea: "Concept de l'application",
+    auth_title: "Entrez le code d'accès",
+    auth_subtitle: "Veuillez saisir votre code pour accéder à l'application",
+    auth_placeholder: "Entrez le code ici",
+    auth_error: "Code d'accès incorrect",
+    auth_submit: "Continuer",
+    ad_support_title: "Soutenez-nous en regardant 5 publicités",
+    ad_support_desc: "Votre soutien quotidien nous aide à maintenir tous les épisodes gratuitement et en haute qualité.",
+    ad_start_btn: "Commencer"
+  }
+};
+
+window.t = function(key) {
+  const lang = window.currentLang || "ar";
+  const dict = I18N[lang] || I18N.ar;
+  return dict[key] || I18N.ar[key] || key;
+};
+
+window.translateCategoryLabel = function(rawCat, isAnimation) {
+  const lang = window.currentLang || "ar";
+  if (lang === "ar") {
+    return rawCat || (isAnimation ? "أنميشن" : "مسلسل");
+  }
+  const c = (rawCat || "").trim();
+  const mapEn = { "مسلسل": "Series", "فلم": "Movie", "فيلم": "Movie", "أنميشن": "Animation", "أنمي": "Anime", "أوفا": "OVA", "خاصة": "Special", "أونا": "ONA" };
+  const mapFr = { "مسلسل": "Série", "فلم": "Film", "فيلم": "Film", "أنميشن": "Animation", "أنمي": "Anime", "أوفا": "OVA", "خاصة": "Spécial", "أونا": "ONA" };
+  if (lang === "en") return mapEn[c] || c || (isAnimation ? "Animation" : "Series");
+  if (lang === "fr") return mapFr[c] || c || (isAnimation ? "Animation" : "Série");
+  return c;
+};
+
+// Load & Apply Saved Theme and Language
+window.loadSavedSettings = function() {
+  let savedTheme = localStorage.getItem("app_theme") || "";
+  if (!savedTheme && window.AndroidBridge && typeof window.AndroidBridge.getAppThemePref === "function") {
+    try { savedTheme = window.AndroidBridge.getAppThemePref(); } catch (e) {}
+  }
+  window.currentTheme = (savedTheme === "light") ? "light" : "dark";
+
+  let savedLang = localStorage.getItem("app_lang") || "";
+  if (!savedLang && window.AndroidBridge && typeof window.AndroidBridge.getAppLangPref === "function") {
+    try { savedLang = window.AndroidBridge.getAppLangPref(); } catch (e) {}
+  }
+  window.currentLang = (savedLang === "en" || savedLang === "fr" || savedLang === "ar") ? savedLang : "ar";
+
+  window.applyTheme(window.currentTheme, false);
+  window.applyLanguage(window.currentLang, false);
+};
+
+window.applyTheme = function(theme, rerender = true) {
+  window.currentTheme = (theme === "light") ? "light" : "dark";
+  localStorage.setItem("app_theme", window.currentTheme);
+  if (window.AndroidBridge && typeof window.AndroidBridge.saveAppThemePref === "function") {
+    try { window.AndroidBridge.saveAppThemePref(window.currentTheme); } catch (e) {}
+  }
+  if (window.currentTheme === "light") {
+    document.body.classList.add("light-mode");
+  } else {
+    document.body.classList.remove("light-mode");
+  }
+  if (rerender && window.currentUserRole) {
+    renderCurrentPage();
+  }
+};
+
+window.applyLanguage = function(lang, rerender = true) {
+  window.currentLang = (lang === "en" || lang === "fr" || lang === "ar") ? lang : "ar";
+  localStorage.setItem("app_lang", window.currentLang);
+  if (window.AndroidBridge && typeof window.AndroidBridge.saveAppLangPref === "function") {
+    try { window.AndroidBridge.saveAppLangPref(window.currentLang); } catch (e) {}
+  }
+  const dir = (I18N[window.currentLang] && I18N[window.currentLang].dir) || "rtl";
+  document.documentElement.lang = window.currentLang;
+  document.documentElement.dir = dir;
+
+  // Update static elements (Navbar, Topbar, Auth, AdPopup)
+  const navHome = document.querySelector("#nav-home span");
+  const navAnim = document.querySelector("#nav-animation span");
+  const navAnime = document.querySelector("#nav-anime span");
+  const navAdd = document.querySelector("#nav-add span");
+  const navFav = document.querySelector("#nav-favorites span");
+  if (navHome) navHome.innerText = t("nav_home");
+  if (navAnim) navAnim.innerText = t("nav_animation");
+  if (navAnime) navAnime.innerText = t("nav_anime");
+  if (navAdd) navAdd.innerText = t("nav_add");
+  if (navFav) navFav.innerText = t("nav_favorites");
+
+  const searchBtn = document.getElementById("topSearchBtn");
+  const settingsBtn = document.getElementById("topSettingsBtn");
+  if (searchBtn) { searchBtn.title = t("search_title"); searchBtn.setAttribute("aria-label", t("search_title")); }
+  if (settingsBtn) { settingsBtn.title = t("settings_title"); settingsBtn.setAttribute("aria-label", t("settings_title")); }
+
+  const authTitle = document.querySelector(".auth-title");
+  const authSub = document.querySelector(".auth-subtitle");
+  const authInput = document.getElementById("authCodeInput");
+  const authErr = document.getElementById("authErrorMsg");
+  const authBtn = document.getElementById("authSubmitBtn");
+  if (authTitle) authTitle.innerText = t("auth_title");
+  if (authSub) authSub.innerText = t("auth_subtitle");
+  if (authInput) authInput.placeholder = t("auth_placeholder");
+  if (authErr) authErr.innerText = t("auth_error");
+  if (authBtn) authBtn.innerText = t("auth_submit");
+
+  const adTitle = document.querySelector("#adDailyPopup .ad-popup-title");
+  const adDesc = document.querySelector("#adDailyPopup .ad-popup-desc");
+  const adBtn = document.querySelector("#adDailyPopup .ad-btn-primary");
+  if (adTitle) adTitle.innerText = t("ad_support_title");
+  if (adDesc) adDesc.innerText = t("ad_support_desc");
+  if (adBtn) adBtn.innerText = t("ad_start_btn");
+
+  if (rerender && window.currentUserRole) {
+    renderCurrentPage();
+  }
+};
+
+// Notification status helpers
+window.getNotificationsState = function() {
+  let appPref = localStorage.getItem("app_notifications_enabled");
+  let appEnabled = (appPref === null) ? true : (appPref === "true");
+  let sysGranted = true;
+  if (window.AndroidBridge) {
+    try {
+      if (typeof window.AndroidBridge.isAppNotificationsPrefEnabled === "function") {
+        appEnabled = Boolean(window.AndroidBridge.isAppNotificationsPrefEnabled());
+      }
+      if (typeof window.AndroidBridge.isSystemNotificationsGranted === "function") {
+        sysGranted = Boolean(window.AndroidBridge.isSystemNotificationsGranted());
+      }
+    } catch (e) {}
+  }
+  return { appEnabled, sysGranted, effective: appEnabled && sysGranted };
+};
+
+window.toggleAppNotifications = function() {
+  const state = window.getNotificationsState();
+  const nextState = !state.appEnabled;
+  localStorage.setItem("app_notifications_enabled", nextState ? "true" : "false");
+  if (window.AndroidBridge && typeof window.AndroidBridge.setNotificationsEnabled === "function") {
+    try {
+      window.AndroidBridge.setNotificationsEnabled(nextState);
+    } catch (e) {}
+  }
+  if (currentPage === "settings") {
+    renderSettingsPage();
+  }
+};
+
+window.onNotificationPermissionResult = function(granted, appEnabled, sysGranted) {
+  localStorage.setItem("app_notifications_enabled", appEnabled ? "true" : "false");
+  if (currentPage === "settings") {
+    renderSettingsPage();
+  }
+};
+
+window.onNotificationStatusSync = function(appEnabled, sysGranted) {
+  localStorage.setItem("app_notifications_enabled", appEnabled ? "true" : "false");
+  if (currentPage === "settings") {
+    renderSettingsPage();
+  }
+};
+
+window.openSystemNotifSettings = function() {
+  if (window.AndroidBridge && typeof window.AndroidBridge.openSystemNotificationSettings === "function") {
+    window.AndroidBridge.openSystemNotificationSettings();
+  }
+};
+
+// Official Website Handler
+window.openOfficialWebsite = function() {
+  const raw = (typeof OFFICIAL_WEBSITE_URL === "string") ? OFFICIAL_WEBSITE_URL.trim() : "";
+  if (!raw || raw === "ضع_رابط_الموقع_الرسمي_هنا" || !/^https?:\/\/.+\..+/i.test(raw)) {
+    alert(t("invalid_website_alert"));
+    return;
+  }
+  window.openExternalLink(raw);
+};
+
+// Share Application APK Handler
+window.handleShareApp = function() {
+  const validWebsite = (typeof OFFICIAL_WEBSITE_URL === "string" && /^https?:\/\/.+\..+/i.test(OFFICIAL_WEBSITE_URL.trim()))
+    ? OFFICIAL_WEBSITE_URL.trim()
+    : "";
+  if (window.AndroidBridge && typeof window.AndroidBridge.shareApplicationApk === "function") {
+    try {
+      const result = window.AndroidBridge.shareApplicationApk(validWebsite, t("share_chooser_title"));
+      if (result === "UNAVAILABLE") {
+        alert(t("share_unavailable_alert"));
+      }
+      return;
+    } catch (e) {
+      console.warn("shareApplicationApk error:", e);
+    }
+  }
+  if (navigator.share && validWebsite) {
+    navigator.share({ title: APP_INFO_CONFIG.appName, url: validWebsite }).catch(() => {});
+  } else {
+    alert(t("share_unavailable_alert"));
+  }
+};
+
+window.openSettings = function() {
+  navigateTo("settings", renderSettingsPage);
+};
+
+window.openAboutPage = function() {
+  navigateTo("about", renderAboutPage);
+};
+
+window.renderSettingsPage = function() {
+  const isLight = (window.currentTheme === "light");
+  const lang = window.currentLang || "ar";
+  const notifState = window.getNotificationsState();
+  const arrowChar = (document.documentElement.dir === "ltr") ? "›" : "‹";
+
+  main.innerHTML = `
+    <div class="page-header">
+      <button class="back-btn" onclick="goBack()">${t("back_btn")}</button>
+    </div>
+    <div class="hero" style="height:95px;margin-top:0">
+      <h1 style="font-size:26px">⚙️ ${t("settings_title")}</h1>
+    </div>
+    <div class="settings-container">
+      <!-- 1. Appearance (Dark / Light Mode) -->
+      <div class="settings-card no-click">
+        <div class="settings-left">
+          <div class="settings-icon">${isLight ? "☀️" : "🌙"}</div>
+          <div class="settings-text-wrap">
+            <div class="settings-title">${t("theme_label")}</div>
+            <div class="settings-sub">${isLight ? t("theme_sub_light") : t("theme_sub_dark")}</div>
+          </div>
+        </div>
+        <div class="settings-right">
+          <div class="theme-toggle-group">
+            <button type="button" class="theme-pill-btn ${!isLight ? "active" : ""}" onclick="applyTheme('dark')">${t("theme_dark")}</button>
+            <button type="button" class="theme-pill-btn ${isLight ? "active" : ""}" onclick="applyTheme('light')">${t("theme_light")}</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Language (AR / EN / FR) -->
+      <div class="settings-card no-click">
+        <div class="settings-left">
+          <div class="settings-icon">🌐</div>
+          <div class="settings-text-wrap">
+            <div class="settings-title">${t("lang_label")}</div>
+            <div class="settings-sub">${t("lang_sub")}</div>
+          </div>
+        </div>
+        <div class="settings-right">
+          <select class="lang-select" onchange="applyLanguage(this.value)" aria-label="${t("lang_label")}">
+            <option value="ar" ${lang === "ar" ? "selected" : ""}>العربية</option>
+            <option value="en" ${lang === "en" ? "selected" : ""}>English</option>
+            <option value="fr" ${lang === "fr" ? "selected" : ""}>Français</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 3. Notifications -->
+      <div class="settings-card" onclick="toggleAppNotifications()">
+        <div class="settings-left">
+          <div class="settings-icon">🔔</div>
+          <div class="settings-text-wrap">
+            <div class="settings-title">${t("notifications_label")}</div>
+            <div class="settings-sub">${notifState.effective ? t("notifications_sub_on") : t("notifications_sub_off")}</div>
+          </div>
+        </div>
+        <div class="settings-right">
+          <div class="switch-wrap ${notifState.effective ? "on" : ""}" role="switch" aria-checked="${notifState.effective}">
+            <div class="switch-knob"></div>
+          </div>
+        </div>
+      </div>
+      <div class="notif-note-box">
+        ${!notifState.sysGranted ? `<div style="color:#ff5a5a;font-weight:bold">${t("notifications_sys_blocked")}</div>` : ""}
+        <div>${t("notifications_note")}</div>
+        <button type="button" class="sys-notif-btn" onclick="openSystemNotifSettings()">${t("open_sys_notif_btn")}</button>
+      </div>
+
+      <!-- 4. Official Website -->
+      <div class="settings-card" onclick="openOfficialWebsite()">
+        <div class="settings-left">
+          <div class="settings-icon">🌍</div>
+          <div class="settings-text-wrap">
+            <div class="settings-title">${t("official_website")}</div>
+            <div class="settings-sub">${t("official_website_sub")}</div>
+          </div>
+        </div>
+        <div class="settings-right">
+          <span class="settings-arrow">${arrowChar}</span>
+        </div>
+      </div>
+
+      <!-- 5. Share Application -->
+      <div class="settings-card" onclick="handleShareApp()">
+        <div class="settings-left">
+          <div class="settings-icon">📤</div>
+          <div class="settings-text-wrap">
+            <div class="settings-title">${t("share_app")}</div>
+            <div class="settings-sub">${t("share_app_sub")}</div>
+          </div>
+        </div>
+        <div class="settings-right">
+          <span class="settings-arrow">${arrowChar}</span>
+        </div>
+      </div>
+
+      <!-- 6. App Information -->
+      <div class="settings-card" onclick="openAboutPage()">
+        <div class="settings-left">
+          <div class="settings-icon">ℹ️</div>
+          <div class="settings-text-wrap">
+            <div class="settings-title">${t("app_info")}</div>
+            <div class="settings-sub">${t("app_info_sub")}</div>
+          </div>
+        </div>
+        <div class="settings-right">
+          <span class="settings-arrow">${arrowChar}</span>
+        </div>
+      </div>
+    </div>
+  `;
+  document.querySelectorAll(".bottom-nav button").forEach(b => b.classList.remove("active"));
+};
+
+window.renderAboutPage = function() {
+  let version = "1.0";
+  if (window.AndroidBridge && typeof window.AndroidBridge.getAppVersion === "function") {
+    try { version = window.AndroidBridge.getAppVersion() || "1.0"; } catch (e) {}
+  }
+  const lang = window.currentLang || "ar";
+  const ideaText = (APP_INFO_CONFIG.description && APP_INFO_CONFIG.description[lang]) || APP_INFO_CONFIG.description.ar;
+
+  main.innerHTML = `
+    <div class="page-header">
+      <button class="back-btn" onclick="goBack()">${t("back_btn")}</button>
+    </div>
+    <div class="hero" style="height:95px;margin-top:0">
+      <h1 style="font-size:26px">ℹ️ ${t("app_info")}</h1>
+    </div>
+    <div class="settings-container">
+      <div class="about-card">
+        <div class="about-app-icon">🎬</div>
+        <div style="font-size:22px;font-weight:900"><b style="color:#e50914">BLACK</b> ANIME</div>
+
+        <div class="about-info-row">
+          <span class="about-info-label">${t("about_app_name")}</span>
+          <span class="about-info-val">${APP_INFO_CONFIG.appName}</span>
+        </div>
+
+        <div class="about-info-row">
+          <span class="about-info-label">${t("about_dev_name")}</span>
+          <span class="about-info-val">${APP_INFO_CONFIG.developerName}</span>
+        </div>
+
+        <div class="about-info-row">
+          <span class="about-info-label">${t("about_version")}</span>
+          <span class="about-info-val">v${version}</span>
+        </div>
+
+        <div class="about-desc-box">
+          <div style="font-weight:800;margin-bottom:6px;color:#e50914">${t("about_idea")}:</div>
+          <div>${ideaText}</div>
+        </div>
+      </div>
+    </div>
+  `;
+  document.querySelectorAll(".bottom-nav button").forEach(b => b.classList.remove("active"));
+};
+
+window.loadSavedSettings();
+
+// ================= FCM & Notification Action Handler & Deep Linking =================
+window._pendingFcmNotification = null;
+
+window.findEpisodeIndexForContent = function(item, episodeTarget) {
+  if (!item) return -1;
+  const episodes = Array.isArray(item.episodes) ? item.episodes : (item.video || item.altUrl ? [{ title: "البث المباشر", video: item.video || "", altUrl: item.altUrl || "" }] : []);
+  if (episodes.length === 0) return -1;
+
+  if (episodeTarget === undefined || episodeTarget === null || String(episodeTarget).trim() === "") {
+    return 0; // Default to first episode
+  }
+
+  const epStr = String(episodeTarget).trim();
+  const digitsMatch = epStr.match(/\d+/);
+  const epNum = digitsMatch ? parseInt(digitsMatch[0], 10) : NaN;
+
+  // 1. Check if any episode title contains this exact episode number
+  if (!isNaN(epNum)) {
+    for (let i = 0; i < episodes.length; i++) {
+      const title = episodes[i].title || "";
+      const m = title.match(/\d+/);
+      if (m && parseInt(m[0], 10) === epNum) {
+        return i;
+      }
+    }
+
+    // 2. Check 1-based index (e.g. Episode 25 -> array index 24)
+    if (epNum >= 1 && epNum <= episodes.length) {
+      return epNum - 1;
+    }
+
+    // 3. Check 0-based index
+    if (epNum >= 0 && epNum < episodes.length) {
+      return epNum;
+    }
+  }
+
+  // 4. Fallback search by title substring
+  const lowerEpStr = epStr.toLowerCase();
+  for (let i = 0; i < episodes.length; i++) {
+    const title = (episodes[i].title || "").toLowerCase();
+    if (title.includes(lowerEpStr)) {
+      return i;
+    }
+  }
+
+  return 0;
+};
+
+window.findContentItem = function(targetId, targetTitle) {
+  if (!window.allContent || window.allContent.length === 0) return null;
+  const tid = (targetId || "").trim();
+  const ttitle = (targetTitle || "").trim().toLowerCase();
+
+  if (tid) {
+    const foundById = window.allContent.find(x => x.firebaseId === tid || x.id === tid);
+    if (foundById) return foundById;
+  }
+
+  if (ttitle) {
+    const foundByTitle = window.allContent.find(x => (x.title || "").toLowerCase().includes(ttitle));
+    if (foundByTitle) return foundByTitle;
+  }
+
+  return null;
+};
+
+window.handleFcmNotification = function(arg1, arg2, arg3, arg4, arg5, arg6) {
+  let nav = {};
+  if (typeof arg1 === "object" && arg1 !== null) {
+    nav = arg1;
+  } else if (typeof arg1 === "string" && arg1.trim().startsWith("{")) {
+    try { nav = JSON.parse(arg1); } catch (e) { nav = { page: arg1 }; }
+  } else {
+    nav = {
+      page: arg1 || "",
+      firebaseId: arg2 || "",
+      episode: arg3 || "",
+      url: arg4 || "",
+      action: arg5 || "",
+      contentTitle: arg6 || ""
+    };
+  }
+
+  const page = (nav.page || nav.screen || nav.target_page || "").trim();
+  const firebaseId = (nav.firebaseId || nav.id || nav.contentId || nav.animeId || nav.movieId || "").trim();
+  const episode = (nav.episode !== undefined && nav.episode !== null && String(nav.episode).trim())
+    ? String(nav.episode).trim()
+    : (nav.episodeIndex !== undefined && nav.episodeIndex !== null ? String(nav.episodeIndex).trim() : (nav.ep ? String(nav.ep).trim() : ""));
+  const url = (nav.url || nav.link || "").trim();
+  const contentTitle = (nav.contentTitle || nav.animeTitle || nav.movieTitle || nav.name || "").trim();
+  const action = (nav.action || (episode ? "play" : "details")).trim().toLowerCase();
+
+  console.log("FCM Notification triggered:", { page, firebaseId, episode, url, action, contentTitle });
+
+  // 1. External URL handler
+  if (url) {
+    window.openExternalLink(url);
+    return;
+  }
+
+  // 2. Specific Content Target (Anime, Movie, Series, or Episode)
+  const hasContentTarget = Boolean(firebaseId || contentTitle || (episode && page !== "home"));
+  if (hasContentTarget) {
+    // If content not yet loaded from Firestore (Cold start), queue it and retry
+    if (!window.allContent || window.allContent.length === 0) {
+      window._pendingFcmNotification = nav;
+      console.log("FCM Notification queued waiting for content to load...");
+      setTimeout(() => {
+        if (window._pendingFcmNotification) {
+          window.handleFcmNotification(window._pendingFcmNotification);
+        }
+      }, 700);
+      return;
+    }
+
+    const item = window.findContentItem(firebaseId, contentTitle);
+    if (item) {
+      window._pendingFcmNotification = null;
+      if (episode) {
+        const epIndex = window.findEpisodeIndexForContent(item, episode);
+        if (action === "play" || action === "watch") {
+          // Open details first so navigation stack has details page, then play episode immediately
+          openDetails(item.firebaseId);
+          setTimeout(() => {
+            watchEpisode(item.firebaseId, epIndex >= 0 ? epIndex : 0);
+          }, 150);
+          return;
+        } else {
+          // Open details page and highlight/scroll to episode
+          openDetails(item.firebaseId);
+          setTimeout(() => {
+            const btn = document.getElementById(`ep-btn-${item.firebaseId}-${epIndex}`);
+            if (btn) {
+              btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              btn.style.outline = "2px solid #00d2ff";
+            }
+          }, 300);
+          return;
+        }
+      } else {
+        // Open anime or movie details page
+        openDetails(item.firebaseId);
+        return;
+      }
+    } else {
+      console.warn("FCM Notification: Target item not found, routing to page or home:", { firebaseId, contentTitle });
+    }
+  }
+
+  // 3. Category / Page Route
+  if (page) {
+    window._pendingFcmNotification = null;
+    const p = page.toLowerCase();
+    if (p === "home" || p === "main") {
+      showPage("home");
+    } else if (p === "anime" || p === "أنمي") {
+      showPage("anime");
+    } else if (p === "animation" || p === "أنميشن") {
+      showPage("animation");
+    } else if (p === "arabic" || p === "عربي") {
+      showPage("arabic");
+    } else if (p === "foreign" || p === "movies" || p === "movie" || p === "أفلام") {
+      showPage("foreign");
+    } else if (p === "favorites" || p === "fav" || p === "مفضلتي") {
+      showPage("favorites");
+    } else if (p === "add" || p === "admin" || p === "لوحة التحكم") {
+      if (window.currentUserRole === "ADMIN") {
+        showPage("add");
+      } else {
+        showPage("home");
+      }
+    } else {
+      showPage("home");
+    }
+  }
+};
+
+window.copyFcmToken = function() {
+  if (window.AndroidBridge && typeof window.AndroidBridge.copyFcmTokenToClipboard === "function") {
+    window.AndroidBridge.copyFcmTokenToClipboard();
+  } else {
+    alert("ميزة رمز FCM متاحة داخل تطبيق الأندرويد الأصلي");
+  }
+};
+
+window.requestNotifPermission = function() {
+  if (window.AndroidBridge && typeof window.AndroidBridge.requestNotificationPermission === "function") {
+    window.AndroidBridge.requestNotificationPermission();
+  }
+};
+
+// ================= Custom Notification Modal Controller =================
+window.openTestNotificationModal = function() {
+  const modal = document.getElementById("testNotificationModal");
+  if (!modal) return;
+
+  // Populate target select with available anime/movies
+  const select = document.getElementById("notifTargetSelect");
+  if (select) {
+    select.innerHTML = '<option value="">-- اختر من الأعمال المضافة أو أدخل المعرف بالأسفل --</option>' +
+      (window.allContent || []).map(x => {
+        let epCount = Array.isArray(x.episodes) ? x.episodes.length : (x.video || x.altUrl ? 1 : 0);
+        return `<option value="${x.firebaseId}" data-title="${x.title}" data-poster="${x.poster || ''}">${x.title} (${epCount} حلقة)</option>`;
+      }).join("");
+  }
+
+  modal.style.display = "flex";
+};
+
+window.closeTestNotificationModal = function() {
+  const modal = document.getElementById("testNotificationModal");
+  if (modal) modal.style.display = "none";
+};
+
+window.handleNotifTargetChange = function(fid) {
+  const fidInput = document.getElementById("notifFidInput");
+  const imgInput = document.getElementById("notifImageInput");
+  if (!fid) {
+    if (fidInput) fidInput.value = "";
+    return;
+  }
+  const item = (window.allContent || []).find(x => x.firebaseId === fid);
+  if (item) {
+    if (fidInput) fidInput.value = item.firebaseId;
+    if (imgInput && !imgInput.value.trim() && item.poster) {
+      imgInput.value = item.poster;
+    }
+  }
+};
+
+window.sendTestNotificationFromModal = function() {
+  const title = (document.getElementById("notifTitleInput")?.value || "حلقة جديدة").trim();
+  const message = (document.getElementById("notifMsgInput")?.value || "تم إصدار الحلقة الجديدة، اضغط للمشاهدة").trim();
+  const fid = (document.getElementById("notifFidInput")?.value || "").trim();
+  const episode = (document.getElementById("notifEpInput")?.value || "25").trim();
+  const action = document.getElementById("notifActionSelect")?.value || "play";
+  const image = (document.getElementById("notifImageInput")?.value || "").trim();
+
+  let targetItem = fid ? (window.allContent || []).find(x => x.firebaseId === fid) : null;
+  let contentTitle = targetItem ? (targetItem.title || "") : "";
+
+  if (window.AndroidBridge && typeof window.AndroidBridge.triggerCustomNotification === "function") {
+    window.AndroidBridge.triggerCustomNotification(
+      title,
+      message,
+      "details",
+      fid,
+      episode,
+      image,
+      action,
+      contentTitle
+    );
+    window.closeTestNotificationModal();
+    alert("✅ تم إرسال الإشعار بنجاح إلى شريط الإشعارات! يمكنك سحب شريط الإشعارات والضغط عليه لاختبار الانتقال المباشر.");
+  } else {
+    alert("ميزة إرسال الإشعارات تعمل داخل تطبيق الأندرويد الأصلي");
+  }
+};
+
+// ================= Episode Watch Time Tracker =================
+window.currentWatchingEpisode = {
+  fid: null,
+  idx: -1,
+  htmlVideoInterval: null
+};
+
+window.isEpisodeWatched = function(fid, idx) {
+  try {
+    return localStorage.getItem(`watched_${fid}_${idx}`) === "true";
+  } catch(e) {
+    return false;
+  }
+};
+
+window.getEpisodeWatchedSeconds = function(fid, idx) {
+  try {
+    return parseInt(localStorage.getItem(`watched_sec_${fid}_${idx}`) || "0", 10) || 0;
+  } catch(e) {
+    return 0;
+  }
+};
+
+window.setEpisodeWatchedSeconds = function(fid, idx, seconds) {
+  try {
+    localStorage.setItem(`watched_sec_${fid}_${idx}`, seconds.toString());
+    if (seconds >= 300) {
+      localStorage.setItem(`watched_${fid}_${idx}`, "true");
+    }
+  } catch(e) {}
+};
+
+window.markEpisodeAsWatched = function(fid, idx) {
+  try {
+    localStorage.setItem(`watched_${fid}_${idx}`, "true");
+    localStorage.setItem(`watched_sec_${fid}_${idx}`, "300");
+  } catch(e) {}
+};
+
+window.updateEpisodeButtonIfWatched = function(fid, idx) {
+  let btn = document.getElementById(`ep-btn-${fid}-${idx}`);
+  if (btn && !btn.classList.contains("watched")) {
+    btn.classList.add("watched");
+    let checkIcon = btn.querySelector(".watch-check-icon");
+    if (!checkIcon) {
+      let bTag = btn.querySelector("b");
+      if (bTag) {
+        bTag.insertAdjacentHTML("afterbegin", '<span class="watch-check-icon">✓</span> ');
+      }
+    }
+  }
+};
+
+window.onNativeVideoTick = function(seconds) {
+  if (!window.currentWatchingEpisode || !window.currentWatchingEpisode.fid) return;
+  let fid = window.currentWatchingEpisode.fid;
+  let idx = window.currentWatchingEpisode.idx;
+  if (idx < 0) return;
+
+  if (window.isEpisodeWatched(fid, idx)) {
+    return;
+  }
+
+  let sec = window.getEpisodeWatchedSeconds(fid, idx) + (seconds || 1);
+  window.setEpisodeWatchedSeconds(fid, idx, sec);
+
+  if (sec >= 300) {
+    window.markEpisodeAsWatched(fid, idx);
+    console.log(`Episode ${idx} of ${fid} marked as watched (300s reached)!`);
+    window.updateEpisodeButtonIfWatched(fid, idx);
+  }
+};
+
+// Auth helper methods
+window.getUserRole = function() {
+  let role = "";
+  if (window.AndroidBridge && typeof window.AndroidBridge.getSavedUserRole === "function") {
+    try {
+      role = window.AndroidBridge.getSavedUserRole() || "";
+    } catch (e) {
+      console.warn("AndroidBridge.getSavedUserRole error", e);
+    }
+  }
+  if (!role) {
+    role = localStorage.getItem("user_role") || "";
+  }
+  role = role.trim().toUpperCase();
+  return (role === "ADMIN" || role === "USER") ? role : "";
+};
+
+window.saveUserRole = function(role) {
+  const norm = role.trim().toUpperCase();
+  if (window.AndroidBridge && typeof window.AndroidBridge.saveUserRole === "function") {
+    try {
+      window.AndroidBridge.saveUserRole(norm);
+    } catch (e) {
+      console.warn("AndroidBridge.saveUserRole error", e);
+    }
+  }
+  localStorage.setItem("user_role", norm);
+};
+
+window.clearUserRole = function() {
+  if (window.AndroidBridge && typeof window.AndroidBridge.clearUserRole === "function") {
+    try {
+      window.AndroidBridge.clearUserRole();
+    } catch (e) {
+      console.warn("AndroidBridge.clearUserRole error", e);
+    }
+  }
+  localStorage.removeItem("user_role");
+  window.currentUserRole = "";
+  window.isAdminUnlocked = false;
+};
+
+window.applyUserRole = function(role) {
+  window.currentUserRole = role;
+  window.isAdminUnlocked = (role === "ADMIN");
+
+  const addNavBtn = document.getElementById("nav-add");
+  if (addNavBtn) {
+    addNavBtn.style.display = (role === "ADMIN") ? "flex" : "none";
+  }
+
+  // Protect Admin pages: if non-admin is in add or episode form, kick back to home
+  if (role !== "ADMIN" && (currentPage === "add" || currentPage === "select" || currentPage === "addep")) {
+    historyStack = [];
+    showPage("home");
+  }
+};
+
+window.showAuthScreen = function() {
+  const authScreen = document.getElementById("authScreen");
+  const topBar = document.querySelector(".top-bar");
+  const bottomNav = document.querySelector(".bottom-nav");
+  const mainContent = document.getElementById("main-content");
+  const input = document.getElementById("authCodeInput");
+  const errorEl = document.getElementById("authErrorMsg");
+  const btn = document.getElementById("authSubmitBtn");
+
+  if (topBar) topBar.style.display = "none";
+  if (bottomNav) bottomNav.style.display = "none";
+  if (mainContent) mainContent.style.display = "none";
+  if (authScreen) authScreen.style.display = "flex";
+
+  if (input) {
+    input.value = "";
+    input.classList.remove("error");
+    setTimeout(() => {
+      try { input.focus(); } catch (e) {}
+    }, 150);
+  }
+  if (errorEl) errorEl.style.display = "none";
+  if (btn) btn.disabled = false;
+};
+
+window.hideAuthScreen = function() {
+  const authScreen = document.getElementById("authScreen");
+  const topBar = document.querySelector(".top-bar");
+  const bottomNav = document.querySelector(".bottom-nav");
+  const mainContent = document.getElementById("main-content");
+
+  if (authScreen) authScreen.style.display = "none";
+  if (topBar) topBar.style.display = "flex";
+  if (bottomNav) bottomNav.style.display = "flex";
+  if (mainContent) mainContent.style.display = "block";
+};
+
+window.toggleAuthCodeVisibility = function() {
+  const input = document.getElementById("authCodeInput");
+  const btn = document.querySelector(".auth-toggle-pwd");
+  if (!input) return;
+  if (input.type === "password") {
+    input.type = "text";
+    if (btn) btn.innerText = "🔒";
+  } else {
+    input.type = "password";
+    if (btn) btn.innerText = "👁️";
+  }
+};
+
+window.submitAuthCode = function() {
+  const input = document.getElementById("authCodeInput");
+  const errorEl = document.getElementById("authErrorMsg");
+  const btn = document.getElementById("authSubmitBtn");
+  if (!input) return;
+
+  const rawVal = input.value || "";
+  const code = rawVal.trim();
+
+  if (errorEl) errorEl.style.display = "none";
+  input.classList.remove("error");
+
+  if (!code) {
+    if (errorEl) {
+      errorEl.innerText = "أدخل كود الدخول للمتابعة";
+      errorEl.style.display = "block";
+    }
+    input.classList.add("error");
+    input.focus();
+    return;
+  }
+
+  let role = "";
+  if (code === "1234") {
+    role = "USER";
+  } else if (code.toLowerCase() === "hamza2009") {
+    role = "ADMIN";
+  }
+
+  if (!role) {
+    if (errorEl) {
+      errorEl.innerText = "الكود غير صحيح";
+      errorEl.style.display = "block";
+    }
+    input.classList.add("error");
+    input.select();
+    input.focus();
+    alert("الكود غير صحيح");
+    return;
+  }
+
+  // Prevent multiple clicks
+  if (btn) btn.disabled = true;
+
+  saveUserRole(role);
+  applyUserRole(role);
+  hideAuthScreen();
+  if (btn) btn.disabled = false;
+
+  // Flow: Validate code -> Determine role -> Show ad if due -> Open main UI
+  renderHome();
+  checkAndTriggerDailyAdMobPopup();
+};
+
+window.confirmLogout = function() {
+  if (confirm("هل تريد تسجيل الخروج من التطبيق وإعادة إدخال الكود؟")) {
+    logout();
+  }
+};
+
+window.logout = function() {
+  clearUserRole();
+  historyStack = [];
+  currentPage = "home";
+  deleteMode = false;
+  selectEpisodeMode = false;
+
+  const addNavBtn = document.getElementById("nav-add");
+  if (addNavBtn) addNavBtn.style.display = "none";
+
+  showAuthScreen();
+};
+
+window.initAppAuth = function() {
+  const savedRole = getUserRole();
+  if (savedRole === "USER" || savedRole === "ADMIN") {
+    applyUserRole(savedRole);
+    hideAuthScreen();
+    renderCurrentPage();
+    setTimeout(checkAndTriggerDailyAdMobPopup, 1000);
+  } else {
+    showAuthScreen();
+  }
+};
+
+// Enter key listener on auth code input
+document.addEventListener("DOMContentLoaded", () => {
+  const el = document.getElementById("authCodeInput");
+  if (el) {
+    el.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        submitAuthCode();
+      }
+    });
+  }
+});
+
+const q=query(colRef,orderBy("createdAt","desc"),limit(500));
+onSnapshot(q,(s)=>{
+  window.allContent=s.docs.map(d=>({firebaseId:d.id,...d.data()}));
+  if (window._pendingFcmNotification) {
+    const pending = window._pendingFcmNotification;
+    window._pendingFcmNotification = null;
+    setTimeout(() => {
+      window.handleFcmNotification(pending);
+    }, 120);
+  }
+  if (window.currentUserRole) {
+    renderCurrentPage();
+  }
+});
+
+window.getItemByFirebaseId=(fid)=>window.allContent.find(i=>i.firebaseId===fid);
+window.isFavorite=(id)=>window.favorites.includes(id);
+window.toggleFavorite=(id)=>{
+  if(window.isFavorite(id))window.favorites=window.favorites.filter(x=>x!==id);
+  else window.favorites.push(id);
+  localStorage.setItem("favorites",JSON.stringify(window.favorites));
+  renderCurrentPage();
+};
+window.setActiveNav=(p)=>{
+  document.querySelectorAll(".bottom-nav button").forEach(b=>b.classList.remove("active"));
+  let target = (p === "animation" || p === "arabic" || p === "sports") ? "animation" : (p === "anime" || p === "foreign" || p === "news") ? "anime" : p;
+  let n = document.getElementById("nav-" + target) || document.getElementById("nav-" + p);
+  if(n) n.classList.add("active");
+};
+window.createCard=(item)=>{
+  let fav=window.isFavorite(item.id);
+  let click=(window.currentUserRole==="ADMIN"&&window.selectEpisodeMode)?`renderAddEpisodeForm('${item.firebaseId}')`:(window.currentUserRole==="ADMIN"&&window.deleteMode)?`askDeleteMovie('${item.firebaseId}')`:`openDetails('${item.firebaseId}')`;
+  let del=(window.currentUserRole==="ADMIN"&&window.deleteMode)?`<button tabindex="0" style="position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:50%;border:none;background:#e50914;color:#fff;z-index:3" onclick="event.stopPropagation();askDeleteMovie('${item.firebaseId}')">✕</button>`:"";
+  let editPosterBtn=(window.currentUserRole==="ADMIN")?`<button type="button" tabindex="0" style="width:100%;margin-top:8px;background:#1a2a3a;color:#00d2ff;border:1px solid #2a4a6a;padding:6px 8px;border-radius:8px;font-size:11px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px" onclick="event.stopPropagation();openEditPosterModal('${item.firebaseId}')">🖼️ تعديل البوستر</button>`:"";
+  let isAnimation = item.type === "animation" || item.type === "arabic" || item.type === "sports";
+  let categoryLabel = window.translateCategoryLabel(item.category, isAnimation);
+  return`<div class="movie-card" tabindex="0"><button tabindex="0" class="favorite-btn ${fav?"active":""}" onclick="event.stopPropagation();toggleFavorite('${item.id}')">♥</button>${del}<div onclick="${click}"><img class="poster" data-poster-fid="${item.firebaseId}" src="${item.poster}" loading="lazy" decoding="async"><h3>${item.title}</h3><p>${item.year} • ${categoryLabel}</p></div>${editPosterBtn}</div>`;
+};
+window.getOfficialAnimeList = function() {
+  let list = window.allContent.filter(x => {
+    return x.type === "anime" || x.type === "foreign" || x.type === "news" || x.type === "entertainment";
+  });
+  if (list.length === 0) {
+    list = window.allContent;
+  }
+  return list;
+};
+
+window.getHourlyRotatingAnimes = function(batchSize = 50) {
+  const animeList = window.getOfficialAnimeList();
+  if (!animeList || animeList.length === 0) return [];
+
+  const total = animeList.length;
+  const count = Math.min(batchSize, total);
+
+  // Deterministic hourly calculation (changes automatically at the start of each hour XX:00)
+  const now = new Date();
+  const epochTime = new Date(2024, 0, 1).getTime();
+  const hourNumber = Math.floor((now.getTime() - epochTime) / (1000 * 60 * 60));
+
+  // Determine starting index for this hour
+  let step = (total > batchSize) ? batchSize : 1;
+  let startIndex = ((hourNumber * step) % total);
+  if (startIndex < 0) startIndex = (startIndex + total) % total;
+
+  let hourlyBatch = [];
+  for (let i = 0; i < count; i++) {
+    const idx = (startIndex + i) % total;
+    hourlyBatch.push(animeList[idx]);
+  }
+  return hourlyBatch;
+};
+window.getDailyRotatingAnimes = window.getHourlyRotatingAnimes;
+
+// Automatically refresh homepage when a new hour starts if app is currently open
+let lastCheckedHour = new Date().getHours();
+setInterval(() => {
+  const currentHour = new Date().getHours();
+  if (currentHour !== lastCheckedHour) {
+    lastCheckedHour = currentHour;
+    if (currentPage === "home") {
+      renderHome();
+    }
+  }
+}, 30000);
+
+window.renderHome=()=>{
+  const hourlyItems = window.getHourlyRotatingAnimes(50);
+  main.innerHTML=`<div class="hero"><h1>BLACK ANIME</h1></div><div class="movies-grid">${hourlyItems.map(createCard).join("")}</div>`;
+  setActiveNav("home");
+};
+window.renderCategory=(type)=>{
+  let isAnimation = type === "animation" || type === "arabic" || type === "sports";
+  let items = window.allContent.filter(x => {
+    if (isAnimation) return x.type === "animation" || x.type === "arabic" || x.type === "sports";
+    return x.type === "anime" || x.type === "foreign" || x.type === "news" || x.type === "entertainment";
+  });
+  let catTitle = isAnimation ? t("cat_animation") : t("cat_anime");
+  main.innerHTML=`<div class="page-header"><button class="back-btn" onclick="goBack()">${t("back_btn")}</button></div><div class="hero" style="height:100px;margin-top:0"><h1 style="font-size:26px">${catTitle}</h1></div><div class="movies-grid">${items.map(createCard).join("")}</div>`;
+  setActiveNav(isAnimation ? "animation" : "anime");
+};
+window.navigateTo=(next,renderFn)=>{
+  if(currentPage!==next){historyStack.push(currentPage);}
+  currentPage=next;
+  renderFn();
+  window.scrollTo(0,0);
+};
+window.openExternalLink=function(url){
+  if(!url)return;
+  let target=url.trim();
+  if(!target.startsWith("http://")&&!target.startsWith("https://")){
+    target="https://"+target;
+  }
+  if(window.AndroidBridge&&typeof window.AndroidBridge.openExternalUrl==="function"){
+    try{
+      let handled=window.AndroidBridge.openExternalUrl(target);
+      if(handled)return;
+    }catch(e){
+      console.warn("AndroidBridge openExternalUrl error: ",e);
+    }
+  }
+  window.open(target,"_blank");
+};
+window.normalizeVideoUrl = function(rawUrl) {
+  if (!rawUrl) return "";
+  let u = rawUrl.trim();
+  // Pixeldrain URL normalization (supports /u/ID, /file/ID, /api/file/ID) -> direct API video stream
+  let pdMatch = u.match(/(?:https?:\/\/)?(?:www\.)?pixeldrain\.com\/(?:u|file|api\/file)\/([a-zA-Z0-9_-]+)/i);
+  if (pdMatch && pdMatch[1]) {
+    return "https://pixeldrain.com/api/file/" + pdMatch[1];
+  }
+  return u;
+};
+window.episodesSortOrder = "asc";
+
+window.renderEpisodesList = function(fid) {
+  let item = getItemByFirebaseId(fid);
+  if (!item) return;
+
+  let container = document.getElementById("episodesListContainer");
+  let btn = document.getElementById("epSortBtn");
+  let label = document.getElementById("epSortLabel");
+
+  let baseEpisodes = Array.isArray(item.episodes) ? item.episodes : (item.video || item.altUrl ? [{ title: t("live_stream"), video: item.video || "", altUrl: item.altUrl || "" }] : []);
+
+  let mapped = baseEpisodes.map((ep, originalIdx) => ({ ep, originalIdx }));
+  let list = (window.episodesSortOrder === "desc") ? [...mapped].reverse() : mapped;
+
+  let epBtns = list.length > 0 ? list.map(({ ep, originalIdx }) => {
+    let isVid = Boolean((ep.video || "").trim());
+    let isAlt = Boolean((ep.altUrl || item.altUrl || "").trim());
+    let icon = isVid ? "▶" : isAlt ? "🔗" : "✕";
+    let isWatched = window.isEpisodeWatched(item.firebaseId, originalIdx);
+    let watchedClass = isWatched ? "watched" : "";
+    let checkMark = isWatched ? '<span class="watch-check-icon">✓</span>' : "";
+    let editEpBtn = `<button onclick="event.stopPropagation();openEditEpisodeModal('${item.firebaseId}',${originalIdx})" title="تعديل رابط البث" aria-label="تعديل رابط البث" style="background:#112233;color:#00d2ff;border:1px solid #1a3a5a;padding:12px 14px;border-radius:10px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0" onmouseover="this.style.background='#00d2ff';this.style.color='#000'" onmouseout="this.style.background='#112233';this.style.color='#00d2ff'">✏️</button>`;
+    let delEpBtn = (window.currentUserRole === "ADMIN")
+      ? `<button onclick="event.stopPropagation();deleteEpisode('${item.firebaseId}',${originalIdx})" title="حذف الحلقة" aria-label="حذف الحلقة" style="background:#250505;color:#ff4444;border:1px solid #441111;padding:12px 14px;border-radius:10px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0" onmouseover="this.style.background='#e50914';this.style.color='#fff'" onmouseout="this.style.background='#250505';this.style.color='#ff4444'">🗑️</button>`
+      : "";
+    return `<div style="display:flex;align-items:center;gap:6px;width:100%"><button class="episode-btn ${watchedClass}" id="ep-btn-${item.firebaseId}-${originalIdx}" style="flex:1" onclick="watchEpisode('${item.firebaseId}',${originalIdx})"><b style="display:flex;align-items:center">${checkMark}${ep.title}</b><span>${icon}</span></button>${editEpBtn}${delEpBtn}</div>`;
+  }).join("") : `<div style="text-align:center;color:#666;padding:15px;font-size:14px">${t("no_episodes")}</div>`;
+
+  let addEpBtn = (window.currentUserRole === "ADMIN") ? `<button class="episode-btn" style="border:1px dashed #444;color:#aaa" onclick="renderAddEpisodeForm('${item.firebaseId}')">${t("add_ep_btn")}</button>` : "";
+
+  if (container) {
+    container.innerHTML = epBtns + addEpBtn;
+  }
+
+  if (btn && label) {
+    if (window.episodesSortOrder === "desc") {
+      btn.classList.add("desc");
+      btn.title = t("sort_desc_title");
+      label.innerText = `${baseEpisodes.length} ➔ 1`;
+    } else {
+      btn.classList.remove("desc");
+      btn.title = t("sort_asc_title");
+      label.innerText = `1 ➔ ${baseEpisodes.length}`;
+    }
+  }
+};
+
+window.toggleEpisodesOrder = function(fid) {
+  window.episodesSortOrder = (window.episodesSortOrder === "asc") ? "desc" : "asc";
+  window.renderEpisodesList(fid);
+};
+
+window.expandedDescriptions = {};
+
+window.escapeDescHtml = function(str) {
+  return String(str || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+};
+
+window.renderDescriptionHtml = function(fid) {
+  const item = getItemByFirebaseId(fid);
+  const rawDesc = (item && item.description !== undefined && item.description !== null) ? String(item.description) : "";
+  const isLong = rawDesc.length > 180;
+  const isExpanded = Boolean(window.expandedDescriptions[fid]);
+
+  if (!isLong) {
+    return `<p id="content-desc-${fid}" dir="auto" style="color:#aaa;margin-top:10px;white-space:pre-wrap;word-break:break-word;line-height:1.6">${window.escapeDescHtml(rawDesc)}</p>`;
+  }
+
+  if (!isExpanded) {
+    const truncated = rawDesc.slice(0, 180) + "...";
+    return `<p id="content-desc-${fid}" dir="auto" onclick="toggleContentDescription('${fid}')" title="اضغط لعرض الوصف كاملاً" style="color:#aaa;margin-top:10px;cursor:pointer;white-space:pre-wrap;word-break:break-word;line-height:1.6">${window.escapeDescHtml(truncated)}</p>`;
+  }
+
+  return `<div id="content-desc-${fid}" style="margin-top:10px"><p dir="auto" style="color:#aaa;white-space:pre-wrap;word-break:break-word;line-height:1.6">${window.escapeDescHtml(rawDesc)}</p><div onclick="toggleContentDescription('${fid}')" role="button" tabindex="0" style="color:#aaa;margin-top:8px;font-size:13px;font-weight:bold;cursor:pointer;display:inline-block;padding:4px 10px">إخفاء ▲</div></div>`;
+};
+
+window.toggleContentDescription = function(fid) {
+  window.expandedDescriptions[fid] = !window.expandedDescriptions[fid];
+  const el = document.getElementById(`content-desc-${fid}`);
+  if (el) {
+    el.outerHTML = window.renderDescriptionHtml(fid);
+  }
+};
+
+window.openDetails=(fid)=>{
+  let item=getItemByFirebaseId(fid);
+  if(!item)return;
+  window._lastDetailsFid = fid;
+  window.episodesSortOrder = "asc";
+  window.expandedDescriptions[fid] = false;
+  navigateTo("details",()=>{
+    let isAnimation = item.type === "animation" || item.type === "arabic" || item.type === "sports";
+    let categoryLabel = window.translateCategoryLabel(item.category, isAnimation);
+    let episodes = Array.isArray(item.episodes) ? item.episodes : (item.video || item.altUrl ? [{ title: t("live_stream"), video: item.video || "", altUrl: item.altUrl || "" }] : []);
+
+    let orderBtnHtml = episodes.length > 0 ? `
+      <button id="epSortBtn" class="ep-order-btn" onclick="toggleEpisodesOrder('${item.firebaseId}')" title="${t("sort_asc_title")}" aria-label="${t("sort_asc_title")}">
+        <span style="font-size:16px;display:inline-block">⇅</span>
+        <span id="epSortLabel" style="font-size:12px">1 ➔ ${episodes.length}</span>
+      </button>
+    ` : "";
+
+    let editPosterDetailBtn = (window.currentUserRole === "ADMIN") ? `<div style="margin-top:10px"><button type="button" onclick="openEditPosterModal('${item.firebaseId}')" style="background:#1a2a3a;color:#00d2ff;border:1px solid #2a4a6a;padding:8px 16px;border-radius:10px;font-size:13px;font-weight:bold;cursor:pointer;display:inline-flex;align-items:center;gap:6px">🖼️ تعديل البوستر</button></div>` : "";
+
+    main.innerHTML=`<div class="page-header" style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px 4px 14px;margin-top:55px"><button class="back-btn" style="margin:0" onclick="goBack()">${t("back_btn")}</button>${orderBtnHtml}</div><div style="padding:15px;text-align:center"><img class="poster" data-poster-fid="${item.firebaseId}" src="${item.poster}" style="width:140px;height:140px;object-fit:contain;padding:10px;border-radius:18px">${editPosterDetailBtn}<h1 style="margin-top:12px">${item.title}</h1><p style="color:#888">${item.year} • ${categoryLabel}</p>${window.renderDescriptionHtml(item.firebaseId)}</div><div id="episodesListContainer" style="padding:12px;display:flex;flex-direction:column;gap:8px"></div>`;
+
+    window.renderEpisodesList(item.firebaseId);
+  });
+};
+window.watchEpisode=(fid,idx)=>{
+  if (window.currentWatchingEpisode.htmlVideoInterval) {
+    clearInterval(window.currentWatchingEpisode.htmlVideoInterval);
+    window.currentWatchingEpisode.htmlVideoInterval = null;
+  }
+  window.currentWatchingEpisode.fid = fid;
+  window.currentWatchingEpisode.idx = idx;
+
+  let item=getItemByFirebaseId(fid);
+  if(!item)return;
+  let episodes = (item.episodes && item.episodes.length > 0) ? item.episodes : [{ title: t("live_stream"), video: item.video || "", altUrl: item.altUrl || "" }];
+  let ep = (idx >= 0 && idx < episodes.length) ? episodes[idx] : episodes[0];
+  let videoLink = ep ? (ep.video || "").trim() : (item.video || "").trim();
+  let altLink = ep ? (ep.altUrl || item.altUrl || "").trim() : (item.altUrl || "").trim();
+
+  // Normalize URLs (including Pixeldrain API conversion)
+  videoLink = window.normalizeVideoUrl(videoLink);
+  altLink = window.normalizeVideoUrl(altLink);
+
+  // If altLink is a direct Pixeldrain video, route it to video player
+  if (!videoLink && altLink && altLink.includes("pixeldrain.com/api/file/")) {
+    videoLink = altLink;
+    altLink = "";
+  }
+
+  let streamTitle = (ep && ep.title) || item.title || "BLACK ANIME";
+
+  // 1. If video exists (M3U8, MP4, MKV, Pixeldrain API, etc.) -> play in native Media3 ExoPlayer
+  if (videoLink) {
+    if (window.AndroidBridge && typeof window.AndroidBridge.playStream === "function") {
+      window.AndroidBridge.playStream(videoLink, streamTitle);
+      return;
+    }
+    navigateTo("watch", () => {
+      let v = `<video id="fallbackVideoPlayer" controls playsinline autoplay preload="metadata" src="${videoLink}" style="width:100%"></video>`;
+      main.innerHTML = `<div class="page-header"><button class="back-btn" onclick="goBack()">${t("back_btn")}</button></div><div style="padding:12px"><h2>${streamTitle}</h2><div style="margin-top:12px;background:#000;border-radius:10px;overflow:hidden">${v}</div></div>`;
+      window._lastDetailsFid = fid;
+
+      let videoEl = document.getElementById("fallbackVideoPlayer");
+      if (videoEl) {
+        if (window.currentWatchingEpisode.htmlVideoInterval) {
+          clearInterval(window.currentWatchingEpisode.htmlVideoInterval);
+        }
+        window.currentWatchingEpisode.htmlVideoInterval = setInterval(() => {
+          if (videoEl && !videoEl.paused && !videoEl.ended && videoEl.readyState >= 2) {
+            window.onNativeVideoTick(1);
+          }
+        }, 1000);
+
+        videoEl.addEventListener("ended", () => {
+          if (window.currentWatchingEpisode.htmlVideoInterval) {
+            clearInterval(window.currentWatchingEpisode.htmlVideoInterval);
+            window.currentWatchingEpisode.htmlVideoInterval = null;
+          }
+        });
+      }
+    });
+    return;
+  }
+
+  // 2. If video is empty and alternative website link exists -> open alternative link directly (YouTube/Browser)
+  if (altLink) {
+    openExternalLink(altLink);
+    return;
+  }
+
+  // 3. If both are empty -> show clear alert
+  alert(t("no_link_alert"));
+};
+window.openSearch=()=>{
+  navigateTo("search",()=>{
+    main.innerHTML=`<div class="page-header"><button class="back-btn" onclick="goBack()">${t("back_btn")}</button></div><div style="padding:12px"><input id="searchInput" class="input" placeholder="${t("search_placeholder")}" oninput="performSearch()"></div><div id="searchResults" class="movies-grid"></div>`;
+  });
+};
+window.performSearch=()=>{
+  let qq=document.getElementById("searchInput").value.toLowerCase();
+  document.getElementById("searchResults").innerHTML=window.allContent.filter(x=>(x.title&&x.title.toLowerCase().includes(qq))||(x.category&&x.category.toLowerCase().includes(qq))).map(createCard).join("");
+};
+window.renderFavorites=()=>{
+  main.innerHTML=`<div class="page-header"><button class="back-btn" onclick="goBack()">${t("back_btn")}</button></div><div class="hero" style="height:100px;margin-top:0"><h1 style="font-size:26px">${t("favorites_header")}</h1></div><div class="movies-grid">${window.allContent.filter(x=>favorites.includes(x.id)).map(createCard).join("")}</div>`;
+  setActiveNav("favorites");
+};
+const CATEGORY_KEYS = ["animation", "anime", "arabic", "foreign"];
+window.showPage=(p)=>{
+  if(currentPage===p){
+    if(p==="home")renderHome();
+    else if(CATEGORY_KEYS.includes(p))renderCategory(p);
+    else if(p==="favorites")renderFavorites();
+    else if(p==="settings")renderSettingsPage();
+    else if(p==="about")renderAboutPage();
+    return;
+  }
+  historyStack.push(currentPage);
+  currentPage=p;
+  window.selectEpisodeMode=false;
+  if(p==="home")renderHome();
+  else if(CATEGORY_KEYS.includes(p))renderCategory(p);
+  else if(p==="favorites")renderFavorites();
+  else if(p==="settings")renderSettingsPage();
+  else if(p==="about")renderAboutPage();
+  window.scrollTo(0,0);
+};
+window.renderCurrentPage=()=>{
+  if(!window.currentUserRole) return;
+  if(currentPage==="home")renderHome();
+  else if(CATEGORY_KEYS.includes(currentPage))renderCategory(currentPage);
+  else if(currentPage==="favorites")renderFavorites();
+  else if(currentPage==="settings")renderSettingsPage();
+  else if(currentPage==="about")renderAboutPage();
+  else if(currentPage==="details"&&window._lastDetailsFid)openDetailsBack();
+  else if(currentPage==="search")openSearchBack();
+  else if(currentPage==="add"){
+    if(window.currentUserRole!=="ADMIN"){historyStack=[];showPage('home');}
+    else renderAddPage(true);
+  }
+};
+window.goBack=()=>{
+  if(!window.currentUserRole) return;
+  if(!historyStack.length){showPage('home');return;}
+  let prev=historyStack.pop();
+  currentPage=prev;
+  window.selectEpisodeMode=false;
+  if(prev==="home")renderHome();
+  else if(CATEGORY_KEYS.includes(prev))renderCategory(prev);
+  else if(prev==="favorites")renderFavorites();
+  else if(prev==="settings")renderSettingsPage();
+  else if(prev==="about")renderAboutPage();
+  else if(prev==="add" || prev==="select" || prev==="addep"){
+    if(window.currentUserRole!=="ADMIN"){
+      showPage('home');
+    }else{
+      if(prev==="add")renderAddPage(true);
+      else showPage('home');
+    }
+  }
+  else if(prev==="details"&&window._lastDetailsFid)openDetailsBack();
+  else if(prev==="search")openSearchBack();
+  else renderHome();
+  window.scrollTo(0,0);
+};
+window.openDetailsBack=()=>{
+  let fid=window._lastDetailsFid;
+  let item=getItemByFirebaseId(fid);
+  if(!item){renderHome();return;}
+  currentPage="details";
+  let isAnimation = item.type === "animation" || item.type === "arabic" || item.type === "sports";
+  let categoryLabel = window.translateCategoryLabel(item.category, isAnimation);
+  let episodes = Array.isArray(item.episodes) ? item.episodes : (item.video || item.altUrl ? [{ title: t("live_stream"), video: item.video || "", altUrl: item.altUrl || "" }] : []);
+  let isDesc = (window.episodesSortOrder === "desc");
+
+  let orderBtnHtml = episodes.length > 0 ? `
+    <button id="epSortBtn" class="ep-order-btn ${isDesc ? 'desc' : ''}" onclick="toggleEpisodesOrder('${item.firebaseId}')" title="${isDesc ? t("sort_desc_title") : t("sort_asc_title")}" aria-label="${t("sort_asc_title")}">
+      <span style="font-size:16px;display:inline-block">⇅</span>
+      <span id="epSortLabel" style="font-size:12px">${isDesc ? `${episodes.length} ➔ 1` : `1 ➔ ${episodes.length}`}</span>
+    </button>
+  ` : "";
+
+  let editPosterDetailBtn = (window.currentUserRole === "ADMIN") ? `<div style="margin-top:10px"><button type="button" onclick="openEditPosterModal('${item.firebaseId}')" style="background:#1a2a3a;color:#00d2ff;border:1px solid #2a4a6a;padding:8px 16px;border-radius:10px;font-size:13px;font-weight:bold;cursor:pointer;display:inline-flex;align-items:center;gap:6px">🖼️ تعديل البوستر</button></div>` : "";
+
+  main.innerHTML=`<div class="page-header" style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px 4px 14px;margin-top:55px"><button class="back-btn" style="margin:0" onclick="goBack()">${t("back_btn")}</button>${orderBtnHtml}</div><div style="padding:15px;text-align:center"><img class="poster" data-poster-fid="${item.firebaseId}" src="${item.poster}" style="width:140px;height:140px;object-fit:contain;padding:10px;border-radius:18px">${editPosterDetailBtn}<h1>${item.title}</h1><p style="color:#888">${item.year} • ${categoryLabel}</p>${window.renderDescriptionHtml(item.firebaseId)}</div><div id="episodesListContainer" style="padding:12px;display:flex;flex-direction:column;gap:8px"></div>`;
+
+  window.renderEpisodesList(item.firebaseId);
+};
+window.openSearchBack=()=>{
+  currentPage="search";
+  main.innerHTML=`<div class="page-header"><button class="back-btn" onclick="goBack()">${t("back_btn")}</button></div><div style="padding:12px"><input id="searchInput" class="input" placeholder="${t("search_placeholder")}" oninput="performSearch()"></div><div id="searchResults" class="movies-grid"></div>`;
+};
+window.fillSamplePixeldrain=()=>{
+  let v=document.getElementById("addVideo");if(v)v.value="https://pixeldrain.com/api/file/cnR9Z51";
+  let t=document.getElementById("addTitle");if(t&&!t.value)t.value="تجربة Pixeldrain (cnR9Z51)";
+  let p=document.getElementById("addPoster");if(p&&!p.value)p.value="https://images.unsplash.com/photo-1536240478700-b869070f9279?w=400";
+};
+window.testPlayPixeldrain=()=>{
+  let v=(document.getElementById("addVideo")&&document.getElementById("addVideo").value.trim())||"https://pixeldrain.com/api/file/cnR9Z51";
+  let url=window.normalizeVideoUrl(v);
+  if(window.AndroidBridge&&typeof window.AndroidBridge.playStream==="function"){
+    window.AndroidBridge.playStream(url,"تجربة Pixeldrain");
+  }else{
+    alert("رابط التجربة: "+url);
+  }
+};
+window.renderAdminManageListHtml = function(filterText = "") {
+  const q = (filterText || "").trim().toLowerCase();
+  const list = (window.allContent || []).filter(item => {
+    if (!q) return true;
+    return (item.title && item.title.toLowerCase().includes(q)) || (item.category && item.category.toLowerCase().includes(q));
+  });
+  if (list.length === 0) {
+    return `<div style="text-align:center;color:#777;padding:14px;font-size:13px">لا توجد أعمال مطابقة</div>`;
+  }
+  return list.map(item => {
+    let isAnimation = item.type === "animation" || item.type === "arabic" || item.type === "sports";
+    let categoryLabel = item.category || (isAnimation ? "أنميشن" : "مسلسل");
+    return `
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:#161616;border:1px solid #282828;border-radius:12px;padding:8px 10px">
+        <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1;cursor:pointer" onclick="openDetails('${item.firebaseId}')">
+          <img class="poster" data-poster-fid="${item.firebaseId}" src="${item.poster}" style="width:48px;height:48px;border-radius:8px;object-fit:contain;margin:0;flex-shrink:0">
+          <div style="min-width:0;flex:1">
+            <div style="font-size:13px;font-weight:bold;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.title}</div>
+            <div style="font-size:11px;color:#888;margin-top:2px">${item.year || ""} • ${categoryLabel}</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+          <button type="button" onclick="openEditPosterModal('${item.firebaseId}')" style="background:#1a2a3a;color:#00d2ff;border:1px solid #2a4a6a;padding:7px 10px;border-radius:8px;font-size:12px;font-weight:bold;cursor:pointer;display:flex;align-items:center;gap:4px">🖼️ تعديل البوستر</button>
+          <button type="button" onclick="renderAddEpisodeForm('${item.firebaseId}')" title="إدارة الحلقات" style="background:#222;color:#fff;border:1px solid #333;padding:7px 9px;border-radius:8px;font-size:12px;cursor:pointer">📺</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+};
+window.filterAdminManageList = function(val) {
+  const container = document.getElementById("adminManageContentList");
+  if (container) {
+    container.innerHTML = window.renderAdminManageListHtml(val);
+  }
+};
+window.renderAddPage=(isBack=false)=>{
+  if(window.currentUserRole !== "ADMIN"){
+    historyStack=[];
+    showPage('home');
+    return;
+  }
+  if(!isBack&&currentPage!=="add"){historyStack.push(currentPage);}
+  setActiveNav("add");
+  currentPage="add";
+  main.innerHTML=`<div class="page-header"><button class="back-btn" onclick="goBack()">← رجوع</button></div><h1 style="padding:16px">لوحة التحكم</h1><div style="padding:12px;display:flex;flex-direction:column;gap:10px"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button onclick="startSelectEpisodeMode()" style="background:#fff;color:#000;border:none;padding:12px;border-radius:10px;font-weight:bold;cursor:pointer">📺 إضافة بث / تعديل بوستر</button><button onclick="toggleDeleteMode()" style="background:${deleteMode?'#fff':'#e50914'};color:${deleteMode?'#000':'#fff'};border:none;padding:12px;border-radius:10px;font-weight:bold;cursor:pointer">${deleteMode?'إلغاء':'🗑️ حذف'}</button></div><div style="display:flex;gap:8px"><button onclick="showPage('home')" style="flex:1;background:#1a1a1a;color:#aaa;border:1px solid #333;padding:9px;border-radius:8px;cursor:pointer">🔒 إغلاق اللوحة</button><button onclick="confirmLogout()" style="flex:1;background:#250505;color:#ff6b6b;border:1px solid #441111;padding:9px;border-radius:8px;cursor:pointer;font-weight:bold">🚪 تسجيل الخروج</button></div><div style="background:#111;border:1px solid #222;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px"><div style="font-weight:bold;font-size:14px;color:#00d2ff;display:flex;align-items:center;justify-content:space-between"><span>🖼️ إدارة المحتوى وتعديل البوسترات (${(window.allContent||[]).length})</span></div><input class="input" placeholder="ابحث عن فيلم أو مسلسل أو أنمي لتعديل البوستر..." oninput="filterAdminManageList(this.value)" style="padding:9px 12px;font-size:13px"><div id="adminManageContentList" style="display:flex;flex-direction:column;gap:8px;max-height:320px;overflow-y:auto;padding-right:2px">${window.renderAdminManageListHtml("")}</div></div><div style="background:#111;border:1px solid #222;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px"><div style="font-weight:bold;font-size:14px;color:#00d2ff;display:flex;align-items:center;gap:6px">🔔 إشعارات Firebase Cloud Messaging (FCM)</div><p style="font-size:12px;color:#888;line-height:1.5">تم تفعيل الإشعارات الحقيقية! يمكنك إرسال إشعار للجميع عبر Firebase Console باختيار Topic: <b>all_users</b> أو تجربة هذا الجهاز بواسطة الرمز.</p><div style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" onclick="copyFcmToken()" style="flex:1;background:#1a2a3a;color:#00d2ff;border:1px solid #2a4a6a;padding:9px;border-radius:8px;font-size:12px;font-weight:bold;cursor:pointer">📋 نسخ رمز FCM لهذا الجهاز</button><button type="button" onclick="requestNotifPermission()" style="background:#222;color:#fff;border:1px solid #333;padding:9px;border-radius:8px;font-size:12px;cursor:pointer">🔔 طلب إذن الإشعارات</button></div><button type="button" onclick="openTestNotificationModal()" style="background:linear-gradient(135deg,#0072ff,#00d2ff);color:#000;border:none;padding:10px;border-radius:8px;font-size:13px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">⚡ تجربة / إرسال إشعار مخصص (عنوان، رسالة، حلقة، أنمي)</button></div><hr style="border-color:#1f1f1f"><select id="addType" class="input"><option value="anime">أنمي</option><option value="animation">أنميشن</option></select><div style="display:flex;flex-direction:column;gap:6px"><label style="font-size:12px;color:#aaa">تصنيف الأنمي:</label><select id="addCategory" class="input"><option value="مسلسل">مسلسل</option><option value="فلم">فلم</option><option value="أوفا">أوفا</option><option value="خاصة">خاصة</option><option value="أونا">أونا</option></select><div style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" onclick="document.getElementById('addCategory').value='مسلسل'" style="background:#1f1f1f;color:#fff;border:1px solid #333;padding:5px 12px;border-radius:12px;font-size:12px;cursor:pointer">مسلسل</button><button type="button" onclick="document.getElementById('addCategory').value='فلم'" style="background:#1f1f1f;color:#fff;border:1px solid #333;padding:5px 12px;border-radius:12px;font-size:12px;cursor:pointer">فلم</button><button type="button" onclick="document.getElementById('addCategory').value='أوفا'" style="background:#1f1f1f;color:#fff;border:1px solid #333;padding:5px 12px;border-radius:12px;font-size:12px;cursor:pointer">أوفا</button><button type="button" onclick="document.getElementById('addCategory').value='خاصة'" style="background:#1f1f1f;color:#fff;border:1px solid #333;padding:5px 12px;border-radius:12px;font-size:12px;cursor:pointer">خاصة</button><button type="button" onclick="document.getElementById('addCategory').value='أونا'" style="background:#1f1f1f;color:#fff;border:1px solid #333;padding:5px 12px;border-radius:12px;font-size:12px;cursor:pointer">أونا</button></div></div><input id="addTitle" class="input" placeholder="اسم العمل / الأنمي"><input id="addYear" class="input" type="number" placeholder="السنة"><input id="addPoster" class="input" placeholder="رابط بوستر العمل"><div class="drop-zone" onclick="document.getElementById('posterFile').click()">📷 اختر بوستر<input type="file" id="posterFile" accept="image/*" hidden onchange="handlePosterFile(this.files[0])"><div id="posterPreview" style="margin-top:8px;color:#fff;font-size:12px"></div></div><input id="addVideo" class="input" placeholder="رابط البث M3U8 أو MP4 أو Pixeldrain"><div style="display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 6px 0"><button type="button" onclick="fillSamplePixeldrain()" style="background:#1f1f1f;color:#00d2ff;border:1px solid #333;padding:8px 12px;border-radius:8px;font-size:12px;cursor:pointer">⚡ تجربة رابط Pixeldrain: cnR9Z51</button><button type="button" onclick="testPlayPixeldrain()" style="background:#00d2ff;color:#000;border:none;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:bold;cursor:pointer">▶ تشغيل مباشر لتجربة الرابط</button></div><input id="addAltUrl" class="input" placeholder="رابط الموقع البديل (اختياري) - أدخل رابط موقع القناة أو YouTube أو Google"><div class="drop-zone" onclick="document.getElementById('videoFile').click()">🎬 اختر ملف فيديو<input type="file" id="videoFile" accept="video/*" hidden onchange="handleVideoFile(this.files[0])"><div id="videoPreview" style="margin-top:8px;color:#fff;font-size:12px"></div></div><input id="addDesc" class="input" placeholder="وصف العمل / القصة"><button id="addBtn" onclick="addNewContent()" style="background:#e50914;color:#fff;border:none;padding:13px;border-radius:10px;font-weight:bold;cursor:pointer">إضافة العمل</button></div>`;
+};
+window.handlePosterFile=(f)=>{if(!f)return;let r=new FileReader();r.onload=e=>{window.tempPosterData=e.target.result;document.getElementById("posterPreview").innerText="✅ "+f.name;};r.readAsDataURL(f);};
+window.handleVideoFile=(f)=>{if(!f)return;let r=new FileReader();r.onload=e=>{window.tempVideoData=e.target.result;document.getElementById("videoPreview").innerText="✅ "+f.name;};r.readAsDataURL(f);};
+window.lockAddPage=()=>{deleteMode=false;selectEpisodeMode=false;showPage("home");};
+window.toggleDeleteMode=()=>{if(window.currentUserRole!=="ADMIN"){showPage('home');return;}deleteMode=!deleteMode;selectEpisodeMode=false;renderAddPage(true);};
+window.startSelectEpisodeMode=()=>{if(window.currentUserRole!=="ADMIN"){showPage('home');return;}selectEpisodeMode=true;deleteMode=false;historyStack.push(currentPage);currentPage="select";main.innerHTML=`<div class="page-header"><button class="back-btn" onclick="goBack()">← رجوع</button></div><h1 style="padding:16px">اختر عمل لإضافة بث أو تعديل البوستر</h1><div class="movies-grid">${window.allContent.map(createCard).join("")}</div>`;};
+window.addNewContent=async()=>{
+  if(window.currentUserRole!=="ADMIN"){showPage('home');return;}
+  let type=document.getElementById("addType").value,category=(document.getElementById("addCategory")?document.getElementById("addCategory").value.trim():"")||"مسلسل",title=document.getElementById("addTitle").value.trim(),year=document.getElementById("addYear").value||2024,poster=document.getElementById("addPoster").value.trim()||window.tempPosterData,video=document.getElementById("addVideo").value.trim()||window.tempVideoData,altUrl=(document.getElementById("addAltUrl")?document.getElementById("addAltUrl").value.trim():""),desc=document.getElementById("addDesc").value.trim()||"بدون وصف";
+  if(!title||!poster){alert("العنوان والصورة ضروري");return;}
+  video = window.normalizeVideoUrl(video);
+  if(altUrl && !altUrl.startsWith("http://") && !altUrl.startsWith("https://")){
+    altUrl="https://"+altUrl;
+  }
+  let btn=document.getElementById("addBtn");btn.disabled=true;btn.innerText="⏳ جاري...";
+  try{
+    await addDoc(colRef,{id:type+"-"+Date.now(),title,year:parseInt(year),type,category,description:desc,poster,video:video,altUrl:altUrl,episodes:[{title:"البث المباشر",video,altUrl}],adminKey:"hamza2009",createdAt:serverTimestamp()});
+    setTimeout(()=>showPage("home"),600);
+  }catch(e){alert(e.message);btn.disabled=false;btn.innerText="إضافة العمل";}
+};
+window.renderAddEpisodeForm=(fid)=>{
+  if(window.currentUserRole!=="ADMIN"){showPage('home');return;}
+  let item=getItemByFirebaseId(fid);
+  if(!item)return;
+  window.selectEpisodeMode=false;
+  if(currentPage!=="addep"){historyStack.push(currentPage);}
+  currentPage="addep";
+  let episodes = Array.isArray(item.episodes) ? item.episodes : (item.video || item.altUrl ? [{ title: "البث المباشر", video: item.video || "", altUrl: item.altUrl || "" }] : []);
+  let epListHtml = episodes.length > 0 ? `
+    <div style="padding:12px;background:#111;margin:8px;border-radius:10px;border:1px solid #222">
+      <div style="font-weight:bold;font-size:14px;color:#aaa;margin-bottom:8px">الحلقات الحالية (${episodes.length}):</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        ${episodes.map((ep, idx) => `
+          <div style="display:flex;align-items:center;justify-content:space-between;background:#1a1a1a;padding:8px 12px;border-radius:8px;border:1px solid #333">
+            <span style="font-size:14px;color:#fff">${ep.title || "حلقة " + (idx + 1)}</span>
+            <div style="display:flex;gap:6px">
+              <button type="button" onclick="openEditEpisodeModal('${item.firebaseId}', ${idx})" style="background:#00d2ff;color:#000;border:none;padding:5px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:bold">✏️ تعديل الرابط</button>
+              <button type="button" onclick="deleteEpisode('${item.firebaseId}', ${idx})" style="background:#e50914;color:#fff;border:none;padding:5px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:bold">🗑️ حذف</button>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  ` : "";
+  main.innerHTML=`<div class="page-header"><button class="back-btn" onclick="goBack()">← رجوع</button></div><div style="padding:15px;text-align:center"><img class="poster" data-poster-fid="${item.firebaseId}" src="${item.poster}" style="width:140px;height:140px;object-fit:contain;background:#1a1a1a;padding:10px;border-radius:18px;border:1px solid #222"><div style="margin-top:10px"><button type="button" onclick="openEditPosterModal('${item.firebaseId}')" style="background:#1a2a3a;color:#00d2ff;border:1px solid #2a4a6a;padding:8px 16px;border-radius:10px;font-size:13px;font-weight:bold;cursor:pointer;display:inline-flex;align-items:center;gap:6px">🖼️ تعديل البوستر</button></div><h2 style="margin-top:8px">${item.title}</h2>${window.renderDescriptionHtml(item.firebaseId)}</div>${epListHtml}<div style="padding:12px;display:flex;flex-direction:column;gap:10px;background:#111;margin:8px;border-radius:10px;border:1px solid #222"><h3 style="font-size:15px;margin-bottom:2px">➕ إضافة حلقة / بث جديد</h3><input id="epTitle" class="input" placeholder="اسم الحلقة أو البث"><input id="epVideoLink" class="input" placeholder="رابط البث M3U8 أو MP4 أو Pixeldrain"><div style="display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 6px 0"><button type="button" onclick="document.getElementById('epVideoLink').value='https://pixeldrain.com/api/file/cnR9Z51'" style="background:#1f1f1f;color:#00d2ff;border:1px solid #333;padding:8px 12px;border-radius:8px;font-size:12px;cursor:pointer">⚡ تعبئة رابط Pixeldrain التجريبي (cnR9Z51)</button></div><input id="epAltUrl" class="input" placeholder="رابط الموقع البديل (اختياري) - أدخل رابط موقع القناة أو YouTube أو Google"><div class="drop-zone" onclick="document.getElementById('epVideoFile').click()">🎬 اختر فيديو<input type="file" id="epVideoFile" accept="video/*" hidden onchange="handleEpVideoFile(this.files[0])"><div id="epVideoPreview" style="margin-top:8px;color:#fff;font-size:12px"></div></div><button onclick="addEpisode('${item.firebaseId}')" style="background:#fff;color:#000;border:none;padding:12px;border-radius:8px;font-weight:bold;cursor:pointer">✅ إضافة الحلقة</button></div>`;
+};
+window.handleEpVideoFile=(f)=>{if(!f)return;let r=new FileReader();r.onload=e=>{window.tempVideoData=e.target.result;document.getElementById("epVideoPreview").innerText="✅ "+f.name;};r.readAsDataURL(f);};
+window.addEpisode=async(fid)=>{
+  if(window.currentUserRole!=="ADMIN"){showPage('home');return;}
+  let t=document.getElementById("epTitle").value.trim();
+  let l=document.getElementById("epVideoLink").value.trim()||window.tempVideoData;
+  let alt=document.getElementById("epAltUrl")?document.getElementById("epAltUrl").value.trim():"";
+  if(!t){alert("يرجى إدخال اسم الحلقة أو البث");return;}
+  l = window.normalizeVideoUrl(l);
+  if(alt && !alt.startsWith("http://") && !alt.startsWith("https://")){
+    alt="https://"+alt;
+  }
+  if(!l && !alt){
+    alert("يرجى إدخال رابط الفيديو أو رابط الموقع البديل");
+    return;
+  }
+  let item=getItemByFirebaseId(fid);
+  let baseEpisodes = Array.isArray(item.episodes) ? item.episodes : (item.video || item.altUrl ? [{ title: "البث المباشر", video: item.video || "", altUrl: item.altUrl || "" }] : []);
+  let ne=[...baseEpisodes,{title:t,video:l,altUrl:alt}];
+  await updateDoc(doc(db,"movies",fid),{episodes:ne});
+  item.episodes = ne;
+  window.tempVideoData="";alert("✅ تمت إضافة الحلقة بنجاح");historyStack=[];openDetails(fid);
+};
+window.deleteEpisode=async(fid,idx)=>{
+  if(window.currentUserRole!=="ADMIN"){showPage('home');return;}
+  let item=getItemByFirebaseId(fid);
+  if(!item)return;
+  let episodes=Array.isArray(item.episodes)?[...item.episodes]:(item.video||item.altUrl?[{title:"البث المباشر",video:item.video||"",altUrl:item.altUrl||""}]:[]);
+  if(idx<0||idx>=episodes.length)return;
+  let epTitle=episodes[idx].title||("حلقة "+(idx+1));
+  if(!confirm(`هل أنت متأكد من حذف "${epTitle}"؟`))return;
+  episodes.splice(idx,1);
+  try{
+    await updateDoc(doc(db,"movies",fid),{episodes:episodes});
+    item.episodes=episodes;
+    alert("✅ تم حذف الحلقة بنجاح");
+    if(currentPage==="addep"){
+      renderAddEpisodeForm(fid);
+    }else{
+      openDetails(fid);
+    }
+  }catch(e){
+    alert("خطأ أثناء حذف الحلقة: "+e.message);
+  }
+};
+window.askDeleteMovie=async(fid)=>{
+  if(window.currentUserRole!=="ADMIN"){showPage('home');return;}
+  if(confirm("حذف نهائي؟")){await deleteDoc(doc(db,"movies",fid));renderCurrentPage();}
+};
+
+/* ================= Edit Content Poster Link Logic (Admin Only) ================= */
+window.currentEditingPosterFid = null;
+window.currentEditingPosterValid = false;
+window.currentEditingPosterUrl = "";
+window._posterCheckId = 0;
+
+window.isAdminAuthorized = function() {
+  if (window.currentUserRole !== "ADMIN") return false;
+  if (window.AndroidBridge && typeof window.AndroidBridge.verifyAdminSession === "function") {
+    try {
+      return Boolean(window.AndroidBridge.verifyAdminSession(""));
+    } catch (e) {
+      console.warn("verifyAdminSession error:", e);
+    }
+  }
+  return window.currentUserRole === "ADMIN" && window.isAdminUnlocked === true;
+};
+
+window.openEditPosterModal = function(fid) {
+  if (!window.isAdminAuthorized()) {
+    alert("عذراً، هذه الميزة مخصصة للمسؤول فقط.");
+    return;
+  }
+
+  const item = getItemByFirebaseId(fid);
+  if (!item) return;
+
+  window.currentEditingPosterFid = fid;
+  window.currentEditingPosterValid = true;
+  window.currentEditingPosterUrl = item.poster || "";
+
+  const titleEl = document.getElementById("editPosterTargetTitle");
+  const inputEl = document.getElementById("editPosterUrlInput");
+  const previewImg = document.getElementById("editPosterPreviewImg");
+  const statusMsg = document.getElementById("editPosterStatusMsg");
+  const saveBtn = document.getElementById("saveEditPosterBtn");
+
+  if (titleEl) titleEl.innerText = item.title || "";
+  if (inputEl) inputEl.value = item.poster || "";
+
+  if (previewImg) {
+    if (item.poster) {
+      previewImg.src = item.poster;
+      previewImg.style.display = "block";
+    } else {
+      previewImg.style.display = "none";
+    }
+  }
+
+  if (statusMsg) {
+    statusMsg.style.color = "#aaa";
+    statusMsg.innerText = "أدخل رابط البوستر الجديد لمعاينته قبل الحفظ";
+  }
+
+  if (saveBtn) {
+    saveBtn.disabled = false;
+    saveBtn.innerText = "💾 حفظ التعديلات";
+  }
+
+  const modal = document.getElementById("editPosterModal");
+  if (modal) modal.style.display = "flex";
+};
+
+window.closeEditPosterModal = function() {
+  const modal = document.getElementById("editPosterModal");
+  if (modal) modal.style.display = "none";
+  window.currentEditingPosterFid = null;
+  window.currentEditingPosterValid = false;
+  window.currentEditingPosterUrl = "";
+};
+
+window.onEditPosterInputChanged = function(rawVal) {
+  const url = (rawVal || "").trim();
+  const previewImg = document.getElementById("editPosterPreviewImg");
+  const statusMsg = document.getElementById("editPosterStatusMsg");
+  const saveBtn = document.getElementById("saveEditPosterBtn");
+
+  window.currentEditingPosterValid = false;
+  window.currentEditingPosterUrl = "";
+
+  const checkId = ++window._posterCheckId;
+
+  if (!url) {
+    if (previewImg) previewImg.style.display = "none";
+    if (statusMsg) {
+      statusMsg.style.color = "#ff6b6b";
+      statusMsg.innerText = "⚠️ يرجى إدخال رابط صورة البوستر الجديد";
+    }
+    if (saveBtn) saveBtn.disabled = true;
+    return;
+  }
+
+  const isDataImg = /^data:image\/[a-zA-Z0-9.+-]+;base64,/i.test(url);
+  const isHttpUrl = /^https?:\/\/.+/i.test(url);
+
+  if (!isDataImg && !isHttpUrl) {
+    if (previewImg) previewImg.style.display = "none";
+    if (statusMsg) {
+      statusMsg.style.color = "#ff6b6b";
+      statusMsg.innerText = "❌ الرابط غير صالح. يجب أن يبدأ بـ http:// أو https://";
+    }
+    if (saveBtn) saveBtn.disabled = true;
+    return;
+  }
+
+  if (statusMsg) {
+    statusMsg.style.color = "#00d2ff";
+    statusMsg.innerText = "⏳ جاري التحقق من تحميل صورة البوستر...";
+  }
+  if (saveBtn) saveBtn.disabled = true;
+
+  const testImg = new Image();
+  testImg.onload = function() {
+    if (checkId !== window._posterCheckId) return;
+    if (testImg.naturalWidth > 0 && testImg.naturalHeight > 0) {
+      window.currentEditingPosterValid = true;
+      window.currentEditingPosterUrl = url;
+      if (previewImg) {
+        previewImg.src = url;
+        previewImg.style.display = "block";
+      }
+      if (statusMsg) {
+        statusMsg.style.color = "#4ade80";
+        statusMsg.innerText = `✅ الصورة صالحة وجاهزة للحفظ (${testImg.naturalWidth}×${testImg.naturalHeight})`;
+      }
+      if (saveBtn) saveBtn.disabled = false;
+    } else {
+      window.currentEditingPosterValid = false;
+      if (previewImg) previewImg.style.display = "none";
+      if (statusMsg) {
+        statusMsg.style.color = "#ff6b6b";
+        statusMsg.innerText = "❌ تعذّر قراءة أبعاد الصورة من هذا الرابط";
+      }
+      if (saveBtn) saveBtn.disabled = true;
+    }
+  };
+
+  testImg.onerror = function() {
+    if (checkId !== window._posterCheckId) return;
+    window.currentEditingPosterValid = false;
+    window.currentEditingPosterUrl = "";
+    if (previewImg) previewImg.style.display = "none";
+    if (statusMsg) {
+      statusMsg.style.color = "#ff6b6b";
+      statusMsg.innerText = "❌ تعذّر تحميل الصورة. تأكد من أن الرابط مباشر وصالح للصورة";
+    }
+    if (saveBtn) saveBtn.disabled = true;
+  };
+
+  testImg.src = url;
+};
+
+window.updatePosterEverywhereInDom = function(fid, newPosterUrl) {
+  document.querySelectorAll(`img[data-poster-fid="${fid}"]`).forEach(img => {
+    img.src = newPosterUrl;
+  });
+};
+
+window.saveEditedPoster = async function() {
+  if (!window.isAdminAuthorized()) {
+    alert("عذراً، هذه العملية مسموحة للمسؤول فقط.");
+    return;
+  }
+
+  const fid = window.currentEditingPosterFid;
+  if (!fid) return;
+
+  const item = getItemByFirebaseId(fid);
+  if (!item) return;
+
+  const inputEl = document.getElementById("editPosterUrlInput");
+  const candidateUrl = (inputEl ? inputEl.value : window.currentEditingPosterUrl || "").trim();
+
+  if (!candidateUrl || !window.currentEditingPosterValid) {
+    alert("يرجى إدخال رابط صورة صالح والانتظار حتى تظهر المعاينة بنجاح قبل الحفظ.");
+    return;
+  }
+
+  // Double-check image loadability right before saving
+  const verified = await new Promise((resolve) => {
+    const verifier = new Image();
+    verifier.onload = () => resolve(verifier.naturalWidth > 0);
+    verifier.onerror = () => resolve(false);
+    verifier.src = candidateUrl;
+  });
+
+  if (!verified) {
+    alert("❌ تعذّر تحميل الصورة من الرابط المدخل. لم يتم تغيير البوستر القديم.");
+    return;
+  }
+
+  const saveBtn = document.getElementById("saveEditPosterBtn");
+  const oldPoster = item.poster;
+
+  if (saveBtn) {
+    saveBtn.disabled = true;
+    saveBtn.innerText = "⏳ جاري الحفظ...";
+  }
+
+  try {
+    // Update ONLY the poster field (and adminKey for Firestore rule verification) without altering title, description, episodes, or watch links
+    await updateDoc(doc(db, "movies", fid), {
+      poster: candidateUrl,
+      adminKey: "hamza2009"
+    });
+
+    // Update in-memory item and all rendered DOM places immediately without page reload
+    item.poster = candidateUrl;
+    window.updatePosterEverywhereInDom(fid, candidateUrl);
+
+    if (currentPage === "add") {
+      const searchInAdmin = document.querySelector("#main-content input[oninput*='filterAdminManageList']");
+      window.filterAdminManageList(searchInAdmin ? searchInAdmin.value : "");
+    }
+
+    alert("✅ تم تحديث وحفظ رابط البوستر بنجاح!");
+    window.closeEditPosterModal();
+  } catch (e) {
+    // Keep old poster unchanged on failure
+    item.poster = oldPoster;
+    window.updatePosterEverywhereInDom(fid, oldPoster);
+    alert("❌ فشل حفظ البوستر الجديد في قاعدة البيانات (تم الإبقاء على البوستر القديم): " + e.message);
+  } finally {
+    if (saveBtn) {
+      saveBtn.disabled = false;
+      saveBtn.innerText = "💾 حفظ التعديلات";
+    }
+  }
+};
+
+/* ================= Edit Episode Stream Link Logic ================= */
+window.currentEditingFid = null;
+window.currentEditingIdx = -1;
+
+window.openEditEpisodeModal = function(fid, idx) {
+  if (window.currentUserRole !== "ADMIN") {
+    let code = prompt("تعديل رابط البث مخصص للمسؤول. أدخل كود الإدارة للمتابعة:");
+    if (!code || code.toLowerCase().trim() !== "hamza2009") {
+      alert("الكود غير صحيح أو تم الإلغاء");
+      return;
+    }
+    window.saveUserRole("ADMIN");
+    window.applyUserRole("ADMIN");
+  }
+
+  let item = getItemByFirebaseId(fid);
+  if (!item) return;
+
+  let episodes = Array.isArray(item.episodes) ? item.episodes : (item.video || item.altUrl ? [{ title: "البث المباشر", video: item.video || "", altUrl: item.altUrl || "" }] : []);
+  if (idx < 0 || idx >= episodes.length) return;
+
+  let ep = episodes[idx];
+  window.currentEditingFid = fid;
+  window.currentEditingIdx = idx;
+
+  const titleEl = document.getElementById("editEpTitleInput");
+  const videoEl = document.getElementById("editEpVideoInput");
+  const altEl = document.getElementById("editEpAltUrlInput");
+
+  if (titleEl) titleEl.value = ep.title || ("حلقة " + (idx + 1));
+  if (videoEl) videoEl.value = ep.video || "";
+  if (altEl) altEl.value = ep.altUrl || "";
+
+  const modal = document.getElementById("editEpisodeModal");
+  if (modal) modal.style.display = "flex";
+};
+
+window.closeEditEpisodeModal = function() {
+  const modal = document.getElementById("editEpisodeModal");
+  if (modal) modal.style.display = "none";
+  window.currentEditingFid = null;
+  window.currentEditingIdx = -1;
+};
+
+window.testPlayCurrentEditVideo = function() {
+  let v = (document.getElementById("editEpVideoInput")?.value || "").trim();
+  if (!v) {
+    alert("يرجى إدخال رابط أولاً لتجربته");
+    return;
+  }
+  let url = window.normalizeVideoUrl(v);
+  if (window.AndroidBridge && typeof window.AndroidBridge.playStream === "function") {
+    window.AndroidBridge.playStream(url, "تجربة رابط البث");
+  } else {
+    alert("رابط التجربة: " + url);
+  }
+};
+
+window.saveEditedEpisode = async function() {
+  let fid = window.currentEditingFid;
+  let idx = window.currentEditingIdx;
+  if (!fid || idx < 0) return;
+
+  let item = getItemByFirebaseId(fid);
+  if (!item) return;
+
+  let title = (document.getElementById("editEpTitleInput")?.value || "").trim();
+  let video = (document.getElementById("editEpVideoInput")?.value || "").trim();
+  let altUrl = (document.getElementById("editEpAltUrlInput")?.value || "").trim();
+
+  if (!title) {
+    alert("يرجى كتابة اسم أو عنوان الحلقة");
+    return;
+  }
+
+  video = window.normalizeVideoUrl(video);
+  if (altUrl && !altUrl.startsWith("http://") && !altUrl.startsWith("https://")) {
+    altUrl = "https://" + altUrl;
+  }
+
+  let episodes = Array.isArray(item.episodes) ? [...item.episodes] : (item.video || item.altUrl ? [{ title: "البث المباشر", video: item.video || "", altUrl: item.altUrl || "" }] : []);
+  if (idx < 0 || idx >= episodes.length) return;
+
+  episodes[idx] = {
+    title: title,
+    video: video,
+    altUrl: altUrl
+  };
+
+  let btn = document.getElementById("saveEditEpBtn");
+  if (btn) {
+    btn.disabled = true;
+    btn.innerText = "⏳ جاري الحفظ...";
+  }
+
+  try {
+    let updatePayload = { episodes: episodes };
+    if (idx === 0) {
+      updatePayload.video = video;
+      updatePayload.altUrl = altUrl;
+    }
+    await updateDoc(doc(db, "movies", fid), updatePayload);
+    item.episodes = episodes;
+    if (idx === 0) {
+      item.video = video;
+      item.altUrl = altUrl;
+    }
+    alert("✅ تم تعديل رابط البث للحلقة بنجاح!");
+    closeEditEpisodeModal();
+    if (currentPage === "details") {
+      renderEpisodesList(fid);
+    } else if (currentPage === "addep") {
+      renderAddEpisodeForm(fid);
+    } else {
+      renderCurrentPage();
+    }
+  } catch (e) {
+    alert("حدث خطأ أثناء حفظ التعديل: " + e.message);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerText = "💾 حفظ التعديلات";
+    }
+  }
+};
+
+/* ================= AdMob 5-Ads Reward Logic ================= */
+const ADMOB_CONFIG = {
+  appId: "ca-app-pub-2277779478101583~2644517153",
+  rewardedAdUnitId: "ca-app-pub-2277779478101583/1404104591",
+  initializeForTesting: false,
+  searchTimeoutMs: 15000
+};
+
+const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+let internalAdCount = 0;
+let isAdFlowActive = false;
+let adSearchTimeoutId = null;
+let currentAdStepResolved = false;
+
+window.checkAndTriggerDailyAdMobPopup = function() {
+  // Never show ad before user enters authentication code and role is determined
+  if (!window.currentUserRole) return;
+
+  const lastCompleted = parseInt(localStorage.getItem("admob_last_completed_timestamp") || "0", 10);
+  const now = Date.now();
+  if (now - lastCompleted < ONE_DAY_MS) {
+    // Already completed within 24 hours
+    return;
+  }
+  const lastDismissed = parseInt(localStorage.getItem("admob_last_dismissed_timestamp") || "0", 10);
+  if (now - lastDismissed < ONE_DAY_MS) {
+    // Dismissed today
+    return;
+  }
+  // Show the popup once per day
+  const popup = document.getElementById("adDailyPopup");
+  if (popup && !isAdFlowActive) {
+    popup.style.display = "flex";
+  }
+};
+
+window.dismissDailyAdPopup = function() {
+  const popup = document.getElementById("adDailyPopup");
+  if (popup) popup.style.display = "none";
+  localStorage.setItem("admob_last_dismissed_timestamp", Date.now().toString());
+};
+
+window.startAdWatchingFlow = function() {
+  const popup = document.getElementById("adDailyPopup");
+  if (popup) popup.style.display = "none";
+  
+  // Read saved progress if any for today, else reset to 0
+  const savedCount = parseInt(localStorage.getItem("admob_internal_ad_count") || "0", 10);
+  internalAdCount = (savedCount >= 0 && savedCount < 5) ? savedCount : 0;
+  
+  isAdFlowActive = true;
+  const watchScreen = document.getElementById("adWatchScreen");
+  if (watchScreen) watchScreen.style.display = "flex";
+  
+  updateAdWatchUI(internalAdCount, "جاري البحث عن إعلان...", "");
+  requestNextAd();
+};
+
+function updateAdWatchUI(count, status, bannerMsg) {
+  const counterEl = document.getElementById("adCounterText");
+  const statusEl = document.getElementById("adMainStatus");
+  const bannerEl = document.getElementById("adMessageBanner");
+  const fillEl = document.getElementById("adProgressFill");
+  const spinnerEl = document.getElementById("adSpinner");
+
+  if (counterEl) {
+    counterEl.innerHTML = `${count}<span>/5</span>`;
+  }
+  if (statusEl) {
+    statusEl.innerText = status;
+  }
+  if (bannerEl) {
+    if (bannerMsg) {
+      bannerEl.innerHTML = `<span class="ad-toast-pill">${bannerMsg}</span>`;
+    } else {
+      bannerEl.innerHTML = "";
+    }
+  }
+  if (fillEl) {
+    fillEl.style.width = `${Math.min(100, (count / 5) * 100)}%`;
+  }
+  if (spinnerEl) {
+    spinnerEl.style.display = (count >= 5) ? "none" : "block";
+  }
+}
+
+function requestNextAd() {
+  if (internalAdCount >= 5) {
+    completeAllAdsFlow();
+    return;
+  }
+
+  currentAdStepResolved = false;
+  updateAdWatchUI(internalAdCount, "جاري البحث عن إعلان...", "");
+
+  // Set 6 seconds search timeout
+  if (adSearchTimeoutId) clearTimeout(adSearchTimeoutId);
+  adSearchTimeoutId = setTimeout(() => {
+    if (!currentAdStepResolved) {
+      handleAdTimeoutOrNoFill();
+    }
+  }, ADMOB_CONFIG.searchTimeoutMs);
+
+  // Attempt real AdMob Rewarded Ad via Native Android Bridge
+  if (window.AndroidBridge && typeof window.AndroidBridge.loadAndShowRewardedAd === "function") {
+    try {
+      window.AndroidBridge.loadAndShowRewardedAd(ADMOB_CONFIG.rewardedAdUnitId, ADMOB_CONFIG.searchTimeoutMs);
+    } catch (e) {
+      console.warn("AdMob Native Bridge error: ", e);
+      // Wait for the 6s timeout to handle safely
+    }
+  } else {
+    // In web mode without native bridge: 6s timeout will trigger automatically
+    console.log("AdMob searching for rewarded ad with unit ID: " + ADMOB_CONFIG.rewardedAdUnitId);
+  }
+}
+
+// Callback invoked by Android native layer
+window.onAdMobRewardResult = function(success, detail) {
+  if (currentAdStepResolved) return;
+  
+  if (adSearchTimeoutId) {
+    clearTimeout(adSearchTimeoutId);
+    adSearchTimeoutId = null;
+  }
+
+  if (success) {
+    // Ad watched completely!
+    currentAdStepResolved = true;
+    internalAdCount++;
+    localStorage.setItem("admob_internal_ad_count", internalAdCount.toString());
+    updateAdWatchUI(internalAdCount, "تمت مشاهدة الإعلان بنجاح!", "شكراً لك! تم احتساب الإعلان (+1)");
+    
+    setTimeout(() => {
+      if (internalAdCount >= 5) {
+        completeAllAdsFlow();
+      } else {
+        requestNextAd();
+      }
+    }, 1200);
+  } else {
+    // Failed or timeout or no fill -> bypass without showing error to user
+    handleAdTimeoutOrNoFill();
+  }
+};
+
+function handleAdTimeoutOrNoFill() {
+  if (currentAdStepResolved) return;
+  currentAdStepResolved = true;
+  
+  if (adSearchTimeoutId) {
+    clearTimeout(adSearchTimeoutId);
+    adSearchTimeoutId = null;
+  }
+
+  // Automatic increment and bypass per requirement 5
+  internalAdCount++;
+  localStorage.setItem("admob_internal_ad_count", internalAdCount.toString());
+  updateAdWatchUI(internalAdCount, "جاري المتابعة...", "لا يوجد إعلان متاح، تم تمريرك تلقائيا");
+
+  setTimeout(() => {
+    if (internalAdCount >= 5) {
+      completeAllAdsFlow();
+    } else {
+      requestNextAd();
+    }
+  }, 1800);
+}
+
+function completeAllAdsFlow() {
+  isAdFlowActive = false;
+  // Mark 24 hours lock
+  localStorage.setItem("admob_last_completed_timestamp", Date.now().toString());
+  localStorage.removeItem("admob_internal_ad_count");
+  
+  updateAdWatchUI(5, "تم الانتهاء بنجاح! 🎉", "شكراً جزيلاً لدعمكم تطبيق BLACK ANIME");
+  
+  setTimeout(() => {
+    const watchScreen = document.getElementById("adWatchScreen");
+    if (watchScreen) watchScreen.style.display = "none";
+  }, 1800);
+}
+
+// Initialize authentication on startup
+initAppAuth();
+</script>
+</body>
+</html>

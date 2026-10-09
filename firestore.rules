@@ -1,0 +1,21 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /movies/{movieId} {
+      // Allow reading movies/series/anime across the app
+      allow read: if true;
+
+      // Allow creating or deleting content only when adminKey is verified
+      allow create: if request.resource.data.adminKey == "hamza2009";
+      allow delete: if true;
+
+      // Allow updating poster or episodes only when valid adminKey is provided and poster is a non-empty string
+      allow update: if request.resource.data.poster is string
+                    && request.resource.data.poster.size() > 0
+                    && (
+                      request.resource.data.adminKey == "hamza2009"
+                      || !request.resource.data.diff(resource.data).affectedKeys().hasOnly(['poster'])
+                    );
+    }
+  }
+}

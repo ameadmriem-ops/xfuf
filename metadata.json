@@ -1,0 +1,6 @@
+{
+  "name": "BLACK ANIME",
+  "description": "تطبيق BLACK ANIME لمشاهدة الأنميشن والأنمي مع مشغل فيديو متطور",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
