@@ -304,25 +304,30 @@ body.light-mode .auth-input{background:#f7f8fa;color:#111;border:1.5px solid #cf
 
   <!-- Test / Send Custom Notification Modal -->
   <div id="testNotificationModal" class="ad-overlay" style="display:none;z-index:99999">
-    <div class="ad-popup-card" style="max-width:440px;width:92%;background:#141414;border:1px solid #333;border-radius:16px;padding:20px;text-align:right;color:#fff;direction:rtl">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;border-bottom:1px solid #282828;padding-bottom:10px">
-        <h3 style="margin:0;font-size:17px;color:#00d2ff;display:flex;align-items:center;gap:6px">🔔 إرسال / تجربة إشعار مخصص</h3>
+    <div class="ad-popup-card" style="max-width:450px;width:92%;background:#141414;border:1px solid #333;border-radius:16px;padding:18px;text-align:right;color:#fff;direction:rtl;max-height:90vh;overflow-y:auto">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;border-bottom:1px solid #282828;padding-bottom:10px">
+        <h3 style="margin:0;font-size:16px;color:#00d2ff;display:flex;align-items:center;gap:6px">🔔 إرسال إشعار لجميع المستخدمين (FCM)</h3>
         <button onclick="closeTestNotificationModal()" style="background:none;border:none;color:#aaa;font-size:20px;cursor:pointer">✕</button>
       </div>
 
-      <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="background:#0d1a26;border:1px solid #1e3a56;border-radius:10px;padding:8px 10px;font-size:11px;color:#8ad4ff;display:flex;align-items:center;justify-content:space-between">
+          <span>📡 البث عبر: <b>all_users</b> (جميع الهواتف)</span>
+          <span id="notifModalDeviceCountBadge" style="background:#00d2ff;color:#000;font-weight:bold;padding:2px 8px;border-radius:10px">...</span>
+        </div>
+
         <div>
           <label style="font-size:12px;color:#aaa;display:block;margin-bottom:4px">عنوان الإشعار:</label>
-          <input id="notifTitleInput" class="input" value="حلقة جديدة" placeholder="مثال: حلقة جديدة">
+          <input id="notifTitleInput" class="input" value="تمت إضافة حلقة جديدة!" placeholder="مثال: تمت إضافة حلقة جديدة!">
         </div>
 
         <div>
           <label style="font-size:12px;color:#aaa;display:block;margin-bottom:4px">نص / رسالة الإشعار:</label>
-          <input id="notifMsgInput" class="input" value="تم إصدار الحلقة الجديدة، اضغط للمشاهدة" placeholder="نص الإشعار">
+          <input id="notifMsgInput" class="input" value="تم إصدار الحلقة الجديدة، اضغط للمشاهدة الآن" placeholder="نص الإشعار">
         </div>
 
         <div>
-          <label style="font-size:12px;color:#aaa;display:block;margin-bottom:4px">العمل / الأنمي المستهدف:</label>
+          <label style="font-size:12px;color:#aaa;display:block;margin-bottom:4px">العمل / الأنمي المستهدف (يجلب البوستر تلقائياً):</label>
           <select id="notifTargetSelect" class="input" onchange="handleNotifTargetChange(this.value)">
             <option value="">-- اختر من الأعمال المضافة أو أدخل المعرف بالأسفل --</option>
           </select>
@@ -331,30 +336,36 @@ body.light-mode .auth-input{background:#f7f8fa;color:#111;border:1.5px solid #cf
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
           <div>
             <label style="font-size:12px;color:#aaa;display:block;margin-bottom:4px">معرف العمل (ID):</label>
-            <input id="notifFidInput" class="input" placeholder="Document ID أو اتركه فارغاً">
+            <input id="notifFidInput" class="input" placeholder="Document ID">
           </div>
           <div>
             <label style="font-size:12px;color:#aaa;display:block;margin-bottom:4px">رقم الحلقة:</label>
-            <input id="notifEpInput" class="input" value="25" placeholder="مثال: 25">
+            <input id="notifEpInput" class="input" value="1" placeholder="مثال: 1 أو الحلقة 1" oninput="handleNotifEpInputChange(this.value)">
           </div>
         </div>
 
         <div>
-          <label style="font-size:12px;color:#aaa;display:block;margin-bottom:4px">الإجراء عند الضغط:</label>
+          <label style="font-size:12px;color:#aaa;display:block;margin-bottom:4px">الإجراء عند ضغط المستخدم على الإشعار:</label>
           <select id="notifActionSelect" class="input">
-            <option value="play">▶ تشغيل الحلقة مباشرة عند الضغط (Play)</option>
+            <option value="play">▶ فتح العمل وتشغيل الحلقة مباشرة (Play)</option>
             <option value="details">📋 فتح صفحة تفاصيل العمل والحلقات (Details)</option>
           </select>
         </div>
 
         <div>
-          <label style="font-size:12px;color:#aaa;display:block;margin-bottom:4px">رابط صورة البوستر (اختياري):</label>
-          <input id="notifImageInput" class="input" placeholder="https://... رابط صورة">
+          <label style="font-size:12px;color:#aaa;display:block;margin-bottom:4px">رابط صورة البوستر في الإشعار (تلقائي من العمل أو مخصص):</label>
+          <input id="notifImageInput" class="input" placeholder="https://... رابط صورة البوستر" oninput="updateNotifModalPosterPreview(this.value)">
+          <div id="notifPosterPreviewBox" style="display:none;margin-top:8px;background:#0d0d0d;border:1px solid #262626;border-radius:10px;padding:8px;align-items:center;gap:10px">
+            <img id="notifPosterPreviewImg" src="" alt="بوستر الإشعار" style="width:52px;height:52px;object-fit:contain;border-radius:8px;background:#1a1a1a;border:1px solid #333;flex-shrink:0">
+            <div style="font-size:11px;color:#4ade80;line-height:1.4">✅ سيتم إرفاق صورة هذا البوستر في الإشعار على جميع الهواتف</div>
+          </div>
         </div>
 
-        <div style="display:flex;gap:10px;margin-top:6px">
-          <button id="sendNotifBtn" onclick="sendTestNotificationFromModal()" style="flex:1;background:linear-gradient(135deg,#e50914,#b80610);color:#fff;border:none;padding:12px;border-radius:10px;font-weight:bold;font-size:15px;cursor:pointer">🚀 إرسال الإشعار الآن</button>
-          <button onclick="closeTestNotificationModal()" style="background:#1c1c1c;color:#aaa;border:1px solid #333;padding:12px 18px;border-radius:10px;cursor:pointer;font-size:14px">إلغاء</button>
+        <div id="notifModalStatusMsg" style="display:none;font-size:12px;padding:8px 10px;border-radius:8px;text-align:center"></div>
+
+        <div style="display:flex;gap:10px;margin-top:4px">
+          <button id="sendNotifBtn" onclick="sendTestNotificationFromModal()" style="flex:1;background:linear-gradient(135deg,#e50914,#b80610);color:#fff;border:none;padding:12px;border-radius:10px;font-weight:bold;font-size:14px;cursor:pointer">🚀 إرسال الإشعار لجميع الهواتف</button>
+          <button onclick="closeTestNotificationModal()" style="background:#1c1c1c;color:#aaa;border:1px solid #333;padding:12px 16px;border-radius:10px;cursor:pointer;font-size:13px">إلغاء</button>
         </div>
       </div>
     </div>
@@ -1169,10 +1180,82 @@ window.requestNotifPermission = function() {
   }
 };
 
-// ================= Custom Notification Modal Controller =================
-window.openTestNotificationModal = function() {
+// ================= Custom Notification Modal & Firebase Broadcast Controller =================
+window.registeredFcmDevices = [];
+window.recentBroadcastNotifications = [];
+
+const devicesColRef = collection(db, "fcm_devices");
+const notifsColRef = collection(db, "app_notifications");
+
+onSnapshot(devicesColRef, (snap) => {
+  window.registeredFcmDevices = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const badge = document.getElementById("notifModalDeviceCountBadge");
+  if (badge) {
+    const activeCount = window.registeredFcmDevices.filter(d => d.notificationsEnabled !== false).length || window.registeredFcmDevices.length || 1;
+    badge.innerText = `${activeCount} جهاز مشترك`;
+  }
+  const adminDevCounter = document.getElementById("adminRegisteredDevicesBadge");
+  if (adminDevCounter) {
+    const activeCount = window.registeredFcmDevices.filter(d => d.notificationsEnabled !== false).length || window.registeredFcmDevices.length || 1;
+    adminDevCounter.innerText = `📱 الأجهزة المشتركة (all_users): ${activeCount} جهاز`;
+  }
+}, (err) => {
+  console.warn("fcm_devices listener warn:", err);
+});
+
+const recentNotifsQuery = query(notifsColRef, orderBy("createdAtMs", "desc"), limit(5));
+onSnapshot(recentNotifsQuery, (snap) => {
+  window.recentBroadcastNotifications = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const statusLogEl = document.getElementById("adminLastBroadcastStatus");
+  if (statusLogEl && window.recentBroadcastNotifications.length > 0) {
+    const latest = window.recentBroadcastNotifications[0];
+    const targetCnt = latest.targetDevicesCount || Math.max(1, window.registeredFcmDevices.length);
+    const delivCnt = Array.isArray(latest.deliveredDevices) ? latest.deliveredDevices.length : (latest.deliveredCount || 1);
+    statusLogEl.innerHTML = `✅ آخر إشعار مُرسل: <b>${window.escapeDescHtml(latest.title || "")}</b> — <span style="color:#4ade80">${ window.escapeDescHtml(latest.body || "") }</span> (وصل إلى <b>${delivCnt}</b> من <b>${targetCnt}</b> جهاز)`;
+  }
+}, (err) => {
+  console.warn("app_notifications listener warn:", err);
+});
+
+window.updateNotifModalPosterPreview = function(url) {
+  const cleanUrl = (url || "").trim();
+  const box = document.getElementById("notifPosterPreviewBox");
+  const img = document.getElementById("notifPosterPreviewImg");
+  if (!box || !img) return;
+  if (cleanUrl && (cleanUrl.startsWith("http://") || cleanUrl.startsWith("https://") || cleanUrl.startsWith("data:image/"))) {
+    img.src = cleanUrl;
+    box.style.display = "flex";
+  } else {
+    box.style.display = "none";
+  }
+};
+
+window.handleNotifEpInputChange = function(epVal) {
+  const fid = (document.getElementById("notifFidInput")?.value || "").trim();
+  const item = fid ? (window.allContent || []).find(x => x.firebaseId === fid) : null;
+  const msgInput = document.getElementById("notifMsgInput");
+  if (item && msgInput) {
+    const epClean = (epVal || "1").trim();
+    const epLabel = epClean.includes("حلقة") || epClean.includes("الحلقة") ? epClean : `الحلقة ${epClean}`;
+    msgInput.value = `${item.title} - ${epLabel} متوفرة الآن للمشاهدة`;
+  }
+};
+
+window.openTestNotificationModal = function(prefillFid = "") {
   const modal = document.getElementById("testNotificationModal");
   if (!modal) return;
+
+  const badge = document.getElementById("notifModalDeviceCountBadge");
+  if (badge) {
+    const activeCount = window.registeredFcmDevices.filter(d => d.notificationsEnabled !== false).length || window.registeredFcmDevices.length || 1;
+    badge.innerText = `${activeCount} جهاز مشترك`;
+  }
+
+  const statusEl = document.getElementById("notifModalStatusMsg");
+  if (statusEl) {
+    statusEl.style.display = "none";
+    statusEl.innerText = "";
+  }
 
   // Populate target select with available anime/movies
   const select = document.getElementById("notifTargetSelect");
@@ -1180,8 +1263,15 @@ window.openTestNotificationModal = function() {
     select.innerHTML = '<option value="">-- اختر من الأعمال المضافة أو أدخل المعرف بالأسفل --</option>' +
       (window.allContent || []).map(x => {
         let epCount = Array.isArray(x.episodes) ? x.episodes.length : (x.video || x.altUrl ? 1 : 0);
-        return `<option value="${x.firebaseId}" data-title="${x.title}" data-poster="${x.poster || ''}">${x.title} (${epCount} حلقة)</option>`;
+        return `<option value="${x.firebaseId}" ${x.firebaseId === prefillFid ? "selected" : ""}>${x.title} (${epCount} حلقة)</option>`;
       }).join("");
+  }
+
+  if (prefillFid) {
+    window.handleNotifTargetChange(prefillFid);
+  } else {
+    const currentImg = document.getElementById("notifImageInput")?.value || "";
+    window.updateNotifModalPosterPreview(currentImg);
   }
 
   modal.style.display = "flex";
@@ -1195,45 +1285,205 @@ window.closeTestNotificationModal = function() {
 window.handleNotifTargetChange = function(fid) {
   const fidInput = document.getElementById("notifFidInput");
   const imgInput = document.getElementById("notifImageInput");
+  const titleInput = document.getElementById("notifTitleInput");
+  const msgInput = document.getElementById("notifMsgInput");
+  const epInput = document.getElementById("notifEpInput");
+
   if (!fid) {
     if (fidInput) fidInput.value = "";
+    window.updateNotifModalPosterPreview(imgInput ? imgInput.value : "");
     return;
   }
   const item = (window.allContent || []).find(x => x.firebaseId === fid);
   if (item) {
     if (fidInput) fidInput.value = item.firebaseId;
-    if (imgInput && !imgInput.value.trim() && item.poster) {
+    if (imgInput && item.poster) {
       imgInput.value = item.poster;
+      window.updateNotifModalPosterPreview(item.poster);
+    }
+    const episodes = Array.isArray(item.episodes) ? item.episodes : [];
+    const latestEpNum = episodes.length > 0 ? episodes.length : 1;
+    const latestEpObj = episodes.length > 0 ? episodes[episodes.length - 1] : null;
+    const epLabel = (latestEpObj && latestEpObj.title) ? latestEpObj.title : `الحلقة ${latestEpNum}`;
+    if (epInput) {
+      epInput.value = String(latestEpNum);
+    }
+    if (titleInput && (!titleInput.value.trim() || titleInput.value === "حلقة جديدة")) {
+      titleInput.value = "تمت إضافة حلقة جديدة!";
+    }
+    if (msgInput) {
+      msgInput.value = `${item.title} - ${epLabel} متوفرة الآن للمشاهدة`;
     }
   }
 };
 
-window.sendTestNotificationFromModal = function() {
-  const title = (document.getElementById("notifTitleInput")?.value || "حلقة جديدة").trim();
-  const message = (document.getElementById("notifMsgInput")?.value || "تم إصدار الحلقة الجديدة، اضغط للمشاهدة").trim();
+/**
+ * Broadcasts a real notification via Firebase (`app_notifications` + Topic `all_users`)
+ * so that all registered phones receive it with poster, title, episode, and deep-link navigation.
+ */
+window.broadcastNotificationToAllDevices = async function({
+  title,
+  message,
+  page = "details",
+  firebaseId = "",
+  episode = "",
+  action = "play",
+  imageUrl = "",
+  contentTitle = "",
+  notifType = "manual_broadcast"
+}) {
+  const targetItem = firebaseId ? (window.allContent || []).find(x => x.firebaseId === firebaseId) : null;
+  const resolvedTitle = (title || "تمت إضافة حلقة جديدة!").trim();
+  const resolvedContentTitle = (contentTitle || (targetItem ? targetItem.title : "") || "").trim();
+  const resolvedPoster = (imageUrl || (targetItem ? targetItem.poster : "") || "").trim();
+  const validRemotePoster = (resolvedPoster.startsWith("http://") || resolvedPoster.startsWith("https://")) ? resolvedPoster : "";
+  const resolvedBody = (message || (resolvedContentTitle ? `${resolvedContentTitle} - الحلقة ${episode || 1}` : "اضغط للمشاهدة الآن")).trim();
+
+  const activeDevicesCount = Math.max(
+    1,
+    window.registeredFcmDevices.filter(d => d.notificationsEnabled !== false).length || window.registeredFcmDevices.length || 1
+  );
+
+  let senderDeviceId = "admin_device";
+  if (window.AndroidBridge && typeof window.AndroidBridge.getDeviceId === "function") {
+    try { senderDeviceId = window.AndroidBridge.getDeviceId() || "admin_device"; } catch (e) {}
+  }
+
+  // Write broadcast document to Firebase Firestore `app_notifications` so all phones listening receive it in real time
+  const docRef = await addDoc(notifsColRef, {
+    title: resolvedTitle,
+    body: resolvedBody,
+    message: resolvedBody,
+    page: page || "details",
+    firebaseId: firebaseId || "",
+    contentId: firebaseId || "",
+    contentTitle: resolvedContentTitle,
+    episode: String(episode || ""),
+    episodeIndex: String(episode || ""),
+    url: "",
+    action: action || "play",
+    imageUrl: validRemotePoster,
+    poster: validRemotePoster,
+    topic: "all_users",
+    type: notifType,
+    adminKey: "hamza2009",
+    senderDeviceId: senderDeviceId,
+    targetDevicesCount: activeDevicesCount,
+    deliveredDevices: [senderDeviceId],
+    deliveredCount: 1,
+    createdAtMs: Date.now(),
+    createdAt: serverTimestamp()
+  });
+
+  const notifId = docRef.id;
+
+  // Mark as delivered on this sender device and trigger native notification with poster
+  if (window.AndroidBridge && typeof window.AndroidBridge.markNotificationDelivered === "function") {
+    try { window.AndroidBridge.markNotificationDelivered(notifId); } catch (e) {}
+  }
+  if (window.AndroidBridge && typeof window.AndroidBridge.triggerCustomNotificationWithId === "function") {
+    try {
+      window.AndroidBridge.triggerCustomNotificationWithId(
+        resolvedTitle,
+        resolvedBody,
+        page || "details",
+        firebaseId || "",
+        String(episode || ""),
+        validRemotePoster,
+        action || "play",
+        resolvedContentTitle,
+        notifId
+      );
+    } catch (e) {}
+  } else if (window.AndroidBridge && typeof window.AndroidBridge.triggerCustomNotification === "function") {
+    try {
+      window.AndroidBridge.triggerCustomNotification(
+        resolvedTitle,
+        resolvedBody,
+        page || "details",
+        firebaseId || "",
+        String(episode || ""),
+        validRemotePoster,
+        action || "play",
+        resolvedContentTitle
+      );
+    } catch (e) {}
+  }
+
+  return {
+    success: true,
+    notifId: notifId,
+    targetDevicesCount: activeDevicesCount
+  };
+};
+
+window.sendTestNotificationFromModal = async function() {
+  if (window.currentUserRole !== "ADMIN") {
+    alert("عذراً، إرسال الإشعارات متاح للمسؤول فقط.");
+    return;
+  }
+
+  const title = (document.getElementById("notifTitleInput")?.value || "تمت إضافة حلقة جديدة!").trim();
+  const message = (document.getElementById("notifMsgInput")?.value || "تم إصدار الحلقة الجديدة، اضغط للمشاهدة الآن").trim();
   const fid = (document.getElementById("notifFidInput")?.value || "").trim();
-  const episode = (document.getElementById("notifEpInput")?.value || "25").trim();
+  const episode = (document.getElementById("notifEpInput")?.value || "1").trim();
   const action = document.getElementById("notifActionSelect")?.value || "play";
   const image = (document.getElementById("notifImageInput")?.value || "").trim();
 
-  let targetItem = fid ? (window.allContent || []).find(x => x.firebaseId === fid) : null;
-  let contentTitle = targetItem ? (targetItem.title || "") : "";
+  const targetItem = fid ? (window.allContent || []).find(x => x.firebaseId === fid) : null;
+  const contentTitle = targetItem ? (targetItem.title || "") : "";
+  const finalPoster = image || (targetItem ? (targetItem.poster || "") : "");
 
-  if (window.AndroidBridge && typeof window.AndroidBridge.triggerCustomNotification === "function") {
-    window.AndroidBridge.triggerCustomNotification(
-      title,
-      message,
-      "details",
-      fid,
-      episode,
-      image,
-      action,
-      contentTitle
-    );
-    window.closeTestNotificationModal();
-    alert("✅ تم إرسال الإشعار بنجاح إلى شريط الإشعارات! يمكنك سحب شريط الإشعارات والضغط عليه لاختبار الانتقال المباشر.");
-  } else {
-    alert("ميزة إرسال الإشعارات تعمل داخل تطبيق الأندرويد الأصلي");
+  const sendBtn = document.getElementById("sendNotifBtn");
+  const statusEl = document.getElementById("notifModalStatusMsg");
+
+  if (sendBtn) {
+    sendBtn.disabled = true;
+    sendBtn.innerText = "⏳ جاري بث الإشعار لجميع الهواتف...";
+  }
+  if (statusEl) {
+    statusEl.style.display = "block";
+    statusEl.style.background = "#0d1a26";
+    statusEl.style.color = "#00d2ff";
+    statusEl.innerText = "⏳ جاري الإرسال عبر Firebase Cloud Messaging (Topic: all_users)...";
+  }
+
+  try {
+    const result = await window.broadcastNotificationToAllDevices({
+      title: title,
+      message: message,
+      page: "details",
+      firebaseId: fid,
+      episode: episode,
+      action: action,
+      imageUrl: finalPoster,
+      contentTitle: contentTitle,
+      notifType: "admin_manual_broadcast"
+    });
+
+    if (statusEl) {
+      statusEl.style.background = "#062814";
+      statusEl.style.color = "#4ade80";
+      statusEl.innerText = `✅ تم إرسال الإشعار بنجاح إلى جميع المستخدمين المشتركين (${result.targetDevicesCount} جهاز)!`;
+    }
+
+    setTimeout(() => {
+      window.closeTestNotificationModal();
+      alert(`✅ تم إرسال الإشعار بنجاح إلى جميع الهواتف المشتركة (${result.targetDevicesCount} جهاز عبر all_users)!\n\n• العنوان: ${title}\n• النص: ${message}\n• المعرف: ${result.notifId}`);
+    }, 450);
+  } catch (err) {
+    console.error("Broadcast notification error:", err);
+    if (statusEl) {
+      statusEl.style.background = "#2a0808";
+      statusEl.style.color = "#ff6b6b";
+      statusEl.innerText = `❌ فشل إرسال الإشعار: ${err.message || "خطأ في الاتصال بقاعدة البيانات"}`;
+    }
+    alert(`❌ فشل إرسال الإشعار إلى المستخدمين: ${err.message || "يرجى التحقق من اتصال الإنترنت وصلاحيات Firebase"}`);
+  } finally {
+    if (sendBtn) {
+      sendBtn.disabled = false;
+      sendBtn.innerText = "🚀 إرسال الإشعار لجميع الهواتف";
+    }
   }
 };
 
@@ -1989,7 +2239,13 @@ window.renderAddPage=(isBack=false)=>{
   if(!isBack&&currentPage!=="add"){historyStack.push(currentPage);}
   setActiveNav("add");
   currentPage="add";
-  main.innerHTML=`<div class="page-header"><button class="back-btn" onclick="goBack()">← رجوع</button></div><h1 style="padding:16px">لوحة التحكم</h1><div style="padding:12px;display:flex;flex-direction:column;gap:10px"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button onclick="startSelectEpisodeMode()" style="background:#fff;color:#000;border:none;padding:12px;border-radius:10px;font-weight:bold;cursor:pointer">📺 إضافة بث / تعديل بوستر</button><button onclick="toggleDeleteMode()" style="background:${deleteMode?'#fff':'#e50914'};color:${deleteMode?'#000':'#fff'};border:none;padding:12px;border-radius:10px;font-weight:bold;cursor:pointer">${deleteMode?'إلغاء':'🗑️ حذف'}</button></div><div style="display:flex;gap:8px"><button onclick="showPage('home')" style="flex:1;background:#1a1a1a;color:#aaa;border:1px solid #333;padding:9px;border-radius:8px;cursor:pointer">🔒 إغلاق اللوحة</button><button onclick="confirmLogout()" style="flex:1;background:#250505;color:#ff6b6b;border:1px solid #441111;padding:9px;border-radius:8px;cursor:pointer;font-weight:bold">🚪 تسجيل الخروج</button></div><div style="background:#111;border:1px solid #222;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px"><div style="font-weight:bold;font-size:14px;color:#00d2ff;display:flex;align-items:center;justify-content:space-between"><span>🖼️ إدارة المحتوى وتعديل البوسترات (${(window.allContent||[]).length})</span></div><input class="input" placeholder="ابحث عن فيلم أو مسلسل أو أنمي لتعديل البوستر..." oninput="filterAdminManageList(this.value)" style="padding:9px 12px;font-size:13px"><div id="adminManageContentList" style="display:flex;flex-direction:column;gap:8px;max-height:320px;overflow-y:auto;padding-right:2px">${window.renderAdminManageListHtml("")}</div></div><div style="background:#111;border:1px solid #222;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px"><div style="font-weight:bold;font-size:14px;color:#00d2ff;display:flex;align-items:center;gap:6px">🔔 إشعارات Firebase Cloud Messaging (FCM)</div><p style="font-size:12px;color:#888;line-height:1.5">تم تفعيل الإشعارات الحقيقية! يمكنك إرسال إشعار للجميع عبر Firebase Console باختيار Topic: <b>all_users</b> أو تجربة هذا الجهاز بواسطة الرمز.</p><div style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" onclick="copyFcmToken()" style="flex:1;background:#1a2a3a;color:#00d2ff;border:1px solid #2a4a6a;padding:9px;border-radius:8px;font-size:12px;font-weight:bold;cursor:pointer">📋 نسخ رمز FCM لهذا الجهاز</button><button type="button" onclick="requestNotifPermission()" style="background:#222;color:#fff;border:1px solid #333;padding:9px;border-radius:8px;font-size:12px;cursor:pointer">🔔 طلب إذن الإشعارات</button></div><button type="button" onclick="openTestNotificationModal()" style="background:linear-gradient(135deg,#0072ff,#00d2ff);color:#000;border:none;padding:10px;border-radius:8px;font-size:13px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">⚡ تجربة / إرسال إشعار مخصص (عنوان، رسالة، حلقة، أنمي)</button></div><hr style="border-color:#1f1f1f"><select id="addType" class="input"><option value="anime">أنمي</option><option value="animation">أنميشن</option></select><div style="display:flex;flex-direction:column;gap:6px"><label style="font-size:12px;color:#aaa">تصنيف الأنمي:</label><select id="addCategory" class="input"><option value="مسلسل">مسلسل</option><option value="فلم">فلم</option><option value="أوفا">أوفا</option><option value="خاصة">خاصة</option><option value="أونا">أونا</option></select><div style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" onclick="document.getElementById('addCategory').value='مسلسل'" style="background:#1f1f1f;color:#fff;border:1px solid #333;padding:5px 12px;border-radius:12px;font-size:12px;cursor:pointer">مسلسل</button><button type="button" onclick="document.getElementById('addCategory').value='فلم'" style="background:#1f1f1f;color:#fff;border:1px solid #333;padding:5px 12px;border-radius:12px;font-size:12px;cursor:pointer">فلم</button><button type="button" onclick="document.getElementById('addCategory').value='أوفا'" style="background:#1f1f1f;color:#fff;border:1px solid #333;padding:5px 12px;border-radius:12px;font-size:12px;cursor:pointer">أوفا</button><button type="button" onclick="document.getElementById('addCategory').value='خاصة'" style="background:#1f1f1f;color:#fff;border:1px solid #333;padding:5px 12px;border-radius:12px;font-size:12px;cursor:pointer">خاصة</button><button type="button" onclick="document.getElementById('addCategory').value='أونا'" style="background:#1f1f1f;color:#fff;border:1px solid #333;padding:5px 12px;border-radius:12px;font-size:12px;cursor:pointer">أونا</button></div></div><input id="addTitle" class="input" placeholder="اسم العمل / الأنمي"><input id="addYear" class="input" type="number" placeholder="السنة"><input id="addPoster" class="input" placeholder="رابط بوستر العمل"><div class="drop-zone" onclick="document.getElementById('posterFile').click()">📷 اختر بوستر<input type="file" id="posterFile" accept="image/*" hidden onchange="handlePosterFile(this.files[0])"><div id="posterPreview" style="margin-top:8px;color:#fff;font-size:12px"></div></div><input id="addVideo" class="input" placeholder="رابط البث M3U8 أو MP4 أو Pixeldrain"><div style="display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 6px 0"><button type="button" onclick="fillSamplePixeldrain()" style="background:#1f1f1f;color:#00d2ff;border:1px solid #333;padding:8px 12px;border-radius:8px;font-size:12px;cursor:pointer">⚡ تجربة رابط Pixeldrain: cnR9Z51</button><button type="button" onclick="testPlayPixeldrain()" style="background:#00d2ff;color:#000;border:none;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:bold;cursor:pointer">▶ تشغيل مباشر لتجربة الرابط</button></div><input id="addAltUrl" class="input" placeholder="رابط الموقع البديل (اختياري) - أدخل رابط موقع القناة أو YouTube أو Google"><div class="drop-zone" onclick="document.getElementById('videoFile').click()">🎬 اختر ملف فيديو<input type="file" id="videoFile" accept="video/*" hidden onchange="handleVideoFile(this.files[0])"><div id="videoPreview" style="margin-top:8px;color:#fff;font-size:12px"></div></div><input id="addDesc" class="input" placeholder="وصف العمل / القصة"><button id="addBtn" onclick="addNewContent()" style="background:#e50914;color:#fff;border:none;padding:13px;border-radius:10px;font-weight:bold;cursor:pointer">إضافة العمل</button></div>`;
+  const activeDevCount = Math.max(1, (window.registeredFcmDevices || []).filter(d => d.notificationsEnabled !== false).length || (window.registeredFcmDevices || []).length || 1);
+  const latestNotif = (window.recentBroadcastNotifications && window.recentBroadcastNotifications.length > 0) ? window.recentBroadcastNotifications[0] : null;
+  const latestNotifHtml = latestNotif
+    ? `✅ آخر إشعار مُرسل: <b>${window.escapeDescHtml(latestNotif.title || "")}</b> — <span style="color:#4ade80">${window.escapeDescHtml(latestNotif.body || "")}</span> (وصل إلى <b>${Array.isArray(latestNotif.deliveredDevices) ? latestNotif.deliveredDevices.length : (latestNotif.deliveredCount || 1)}</b> من <b>${latestNotif.targetDevicesCount || activeDevCount}</b> جهاز)`
+    : `📡 جاهز لبث الإشعارات الفورية والتلقائية عند إضافة أي حلقة جديدة إلى جميع الهواتف.`;
+
+  main.innerHTML=`<div class="page-header"><button class="back-btn" onclick="goBack()">← رجوع</button></div><h1 style="padding:16px">لوحة التحكم</h1><div style="padding:12px;display:flex;flex-direction:column;gap:10px"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button onclick="startSelectEpisodeMode()" style="background:#fff;color:#000;border:none;padding:12px;border-radius:10px;font-weight:bold;cursor:pointer">📺 إضافة بث / تعديل بوستر</button><button onclick="toggleDeleteMode()" style="background:${deleteMode?'#fff':'#e50914'};color:${deleteMode?'#000':'#fff'};border:none;padding:12px;border-radius:10px;font-weight:bold;cursor:pointer">${deleteMode?'إلغاء':'🗑️ حذف'}</button></div><div style="display:flex;gap:8px"><button onclick="showPage('home')" style="flex:1;background:#1a1a1a;color:#aaa;border:1px solid #333;padding:9px;border-radius:8px;cursor:pointer">🔒 إغلاق اللوحة</button><button onclick="confirmLogout()" style="flex:1;background:#250505;color:#ff6b6b;border:1px solid #441111;padding:9px;border-radius:8px;cursor:pointer;font-weight:bold">🚪 تسجيل الخروج</button></div><div style="background:#111;border:1px solid #222;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px"><div style="font-weight:bold;font-size:14px;color:#00d2ff;display:flex;align-items:center;justify-content:space-between"><span>🖼️ إدارة المحتوى وتعديل البوسترات (${(window.allContent||[]).length})</span></div><input class="input" placeholder="ابحث عن فيلم أو مسلسل أو أنمي لتعديل البوستر..." oninput="filterAdminManageList(this.value)" style="padding:9px 12px;font-size:13px"><div id="adminManageContentList" style="display:flex;flex-direction:column;gap:8px;max-height:320px;overflow-y:auto;padding-right:2px">${window.renderAdminManageListHtml("")}</div></div><div style="background:#111;border:1px solid #222;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px"><div style="font-weight:bold;font-size:14px;color:#00d2ff;display:flex;align-items:center;gap:6px">🔔 نظام إشعارات الهواتف (FCM + all_users)</div><span id="adminRegisteredDevicesBadge" style="background:#0d283a;color:#00d2ff;border:1px solid #1e4d6b;padding:3px 9px;border-radius:12px;font-size:11px;font-weight:bold">📱 الأجهزة المشتركة (all_users): ${activeDevCount} جهاز</span></div><p style="font-size:12px;color:#aaa;line-height:1.5">يتم إرسال إشعار تلقائي بالبوستر واسم العمل ورقم الحلقة لجميع الهواتف فور إضافة أي حلقة جديدة، كما يمكنك إرسال إشعار مخصص للجميع من الزر بالأسفل.</p><div id="adminLastBroadcastStatus" style="background:#0c141c;border:1px solid #1b2e40;padding:8px 10px;border-radius:8px;font-size:11px;color:#bbb;line-height:1.5">${latestNotifHtml}</div><div style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" onclick="copyFcmToken()" style="flex:1;background:#1a2a3a;color:#00d2ff;border:1px solid #2a4a6a;padding:9px;border-radius:8px;font-size:12px;font-weight:bold;cursor:pointer">📋 نسخ رمز FCM لهذا الجهاز</button><button type="button" onclick="requestNotifPermission()" style="background:#222;color:#fff;border:1px solid #333;padding:9px;border-radius:8px;font-size:12px;cursor:pointer">🔔 طلب إذن الإشعارات</button></div><button type="button" onclick="openTestNotificationModal()" style="background:linear-gradient(135deg,#0072ff,#00d2ff);color:#000;border:none;padding:10px;border-radius:8px;font-size:13px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">🚀 إرسال إشعار مخصص لجميع الهواتف (عنوان، بوستر، حلقة، أنمي)</button></div><hr style="border-color:#1f1f1f"><select id="addType" class="input"><option value="anime">أنمي</option><option value="animation">أنميشن</option></select><div style="display:flex;flex-direction:column;gap:6px"><label style="font-size:12px;color:#aaa">تصنيف الأنمي:</label><select id="addCategory" class="input"><option value="مسلسل">مسلسل</option><option value="فلم">فلم</option><option value="أوفا">أوفا</option><option value="خاصة">خاصة</option><option value="أونا">أونا</option></select><div style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" onclick="document.getElementById('addCategory').value='مسلسل'" style="background:#1f1f1f;color:#fff;border:1px solid #333;padding:5px 12px;border-radius:12px;font-size:12px;cursor:pointer">مسلسل</button><button type="button" onclick="document.getElementById('addCategory').value='فلم'" style="background:#1f1f1f;color:#fff;border:1px solid #333;padding:5px 12px;border-radius:12px;font-size:12px;cursor:pointer">فلم</button><button type="button" onclick="document.getElementById('addCategory').value='أوفا'" style="background:#1f1f1f;color:#fff;border:1px solid #333;padding:5px 12px;border-radius:12px;font-size:12px;cursor:pointer">أوفا</button><button type="button" onclick="document.getElementById('addCategory').value='خاصة'" style="background:#1f1f1f;color:#fff;border:1px solid #333;padding:5px 12px;border-radius:12px;font-size:12px;cursor:pointer">خاصة</button><button type="button" onclick="document.getElementById('addCategory').value='أونا'" style="background:#1f1f1f;color:#fff;border:1px solid #333;padding:5px 12px;border-radius:12px;font-size:12px;cursor:pointer">أونا</button></div></div><input id="addTitle" class="input" placeholder="اسم العمل / الأنمي"><input id="addYear" class="input" type="number" placeholder="السنة"><input id="addPoster" class="input" placeholder="رابط بوستر العمل"><div class="drop-zone" onclick="document.getElementById('posterFile').click()">📷 اختر بوستر<input type="file" id="posterFile" accept="image/*" hidden onchange="handlePosterFile(this.files[0])"><div id="posterPreview" style="margin-top:8px;color:#fff;font-size:12px"></div></div><input id="addVideo" class="input" placeholder="رابط البث M3U8 أو MP4 أو Pixeldrain"><div style="display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 6px 0"><button type="button" onclick="fillSamplePixeldrain()" style="background:#1f1f1f;color:#00d2ff;border:1px solid #333;padding:8px 12px;border-radius:8px;font-size:12px;cursor:pointer">⚡ تجربة رابط Pixeldrain: cnR9Z51</button><button type="button" onclick="testPlayPixeldrain()" style="background:#00d2ff;color:#000;border:none;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:bold;cursor:pointer">▶ تشغيل مباشر لتجربة الرابط</button></div><input id="addAltUrl" class="input" placeholder="رابط الموقع البديل (اختياري) - أدخل رابط موقع القناة أو YouTube أو Google"><div class="drop-zone" onclick="document.getElementById('videoFile').click()">🎬 اختر ملف فيديو<input type="file" id="videoFile" accept="video/*" hidden onchange="handleVideoFile(this.files[0])"><div id="videoPreview" style="margin-top:8px;color:#fff;font-size:12px"></div></div><input id="addDesc" class="input" placeholder="وصف العمل / القصة"><button id="addBtn" onclick="addNewContent()" style="background:#e50914;color:#fff;border:none;padding:13px;border-radius:10px;font-weight:bold;cursor:pointer">إضافة العمل وإشعار المستخدمين</button></div>`;
 };
 window.handlePosterFile=(f)=>{if(!f)return;let r=new FileReader();r.onload=e=>{window.tempPosterData=e.target.result;document.getElementById("posterPreview").innerText="✅ "+f.name;};r.readAsDataURL(f);};
 window.handleVideoFile=(f)=>{if(!f)return;let r=new FileReader();r.onload=e=>{window.tempVideoData=e.target.result;document.getElementById("videoPreview").innerText="✅ "+f.name;};r.readAsDataURL(f);};
@@ -2004,11 +2260,28 @@ window.addNewContent=async()=>{
   if(altUrl && !altUrl.startsWith("http://") && !altUrl.startsWith("https://")){
     altUrl="https://"+altUrl;
   }
-  let btn=document.getElementById("addBtn");btn.disabled=true;btn.innerText="⏳ جاري...";
+  let btn=document.getElementById("addBtn");btn.disabled=true;btn.innerText="⏳ جاري الإضافة وإرسال الإشعار...";
   try{
-    await addDoc(colRef,{id:type+"-"+Date.now(),title,year:parseInt(year),type,category,description:desc,poster,video:video,altUrl:altUrl,episodes:[{title:"البث المباشر",video,altUrl}],adminKey:"hamza2009",createdAt:serverTimestamp()});
+    const newDocRef = await addDoc(colRef,{id:type+"-"+Date.now(),title,year:parseInt(year),type,category,description:desc,poster,video:video,altUrl:altUrl,episodes:[{title:"الحلقة 1",video,altUrl}],adminKey:"hamza2009",createdAt:serverTimestamp()});
+    try {
+      await window.broadcastNotificationToAllDevices({
+        title: "تمت إضافة حلقة جديدة!",
+        message: `${title} - الحلقة 1`,
+        page: "details",
+        firebaseId: newDocRef.id,
+        episode: "1",
+        action: (video || altUrl) ? "play" : "details",
+        imageUrl: poster,
+        contentTitle: title,
+        notifType: "auto_new_content"
+      });
+    } catch (notifErr) {
+      console.warn("Auto notification after addNewContent warning:", notifErr);
+    }
+    window.tempPosterData="";
+    window.tempVideoData="";
     setTimeout(()=>showPage("home"),600);
-  }catch(e){alert(e.message);btn.disabled=false;btn.innerText="إضافة العمل";}
+  }catch(e){alert(e.message);btn.disabled=false;btn.innerText="إضافة العمل وإشعار المستخدمين";}
 };
 window.renderAddEpisodeForm=(fid)=>{
   if(window.currentUserRole!=="ADMIN"){showPage('home');return;}
@@ -2034,7 +2307,7 @@ window.renderAddEpisodeForm=(fid)=>{
       </div>
     </div>
   ` : "";
-  main.innerHTML=`<div class="page-header"><button class="back-btn" onclick="goBack()">← رجوع</button></div><div style="padding:15px;text-align:center"><img class="poster" data-poster-fid="${item.firebaseId}" src="${item.poster}" style="width:140px;height:140px;object-fit:contain;background:#1a1a1a;padding:10px;border-radius:18px;border:1px solid #222"><div style="margin-top:10px"><button type="button" onclick="openEditPosterModal('${item.firebaseId}')" style="background:#1a2a3a;color:#00d2ff;border:1px solid #2a4a6a;padding:8px 16px;border-radius:10px;font-size:13px;font-weight:bold;cursor:pointer;display:inline-flex;align-items:center;gap:6px">🖼️ تعديل البوستر</button></div><h2 style="margin-top:8px">${item.title}</h2>${window.renderDescriptionHtml(item.firebaseId)}</div>${epListHtml}<div style="padding:12px;display:flex;flex-direction:column;gap:10px;background:#111;margin:8px;border-radius:10px;border:1px solid #222"><h3 style="font-size:15px;margin-bottom:2px">➕ إضافة حلقة / بث جديد</h3><input id="epTitle" class="input" placeholder="اسم الحلقة أو البث"><input id="epVideoLink" class="input" placeholder="رابط البث M3U8 أو MP4 أو Pixeldrain"><div style="display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 6px 0"><button type="button" onclick="document.getElementById('epVideoLink').value='https://pixeldrain.com/api/file/cnR9Z51'" style="background:#1f1f1f;color:#00d2ff;border:1px solid #333;padding:8px 12px;border-radius:8px;font-size:12px;cursor:pointer">⚡ تعبئة رابط Pixeldrain التجريبي (cnR9Z51)</button></div><input id="epAltUrl" class="input" placeholder="رابط الموقع البديل (اختياري) - أدخل رابط موقع القناة أو YouTube أو Google"><div class="drop-zone" onclick="document.getElementById('epVideoFile').click()">🎬 اختر فيديو<input type="file" id="epVideoFile" accept="video/*" hidden onchange="handleEpVideoFile(this.files[0])"><div id="epVideoPreview" style="margin-top:8px;color:#fff;font-size:12px"></div></div><button onclick="addEpisode('${item.firebaseId}')" style="background:#fff;color:#000;border:none;padding:12px;border-radius:8px;font-weight:bold;cursor:pointer">✅ إضافة الحلقة</button></div>`;
+  main.innerHTML=`<div class="page-header"><button class="back-btn" onclick="goBack()">← رجوع</button></div><div style="padding:15px;text-align:center"><img class="poster" data-poster-fid="${item.firebaseId}" src="${item.poster}" style="width:140px;height:140px;object-fit:contain;background:#1a1a1a;padding:10px;border-radius:18px;border:1px solid #222"><div style="margin-top:10px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap"><button type="button" onclick="openEditPosterModal('${item.firebaseId}')" style="background:#1a2a3a;color:#00d2ff;border:1px solid #2a4a6a;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:bold;cursor:pointer;display:inline-flex;align-items:center;gap:6px">🖼️ تعديل البوستر</button><button type="button" onclick="openTestNotificationModal('${item.firebaseId}')" style="background:#0d2818;color:#4ade80;border:1px solid #1e4d30;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:bold;cursor:pointer;display:inline-flex;align-items:center;gap:6px">🔔 إرسال إشعار لهذا العمل</button></div><h2 style="margin-top:8px">${item.title}</h2>${window.renderDescriptionHtml(item.firebaseId)}</div>${epListHtml}<div style="padding:12px;display:flex;flex-direction:column;gap:10px;background:#111;margin:8px;border-radius:10px;border:1px solid #222"><h3 style="font-size:15px;margin-bottom:2px">➕ إضافة حلقة / بث جديد (يرسل إشعار تلقائي للجميع 🔔)</h3><input id="epTitle" class="input" placeholder="اسم أو رقم الحلقة (مثال: الحلقة ${episodes.length + 1})"><input id="epVideoLink" class="input" placeholder="رابط البث M3U8 أو MP4 أو Pixeldrain"><div style="display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 6px 0"><button type="button" onclick="document.getElementById('epVideoLink').value='https://pixeldrain.com/api/file/cnR9Z51'" style="background:#1f1f1f;color:#00d2ff;border:1px solid #333;padding:8px 12px;border-radius:8px;font-size:12px;cursor:pointer">⚡ تعبئة رابط Pixeldrain التجريبي (cnR9Z51)</button></div><input id="epAltUrl" class="input" placeholder="رابط الموقع البديل (اختياري) - أدخل رابط موقع القناة أو YouTube أو Google"><div class="drop-zone" onclick="document.getElementById('epVideoFile').click()">🎬 اختر فيديو<input type="file" id="epVideoFile" accept="video/*" hidden onchange="handleEpVideoFile(this.files[0])"><div id="epVideoPreview" style="margin-top:8px;color:#fff;font-size:12px"></div></div><button id="addEpSubmitBtn" onclick="addEpisode('${item.firebaseId}')" style="background:#fff;color:#000;border:none;padding:12px;border-radius:8px;font-weight:bold;cursor:pointer">✅ إضافة الحلقة وإرسال إشعار للمستخدمين</button></div>`;
 };
 window.handleEpVideoFile=(f)=>{if(!f)return;let r=new FileReader();r.onload=e=>{window.tempVideoData=e.target.result;document.getElementById("epVideoPreview").innerText="✅ "+f.name;};r.readAsDataURL(f);};
 window.addEpisode=async(fid)=>{
@@ -2052,11 +2325,57 @@ window.addEpisode=async(fid)=>{
     return;
   }
   let item=getItemByFirebaseId(fid);
+  if(!item)return;
   let baseEpisodes = Array.isArray(item.episodes) ? item.episodes : (item.video || item.altUrl ? [{ title: "البث المباشر", video: item.video || "", altUrl: item.altUrl || "" }] : []);
   let ne=[...baseEpisodes,{title:t,video:l,altUrl:alt}];
-  await updateDoc(doc(db,"movies",fid),{episodes:ne});
-  item.episodes = ne;
-  window.tempVideoData="";alert("✅ تمت إضافة الحلقة بنجاح");historyStack=[];openDetails(fid);
+  let newEpIndexOneBased = ne.length;
+  let digitsMatch = t.match(/\d+/);
+  let resolvedEpNumber = digitsMatch ? digitsMatch[0] : String(newEpIndexOneBased);
+  let epDisplayLabel = (t.includes("حلقة") || t.includes("الحلقة")) ? t : `الحلقة ${resolvedEpNumber} (${t})`;
+
+  const addEpBtn = document.getElementById("addEpSubmitBtn");
+  if (addEpBtn) {
+    addEpBtn.disabled = true;
+    addEpBtn.innerText = "⏳ جاري حفظ الحلقة وبث الإشعار...";
+  }
+
+  try {
+    await updateDoc(doc(db,"movies",fid),{episodes:ne, adminKey:"hamza2009"});
+    item.episodes = ne;
+    window.tempVideoData="";
+
+    // Automatically broadcast real notification with anime poster, title, and episode number to all users
+    let notifResult = null;
+    try {
+      notifResult = await window.broadcastNotificationToAllDevices({
+        title: "تمت إضافة حلقة جديدة!",
+        message: `${item.title} - ${epDisplayLabel}`,
+        page: "details",
+        firebaseId: fid,
+        episode: resolvedEpNumber,
+        action: "play",
+        imageUrl: item.poster || "",
+        contentTitle: item.title || "",
+        notifType: "auto_new_episode"
+      });
+    } catch (notifErr) {
+      console.warn("Failed to broadcast automatic episode notification:", notifErr);
+    }
+
+    if (notifResult && notifResult.success) {
+      alert(`✅ تمت إضافة الحلقة بنجاح وتم إرسال إشعار تلقائي بالبوستر إلى جميع الهواتف المشتركة (${notifResult.targetDevicesCount} جهاز)!\n\n🔔 الإشعار: تمت إضافة حلقة جديدة!\n📺 ${item.title} - ${epDisplayLabel}`);
+    } else {
+      alert("✅ تمت إضافة الحلقة بنجاح!");
+    }
+    historyStack=[];
+    openDetails(fid);
+  } catch (e) {
+    alert("❌ حدث خطأ أثناء إضافة الحلقة: " + e.message);
+    if (addEpBtn) {
+      addEpBtn.disabled = false;
+      addEpBtn.innerText = "✅ إضافة الحلقة وإرسال إشعار للمستخدمين";
+    }
+  }
 };
 window.deleteEpisode=async(fid,idx)=>{
   if(window.currentUserRole!=="ADMIN"){showPage('home');return;}

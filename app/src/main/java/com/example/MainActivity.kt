@@ -253,6 +253,7 @@ class MainActivity : ComponentActivity() {
 
     private fun initializeFcm() {
         try {
+            MyFirebaseMessagingService.startRealtimeBroadcastListener(this)
             FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val token = task.result
@@ -1341,6 +1342,16 @@ class MainActivity : ComponentActivity() {
         }
 
         @JavascriptInterface
+        fun getDeviceId(): String {
+            return MyFirebaseMessagingService.getDeviceId(activity)
+        }
+
+        @JavascriptInterface
+        fun markNotificationDelivered(notifId: String) {
+            MyFirebaseMessagingService.markNotificationDelivered(activity.applicationContext, notifId)
+        }
+
+        @JavascriptInterface
         fun triggerConfiguredNotification() {
             activity.runOnUiThread {
                 NotificationConfig.sendConfiguredNotification(activity)
@@ -1370,6 +1381,35 @@ class MainActivity : ComponentActivity() {
                     action = action,
                     imageUrl = imageUrl,
                     contentTitle = contentTitle
+                )
+            }
+        }
+
+        @JavascriptInterface
+        fun triggerCustomNotificationWithId(
+            title: String,
+            message: String,
+            page: String,
+            contentId: String,
+            episode: String,
+            imageUrl: String,
+            action: String,
+            contentTitle: String,
+            notifId: String
+        ) {
+            activity.runOnUiThread {
+                NotificationConfig.sendCustomNotification(
+                    context = activity,
+                    title = title,
+                    message = message,
+                    page = page,
+                    contentId = contentId,
+                    episode = episode,
+                    url = "",
+                    action = action,
+                    imageUrl = imageUrl,
+                    contentTitle = contentTitle,
+                    notifId = notifId
                 )
             }
         }

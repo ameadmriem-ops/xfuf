@@ -8,13 +8,23 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
+import android.provider.Settings
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import com.google.firebase.firestore.DocumentChange
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.SetOptions
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
@@ -28,6 +38,48 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         const val PREFS_NAME = "black_anime_fcm_prefs"
         const val KEY_FCM_TOKEN = "fcm_token"
         const val KEY_NOTIFICATIONS_ENABLED = "notifications_enabled"
+        const val KEY_DELIVERED_IDS = "delivered_notif_ids"
+        const val KEY_INSTALL_TIME = "first_install_timestamp"
+
+        private var firestoreBroadcastListener: ListenerRegistration? = null
+
+        fun getDeviceId(context: Context): String {
+            return try {
+                val androidId = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
+                if (!androidId.isNullOrBlank()) androidId else "dev_${Build.MODEL}_${Build.ID}".replace(" ", "_")
+            } catch (e: Exception) {
+                "dev_${Build.MODEL}".replace(" ", "_")
+            }
+        }
+
+        fun getOrInitInstallTimestamp(context: Context): Long {
+            val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            var ts = prefs.getLong(KEY_INSTALL_TIME, 0L)
+            if (ts == 0L) {
+                ts = System.currentTimeMillis() - 60_000L // allow notifications from 1 minute ago on first launch
+                prefs.edit().putLong(KEY_INSTALL_TIME, ts).apply()
+            }
+            return ts
+        }
+
+        @Synchronized
+        fun hasNotificationBeenDelivered(context: Context, notifId: String): Boolean {
+            if (notifId.isBlank()) return false
+            val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            val set = prefs.getStringSet(KEY_DELIVERED_IDS, emptySet()) ?: emptySet()
+            return set.contains(notifId)
+        }
+
+        @Synchronized
+        fun markNotificationDelivered(context: Context, notifId: String) {
+            if (notifId.isBlank()) return
+            val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            val existing = prefs.getStringSet(KEY_DELIVERED_IDS, emptySet())?.toMutableSet() ?: mutableSetOf()
+            existing.add(notifId)
+            // Keep size bounded to latest 300 IDs
+            val trimmed = if (existing.size > 300) existing.toList().takeLast(300).toSet() else existing
+            prefs.edit().putStringSet(KEY_DELIVERED_IDS, trimmed).apply()
+        }
 
         fun isAppNotificationsEnabled(context: Context): Boolean {
             val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -46,6 +98,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                     FirebaseMessaging.getInstance().unsubscribeFromTopic("anime_updates")
                     NotificationManagerCompat.from(context).cancelAll()
                 }
+                syncDeviceRegistrationInFirestore(context, getSavedToken(context))
             } catch (e: Exception) {
                 Log.w(TAG, "Failed to update FCM topic subscription: ${e.message}")
             }
@@ -59,6 +112,170 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         fun saveToken(context: Context, token: String) {
             val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             prefs.edit().putString(KEY_FCM_TOKEN, token).apply()
+            syncDeviceRegistrationInFirestore(context, token)
+        }
+
+        /**
+         * Registers or updates this device and its FCM token in Firebase Firestore (`fcm_devices/{deviceId}`)
+         * so the Admin dashboard can see the exact count of registered devices and target them reliably.
+         */
+        fun syncDeviceRegistrationInFirestore(context: Context, token: String) {
+            try {
+                val deviceId = getDeviceId(context)
+                val appEnabled = isAppNotificationsEnabled(context)
+                val sysEnabled = NotificationManagerCompat.from(context).areNotificationsEnabled()
+                val data = hashMapOf<String, Any>(
+                    "deviceId" to deviceId,
+                    "token" to token,
+                    "model" to "${Build.MANUFACTURER} ${Build.MODEL}",
+                    "sdkInt" to Build.VERSION.SDK_INT,
+                    "notificationsEnabled" to (appEnabled && sysEnabled),
+                    "appSettingEnabled" to appEnabled,
+                    "systemPermissionGranted" to sysEnabled,
+                    "subscribedTopics" to if (appEnabled) listOf("all_users", "anime_updates") else emptyList<String>(),
+                    "updatedAt" to FieldValue.serverTimestamp(),
+                    "lastSeenMs" to System.currentTimeMillis()
+                )
+                FirebaseFirestore.getInstance()
+                    .collection("fcm_devices")
+                    .document(deviceId)
+                    .set(data, SetOptions.merge())
+                    .addOnSuccessListener {
+                        Log.d(TAG, "Device registered/updated in Firestore fcm_devices/$deviceId")
+                    }
+                    .addOnFailureListener { e ->
+                        Log.w(TAG, "Failed to register device in Firestore: ${e.message}")
+                    }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error syncing device registration: ${e.message}", e)
+            }
+        }
+
+        /**
+         * Starts a real-time Firestore listener on `app_notifications` so that every connected device
+         * receives broadcast notifications and automatic new-episode notifications immediately
+         * with full poster image, title, episode deep-link, and delivery receipt tracking.
+         */
+        fun startRealtimeBroadcastListener(context: Context) {
+            val appContext = context.applicationContext
+            getOrInitInstallTimestamp(appContext)
+            if (firestoreBroadcastListener != null) return
+
+            try {
+                firestoreBroadcastListener = FirebaseFirestore.getInstance()
+                    .collection("app_notifications")
+                    .orderBy("createdAtMs", Query.Direction.DESCENDING)
+                    .limit(15)
+                    .addSnapshotListener { snapshots, error ->
+                        if (error != null) {
+                            Log.w(TAG, "Firestore app_notifications listener error: ${error.message}")
+                            return@addSnapshotListener
+                        }
+                        if (snapshots == null) return@addSnapshotListener
+
+                        val installTime = getOrInitInstallTimestamp(appContext)
+
+                        for (change in snapshots.documentChanges) {
+                            if (change.type == DocumentChange.Type.ADDED || change.type == DocumentChange.Type.MODIFIED) {
+                                val doc = change.document
+                                val notifId = doc.id
+                                val createdAtMs = doc.getLong("createdAtMs") ?: 0L
+
+                                // Only display notifications created after this app installation (or within last 10 mins)
+                                if (createdAtMs < installTime - 600_000L) {
+                                    continue
+                                }
+
+                                // Prevent duplicate notifications using unique notifId
+                                if (hasNotificationBeenDelivered(appContext, notifId)) {
+                                    continue
+                                }
+
+                                val title = doc.getString("title") ?: "تمت إضافة حلقة جديدة!"
+                                val body = doc.getString("body") ?: doc.getString("message") ?: ""
+                                val page = doc.getString("page") ?: "details"
+                                val firebaseId = doc.getString("firebaseId") ?: doc.getString("contentId") ?: ""
+                                val episode = doc.getString("episode") ?: doc.getString("episodeIndex") ?: ""
+                                val url = doc.getString("url") ?: ""
+                                val action = doc.getString("action") ?: "play"
+                                val contentTitle = doc.getString("contentTitle") ?: ""
+                                val imageUrl = doc.getString("imageUrl") ?: doc.getString("poster") ?: ""
+
+                                markNotificationDelivered(appContext, notifId)
+
+                                if (!isAppNotificationsEnabled(appContext)) {
+                                    Log.d(TAG, "Skipping broadcast $notifId because user disabled app notifications.")
+                                    continue
+                                }
+
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    val validRemoteImage = if (imageUrl.startsWith("http://", ignoreCase = true) ||
+                                        imageUrl.startsWith("https://", ignoreCase = true)
+                                    ) imageUrl else ""
+
+                                    val bitmap = if (validRemoteImage.isNotBlank()) {
+                                        downloadBitmapStatic(validRemoteImage)
+                                    } else {
+                                        null
+                                    }
+
+                                    showNotification(
+                                        context = appContext,
+                                        title = title,
+                                        body = body,
+                                        page = page,
+                                        firebaseId = firebaseId,
+                                        episode = episode,
+                                        url = url,
+                                        action = action,
+                                        bitmap = bitmap,
+                                        contentTitle = contentTitle,
+                                        notifId = notifId
+                                    )
+
+                                    // Acknowledge delivery in Firestore so Admin sees real delivered device count
+                                    try {
+                                        val deviceId = getDeviceId(appContext)
+                                        FirebaseFirestore.getInstance()
+                                            .collection("app_notifications")
+                                            .document(notifId)
+                                            .update(
+                                                mapOf(
+                                                    "deliveredDevices" to FieldValue.arrayUnion(deviceId),
+                                                    "deliveredCount" to FieldValue.increment(1)
+                                                )
+                                            )
+                                    } catch (ackErr: Exception) {
+                                        Log.w(TAG, "Could not update delivery receipt for $notifId: ${ackErr.message}")
+                                    }
+                                }
+                            }
+                        }
+                    }
+                Log.d(TAG, "Realtime broadcast listener started on collection: app_notifications")
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to start realtime broadcast listener: ${e.message}", e)
+            }
+        }
+
+        fun downloadBitmapStatic(imageUrl: String): Bitmap? {
+            return try {
+                val url = URL(imageUrl)
+                val connection = (url.openConnection() as HttpURLConnection).apply {
+                    doInput = true
+                    connectTimeout = 8000
+                    readTimeout = 8000
+                    instanceFollowRedirects = true
+                    setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 14)")
+                    connect()
+                }
+                connection.inputStream.use { input ->
+                    BitmapFactory.decodeStream(input)
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "Could not download notification image ($imageUrl): ${e.message}")
+                null
+            }
         }
 
         fun createNotificationChannel(context: Context) {
@@ -95,7 +312,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             url: String,
             action: String,
             bitmap: Bitmap?,
-            contentTitle: String = ""
+            contentTitle: String = "",
+            notifId: String = ""
         ) {
             if (!isAppNotificationsEnabled(context)) {
                 Log.d(TAG, "Notifications are disabled in app settings. Skipping notification display.")
@@ -130,13 +348,19 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 putExtra("contentTitle", contentTitle)
                 putExtra("fcm_contentTitle", contentTitle)
                 putExtra("animeTitle", contentTitle)
+                putExtra("notifId", notifId)
                 putExtra("from_notification", true)
             }
 
-            val requestCode = (System.currentTimeMillis() % 100000).toInt()
+            val notificationId = if (notifId.isNotBlank()) {
+                notifId.hashCode() and 0x7FFFFFFF
+            } else {
+                (System.currentTimeMillis() % 100000).toInt()
+            }
+
             val pendingIntent = PendingIntent.getActivity(
                 context,
-                requestCode,
+                notificationId,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
@@ -159,16 +383,22 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 builder.setStyle(
                     NotificationCompat.BigPictureStyle()
                         .bigPicture(bitmap)
+                        .bigLargeIcon(null as Bitmap?)
+                        .setBigContentTitle(finalTitle)
                         .setSummaryText(finalBody)
                 )
             } else if (finalBody.isNotBlank()) {
-                builder.setStyle(NotificationCompat.BigTextStyle().bigText(finalBody))
+                builder.setStyle(
+                    NotificationCompat.BigTextStyle()
+                        .setBigContentTitle(finalTitle)
+                        .bigText(finalBody)
+                )
             }
 
             try {
                 val notificationManager = NotificationManagerCompat.from(context)
-                notificationManager.notify(requestCode, builder.build())
-                Log.d(TAG, "Notification displayed: $finalTitle (target: $firebaseId ep: $episode)")
+                notificationManager.notify(notificationId, builder.build())
+                Log.d(TAG, "Notification displayed: $finalTitle (target: $firebaseId ep: $episode, id: $notifId)")
             } catch (e: SecurityException) {
                 Log.e(TAG, "Missing notification permission: ${e.message}")
             } catch (e: Exception) {
@@ -182,23 +412,40 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         Log.d(TAG, "New FCM Token received: $token")
         saveToken(applicationContext, token)
 
-        // Automatically subscribe device to global topics for broadcasting
-        try {
-            FirebaseMessaging.getInstance().subscribeToTopic("all_users")
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        Log.d(TAG, "Subscribed successfully to topic: all_users")
+        // Automatically subscribe device to global topics for broadcasting if enabled
+        if (isAppNotificationsEnabled(applicationContext)) {
+            try {
+                FirebaseMessaging.getInstance().subscribeToTopic("all_users")
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            Log.d(TAG, "Subscribed successfully to topic: all_users")
+                        } else {
+                            Log.e(TAG, "Failed subscribing to topic all_users", task.exception)
+                        }
                     }
-                }
-            FirebaseMessaging.getInstance().subscribeToTopic("anime_updates")
-        } catch (e: Exception) {
-            Log.w(TAG, "Failed to subscribe to topics", e)
+                FirebaseMessaging.getInstance().subscribeToTopic("anime_updates")
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to subscribe to topics", e)
+            }
         }
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
-        Log.d(TAG, "Message received from: ${remoteMessage.from}")
+        Log.d(TAG, "FCM Message received from: ${remoteMessage.from}, data=${remoteMessage.data}")
+
+        val notifId = remoteMessage.data["notifId"]
+            ?: remoteMessage.data["fcm_notif_id"]
+            ?: remoteMessage.messageId
+            ?: ""
+
+        if (notifId.isNotBlank() && hasNotificationBeenDelivered(applicationContext, notifId)) {
+            Log.d(TAG, "Duplicate FCM notification ($notifId) ignored (already delivered).")
+            return
+        }
+        if (notifId.isNotBlank()) {
+            markNotificationDelivered(applicationContext, notifId)
+        }
 
         // 1. Extract Title & Body
         val title = remoteMessage.notification?.title
@@ -218,7 +465,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             ?: remoteMessage.data["fcm_page"]
             ?: remoteMessage.data["target_page"]
             ?: remoteMessage.data["screen"]
-            ?: ""
+            ?: "details"
 
         val firebaseId = remoteMessage.data["firebaseId"]
             ?: remoteMessage.data["id"]
@@ -235,8 +482,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             ?: remoteMessage.data["name"]
             ?: ""
 
-        val episode = remoteMessage.data["episode"]
-            ?: remoteMessage.data["episodeIndex"]
+        val episode = remoteMessage.data["episodeIndex"]
+            ?: remoteMessage.data["episode"]
             ?: remoteMessage.data["ep"]
             ?: remoteMessage.data["episodeNumber"]
             ?: remoteMessage.data["fcm_episode"]
@@ -249,7 +496,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
         val action = remoteMessage.data["action"]
             ?: remoteMessage.data["fcm_action"]
-            ?: (if (episode.isNotBlank()) "play" else "")
+            ?: (if (episode.isNotBlank()) "play" else "details")
 
         // 3. Extract Optional Image URL
         val imageUrl = remoteMessage.notification?.imageUrl?.toString()
@@ -258,32 +505,29 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             ?: remoteMessage.data["poster"]
             ?: remoteMessage.data["fcm_image"]
 
-        // 4. Download image if provided
-        val bitmap = if (!imageUrl.isNullOrBlank()) {
-            downloadBitmap(imageUrl)
+        // 4. Download image if provided and valid HTTP(S) URL
+        val bitmap = if (!imageUrl.isNullOrBlank() &&
+            (imageUrl.startsWith("http://", ignoreCase = true) || imageUrl.startsWith("https://", ignoreCase = true))
+        ) {
+            downloadBitmapStatic(imageUrl)
         } else {
             null
         }
 
         // 5. Display the notification
-        showNotification(applicationContext, title, body, page, firebaseId, episode, url, action, bitmap, contentTitle)
-    }
-
-    private fun downloadBitmap(imageUrl: String): Bitmap? {
-        return try {
-            val url = URL(imageUrl)
-            val connection = (url.openConnection() as HttpURLConnection).apply {
-                doInput = true
-                connectTimeout = 8000
-                readTimeout = 8000
-                instanceFollowRedirects = true
-                connect()
-            }
-            val input: InputStream = connection.inputStream
-            BitmapFactory.decodeStream(input)
-        } catch (e: Exception) {
-            Log.w(TAG, "Could not download notification image: ${e.message}")
-            null
-        }
+        showNotification(
+            applicationContext,
+            title,
+            body,
+            page,
+            firebaseId,
+            episode,
+            url,
+            action,
+            bitmap,
+            contentTitle,
+            notifId
+        )
     }
 }
+

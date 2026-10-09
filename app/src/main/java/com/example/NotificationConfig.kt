@@ -4,6 +4,8 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -94,11 +96,19 @@ object NotificationConfig {
         url: String = "",
         action: String = "play",
         imageUrl: String = "",
-        contentTitle: String = ""
+        contentTitle: String = "",
+        notifId: String = ""
     ) {
-        if (imageUrl.isNotBlank()) {
+        if (notifId.isNotBlank()) {
+            MyFirebaseMessagingService.markNotificationDelivered(context.applicationContext, notifId)
+        }
+        val validImageUrl = if (imageUrl.startsWith("http://", ignoreCase = true) ||
+            imageUrl.startsWith("https://", ignoreCase = true)
+        ) imageUrl else ""
+
+        if (validImageUrl.isNotBlank()) {
             CoroutineScope(Dispatchers.IO).launch {
-                val bitmap = downloadBitmap(imageUrl)
+                val bitmap = downloadBitmap(validImageUrl)
                 MyFirebaseMessagingService.showNotification(
                     context = context.applicationContext,
                     title = title,
@@ -109,7 +119,8 @@ object NotificationConfig {
                     url = url,
                     action = action,
                     bitmap = bitmap,
-                    contentTitle = contentTitle
+                    contentTitle = contentTitle,
+                    notifId = notifId
                 )
             }
         } else {
@@ -123,9 +134,97 @@ object NotificationConfig {
                 url = url,
                 action = action,
                 bitmap = null,
-                contentTitle = contentTitle
+                contentTitle = contentTitle,
+                notifId = notifId
             )
         }
+    }
+
+    /**
+     * بث إشعار حقيقي إلى جميع المستخدمين المشتركين عبر Firebase (`app_notifications` + Topic `all_users`)
+     */
+    fun broadcastNotificationToAllUsers(
+        context: Context,
+        title: String,
+        message: String,
+        page: String = "details",
+        contentId: String = "",
+        episode: String = "",
+        url: String = "",
+        action: String = "play",
+        imageUrl: String = "",
+        contentTitle: String = "",
+        notifType: String = "manual_broadcast",
+        onComplete: ((Boolean, String, Int) -> Unit)? = null
+    ) {
+        val db = FirebaseFirestore.getInstance()
+        val validRemoteImage = if (imageUrl.startsWith("http://", ignoreCase = true) ||
+            imageUrl.startsWith("https://", ignoreCase = true)
+        ) imageUrl.trim() else ""
+
+        db.collection("fcm_devices").get()
+            .addOnCompleteListener { devicesTask ->
+                val registeredCount = if (devicesTask.isSuccessful) {
+                    devicesTask.result?.size() ?: 1
+                } else {
+                    1
+                }
+                val docRef = db.collection("app_notifications").document()
+                val notifId = docRef.id
+                val senderDeviceId = MyFirebaseMessagingService.getDeviceId(context)
+
+                // Mark as delivered on sender device first and show local notification so no duplicate occurs
+                MyFirebaseMessagingService.markNotificationDelivered(context.applicationContext, notifId)
+
+                val payload = hashMapOf<String, Any>(
+                    "notifId" to notifId,
+                    "title" to title.ifBlank { "تمت إضافة حلقة جديدة!" },
+                    "body" to message,
+                    "message" to message,
+                    "page" to page.ifBlank { "details" },
+                    "firebaseId" to contentId,
+                    "contentId" to contentId,
+                    "contentTitle" to contentTitle,
+                    "episode" to episode,
+                    "episodeIndex" to episode,
+                    "url" to url,
+                    "action" to action.ifBlank { "play" },
+                    "imageUrl" to validRemoteImage,
+                    "poster" to validRemoteImage,
+                    "topic" to "all_users",
+                    "type" to notifType,
+                    "adminKey" to "hamza2009",
+                    "senderDeviceId" to senderDeviceId,
+                    "targetDevicesCount" to registeredCount.coerceAtLeast(1),
+                    "deliveredDevices" to listOf(senderDeviceId),
+                    "deliveredCount" to 1,
+                    "createdAtMs" to System.currentTimeMillis(),
+                    "createdAt" to FieldValue.serverTimestamp()
+                )
+
+                docRef.set(payload)
+                    .addOnSuccessListener {
+                        Log.d(TAG, "Broadcast notification published to all_users ($notifId), targets: $registeredCount")
+                        sendCustomNotification(
+                            context = context,
+                            title = title,
+                            message = message,
+                            page = page,
+                            contentId = contentId,
+                            episode = episode,
+                            url = url,
+                            action = action,
+                            imageUrl = validRemoteImage,
+                            contentTitle = contentTitle,
+                            notifId = notifId
+                        )
+                        onComplete?.invoke(true, notifId, registeredCount.coerceAtLeast(1))
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e(TAG, "Failed to publish broadcast notification: ${e.message}", e)
+                        onComplete?.invoke(false, e.message ?: "خطأ غير معروف في الإرسال", 0)
+                    }
+            }
     }
 
     private fun downloadBitmap(imageUrl: String): Bitmap? {

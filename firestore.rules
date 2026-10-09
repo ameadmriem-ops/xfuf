@@ -17,5 +17,23 @@ service cloud.firestore {
                       || !request.resource.data.diff(resource.data).affectedKeys().hasOnly(['poster'])
                     );
     }
+
+    match /fcm_devices/{deviceId} {
+      allow read: if true;
+      allow create, update: if request.resource.data.token is string
+                            && request.resource.data.token.size() > 0;
+    }
+
+    match /app_notifications/{notifId} {
+      allow read: if true;
+      // Only Admin with verified adminKey can create broadcast notifications
+      allow create: if request.resource.data.adminKey == "hamza2009"
+                    && request.resource.data.title is string
+                    && request.resource.data.body is string;
+      // Allow Admin updates or client delivery receipt updates (deliveredDevices / deliveredCount)
+      allow update: if request.resource.data.adminKey == "hamza2009"
+                    || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['deliveredDevices', 'deliveredCount']);
+      allow delete: if true;
+    }
   }
 }
