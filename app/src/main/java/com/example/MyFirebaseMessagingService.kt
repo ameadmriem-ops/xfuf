@@ -86,6 +86,17 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             return prefs.getBoolean(KEY_NOTIFICATIONS_ENABLED, true)
         }
 
+        fun isAdminDevice(context: Context): Boolean {
+            return try {
+                val authPrefs = context.getSharedPreferences("app_auth_prefs", Context.MODE_PRIVATE)
+                val role = authPrefs.getString("user_role", "") ?: ""
+                val token = authPrefs.getString("admin_secret_token", "") ?: ""
+                role == "ADMIN" && token == "hamza2009_verified"
+            } catch (e: Exception) {
+                false
+            }
+        }
+
         fun setAppNotificationsEnabled(context: Context, enabled: Boolean) {
             val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             prefs.edit().putBoolean(KEY_NOTIFICATIONS_ENABLED, enabled).apply()
@@ -93,9 +104,13 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 if (enabled) {
                     FirebaseMessaging.getInstance().subscribeToTopic("all_users")
                     FirebaseMessaging.getInstance().subscribeToTopic("anime_updates")
+                    if (isAdminDevice(context)) {
+                        FirebaseMessaging.getInstance().subscribeToTopic("admin_alerts")
+                    }
                 } else {
                     FirebaseMessaging.getInstance().unsubscribeFromTopic("all_users")
                     FirebaseMessaging.getInstance().unsubscribeFromTopic("anime_updates")
+                    FirebaseMessaging.getInstance().unsubscribeFromTopic("admin_alerts")
                     NotificationManagerCompat.from(context).cancelAll()
                 }
                 syncDeviceRegistrationInFirestore(context, getSavedToken(context))
@@ -124,15 +139,22 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 val deviceId = getDeviceId(context)
                 val appEnabled = isAppNotificationsEnabled(context)
                 val sysEnabled = NotificationManagerCompat.from(context).areNotificationsEnabled()
+                val isAdmin = isAdminDevice(context)
+                val topicsList = if (appEnabled) {
+                    if (isAdmin) listOf("all_users", "anime_updates", "admin_alerts")
+                    else listOf("all_users", "anime_updates")
+                } else emptyList<String>()
+
                 val data = hashMapOf<String, Any>(
                     "deviceId" to deviceId,
                     "token" to token,
                     "model" to "${Build.MANUFACTURER} ${Build.MODEL}",
                     "sdkInt" to Build.VERSION.SDK_INT,
+                    "isAdmin" to isAdmin,
                     "notificationsEnabled" to (appEnabled && sysEnabled),
                     "appSettingEnabled" to appEnabled,
                     "systemPermissionGranted" to sysEnabled,
-                    "subscribedTopics" to if (appEnabled) listOf("all_users", "anime_updates") else emptyList<String>(),
+                    "subscribedTopics" to topicsList,
                     "updatedAt" to FieldValue.serverTimestamp(),
                     "lastSeenMs" to System.currentTimeMillis()
                 )
@@ -200,6 +222,19 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                                 val action = doc.getString("action") ?: "play"
                                 val contentTitle = doc.getString("contentTitle") ?: ""
                                 val imageUrl = doc.getString("imageUrl") ?: doc.getString("poster") ?: ""
+                                val targetAudience = doc.getString("targetAudience") ?: "all_users"
+                                val targetDeviceId = doc.getString("targetDeviceId") ?: ""
+                                val currentDeviceId = getDeviceId(appContext)
+
+                                // Filter notifications meant only for Admin devices
+                                if (targetAudience == "admin_only" && !isAdminDevice(appContext)) {
+                                    continue
+                                }
+
+                                // Filter notifications meant for a specific reporter device
+                                if (targetAudience == "specific_device" && targetDeviceId.isNotBlank() && targetDeviceId != currentDeviceId) {
+                                    continue
+                                }
 
                                 markNotificationDelivered(appContext, notifId)
 

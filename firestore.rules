@@ -35,5 +35,32 @@ service cloud.firestore {
                     || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['deliveredDevices', 'deliveredCount']);
       allow delete: if true;
     }
+
+    match /app_reports/{reportId} {
+      // Allow reading reports for Admin dashboard and reporter's own status notifications
+      allow read: if true;
+
+      // Allow viewers to create valid reports with required fields and initial status "جديد"
+      allow create: if request.resource.data.issueType is string
+                    && request.resource.data.issueType.size() > 0
+                    && request.resource.data.contentTitle is string
+                    && request.resource.data.contentTitle.size() > 0
+                    && request.resource.data.status == "جديد"
+                    && request.resource.data.createdAtMs is int;
+
+      // Only Admin with verified adminKey can update report status or internal notes
+      allow update: if request.resource.data.adminKey == "hamza2009"
+                    && request.resource.data.status in [
+                      "جديد",
+                      "قيد المراجعة",
+                      "تم الحل",
+                      "غير قابل للحل حاليًا",
+                      "مكرر",
+                      "مرفوض"
+                    ];
+
+      // Allow deleting reports from Admin panel
+      allow delete: if true;
+    }
   }
 }

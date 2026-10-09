@@ -187,6 +187,7 @@ body.light-mode .auth-input{background:#f7f8fa;color:#111;border:1.5px solid #cf
     <button onclick="showPage('animation')" id="nav-animation">🎬<span>الأنميشن</span></button>
     <button onclick="showPage('anime')" id="nav-anime">⚡<span>الأنمي</span></button>
     <button onclick="renderAddPage()" id="nav-add" style="display:none">＋<span>إضافة</span></button>
+    <button onclick="openAdminReportsPage()" id="nav-reports" style="display:none;position:relative">📩<span>البلاغات</span><b id="navReportsBadge" style="display:none;position:absolute;top:2px;right:6px;background:#e50914;color:#fff;font-size:10px;padding:1px 5px;border-radius:10px;line-height:1.2">0</b></button>
     <button onclick="showPage('favorites')" id="nav-favorites">♥<span>مفضلتي</span></button>
   </nav>
 
@@ -370,11 +371,80 @@ body.light-mode .auth-input{background:#f7f8fa;color:#111;border:1.5px solid #cf
       </div>
     </div>
   </div>
+
+  <!-- Viewer Report Problem Modal -->
+  <div id="reportProblemModal" class="ad-overlay" style="display:none;z-index:99998">
+    <div class="ad-popup-card" style="max-width:450px;width:93%;background:#141414;border:1px solid #333;border-radius:18px;padding:18px;text-align:right;color:#fff;direction:rtl;max-height:92vh;overflow-y:auto">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;border-bottom:1px solid #282828;padding-bottom:10px">
+        <h3 style="margin:0;font-size:17px;color:#ff6b6b;display:flex;align-items:center;gap:6px">🚩 الإبلاغ عن مشكلة</h3>
+        <button type="button" onclick="closeReportProblemModal()" style="background:none;border:none;color:#aaa;font-size:20px;cursor:pointer">✕</button>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:11px">
+        <!-- 1. نوع المشكلة -->
+        <div>
+          <label style="font-size:12px;color:#ccc;font-weight:bold;display:block;margin-bottom:4px">1. نوع المشكلة <span style="color:#e50914">*</span>:</label>
+          <select id="reportIssueTypeSelect" class="input" onchange="onReportIssueTypeChanged(this.value)">
+            <option value="">-- اختر نوع المشكلة --</option>
+            <option value="الحلقة لا تعمل">الحلقة لا تعمل</option>
+            <option value="الفيديو لا يبدأ">الفيديو لا يبدأ</option>
+            <option value="رابط المشاهدة لا يعمل">رابط المشاهدة لا يعمل</option>
+            <option value="مشكلة في جودة الفيديو">مشكلة في جودة الفيديو</option>
+            <option value="مشكلة في الصوت">مشكلة في الصوت</option>
+            <option value="مشكلة في الترجمة">مشكلة في الترجمة</option>
+            <option value="الحلقة أو الأنمي مفقود">الحلقة أو الأنمي مفقود</option>
+            <option value="البوستر أو الصورة لا تظهر">البوستر أو الصورة لا تظهر</option>
+            <option value="معلومات الأنمي غير صحيحة">معلومات الأنمي غير صحيحة</option>
+            <option value="مشكلة في التنزيل">مشكلة في التنزيل</option>
+            <option value="مشكلة أخرى">مشكلة أخرى</option>
+          </select>
+        </div>
+
+        <!-- 2. اسم الأنمي أو العمل -->
+        <div>
+          <label style="font-size:12px;color:#ccc;font-weight:bold;display:block;margin-bottom:4px">2. اسم الأنمي أو العمل (تلقائي):</label>
+          <input id="reportContentTitleInput" class="input" readonly style="background:#0d0d0d;color:#00d2ff;font-weight:bold;border-color:#222">
+        </div>
+
+        <!-- 3. رقم الموسم & 4. رقم الحلقة -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div id="reportSeasonWrap">
+            <label style="font-size:12px;color:#ccc;font-weight:bold;display:block;margin-bottom:4px">3. رقم الموسم:</label>
+            <input id="reportSeasonInput" class="input" placeholder="تلقائي عند توفره">
+          </div>
+          <div id="reportEpisodeWrap">
+            <label style="font-size:12px;color:#ccc;font-weight:bold;display:block;margin-bottom:4px">4. رقم الحلقة:</label>
+            <input id="reportEpisodeInput" class="input" placeholder="اختياري أو تلقائي">
+          </div>
+        </div>
+
+        <!-- 6. مصدر المشاهدة -->
+        <div id="reportSourceWrap">
+          <label style="font-size:12px;color:#ccc;font-weight:bold;display:block;margin-bottom:4px">5. مصدر المشاهدة:</label>
+          <select id="reportSourceSelect" class="input"></select>
+        </div>
+
+        <!-- 5. وصف المشكلة -->
+        <div>
+          <label id="reportDescLabel" style="font-size:12px;color:#ccc;font-weight:bold;display:block;margin-bottom:4px">6. وصف المشكلة (اختياري):</label>
+          <textarea id="reportDescInput" class="input" rows="3" style="resize:vertical;min-height:74px;font-family:inherit;line-height:1.5" placeholder="اشرح المشكلة بالتفصيل لمساعدتنا على إصلاحها بسرعة..."></textarea>
+        </div>
+
+        <div id="reportStatusFeedback" style="display:none;font-size:12px;padding:9px 12px;border-radius:10px;text-align:center;line-height:1.5;font-weight:bold"></div>
+
+        <!-- 7 & 8. أزرار الإرسال والإلغاء -->
+        <div style="display:flex;gap:10px;margin-top:4px">
+          <button type="button" id="submitReportBtn" onclick="submitUserReport()" style="flex:1;background:linear-gradient(135deg,#e50914,#b80610);color:#fff;border:none;padding:12px;border-radius:10px;font-weight:bold;font-size:14px;cursor:pointer">📨 إرسال البلاغ</button>
+          <button type="button" onclick="closeReportProblemModal()" style="background:#1c1c1c;color:#aaa;border:1px solid #333;padding:12px 18px;border-radius:10px;cursor:pointer;font-size:13px">إلغاء</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script type="module">
 import{initializeApp}from"firebase/app";
-import{getFirestore,collection,onSnapshot,addDoc,updateDoc,deleteDoc,doc,serverTimestamp,query,orderBy,limit}from"firebase/firestore";
+import{getFirestore,collection,onSnapshot,addDoc,updateDoc,deleteDoc,doc,serverTimestamp,query,orderBy,limit,getDocs}from"firebase/firestore";
 
 const firebaseConfig={
   apiKey:"AIzaSyB_9ZOotR4uZtYYn08OSIZXJczM-WC0MM8",
@@ -1154,6 +1224,16 @@ window.handleFcmNotification = function(arg1, arg2, arg3, arg4, arg5, arg6) {
       showPage("foreign");
     } else if (p === "favorites" || p === "fav" || p === "مفضلتي") {
       showPage("favorites");
+    } else if (p === "reports" || p === "البلاغات" || p === "report_detail") {
+      if (window.currentUserRole === "ADMIN") {
+        if (firebaseId && p === "report_detail") {
+          window.openReportDetailPage(firebaseId);
+        } else {
+          window.openAdminReportsPage();
+        }
+      } else {
+        showPage("home");
+      }
     } else if (p === "add" || p === "admin" || p === "لوحة التحكم") {
       if (window.currentUserRole === "ADMIN") {
         showPage("add");
@@ -1611,8 +1691,13 @@ window.applyUserRole = function(role) {
     addNavBtn.style.display = (role === "ADMIN") ? "flex" : "none";
   }
 
-  // Protect Admin pages: if non-admin is in add or episode form, kick back to home
-  if (role !== "ADMIN" && (currentPage === "add" || currentPage === "select" || currentPage === "addep")) {
+  const reportsNavBtn = document.getElementById("nav-reports");
+  if (reportsNavBtn) {
+    reportsNavBtn.style.display = (role === "ADMIN") ? "flex" : "none";
+  }
+
+  // Protect Admin pages: if non-admin is in add, reports, or episode form, kick back to home
+  if (role !== "ADMIN" && (currentPage === "add" || currentPage === "select" || currentPage === "addep" || currentPage === "reports" || currentPage === "report_detail")) {
     historyStack = [];
     showPage("home");
   }
@@ -1737,6 +1822,9 @@ window.logout = function() {
 
   const addNavBtn = document.getElementById("nav-add");
   if (addNavBtn) addNavBtn.style.display = "none";
+
+  const reportsNavBtn = document.getElementById("nav-reports");
+  if (reportsNavBtn) reportsNavBtn.style.display = "none";
 
   showAuthScreen();
 };
@@ -1921,11 +2009,14 @@ window.renderEpisodesList = function(fid) {
     let isWatched = window.isEpisodeWatched(item.firebaseId, originalIdx);
     let watchedClass = isWatched ? "watched" : "";
     let checkMark = isWatched ? '<span class="watch-check-icon">✓</span>' : "";
-    let editEpBtn = `<button onclick="event.stopPropagation();openEditEpisodeModal('${item.firebaseId}',${originalIdx})" title="تعديل رابط البث" aria-label="تعديل رابط البث" style="background:#112233;color:#00d2ff;border:1px solid #1a3a5a;padding:12px 14px;border-radius:10px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0" onmouseover="this.style.background='#00d2ff';this.style.color='#000'" onmouseout="this.style.background='#112233';this.style.color='#00d2ff'">✏️</button>`;
-    let delEpBtn = (window.currentUserRole === "ADMIN")
-      ? `<button onclick="event.stopPropagation();deleteEpisode('${item.firebaseId}',${originalIdx})" title="حذف الحلقة" aria-label="حذف الحلقة" style="background:#250505;color:#ff4444;border:1px solid #441111;padding:12px 14px;border-radius:10px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0" onmouseover="this.style.background='#e50914';this.style.color='#fff'" onmouseout="this.style.background='#250505';this.style.color='#ff4444'">🗑️</button>`
+    let reportEpBtn = `<button type="button" onclick="event.stopPropagation();openReportProblemModal('${item.firebaseId}',${originalIdx})" title="الإبلاغ عن مشكلة في هذه الحلقة" aria-label="الإبلاغ عن مشكلة في هذه الحلقة" style="background:#260a0a;color:#ff6b6b;border:1px solid #4a1515;padding:12px 11px;border-radius:10px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0" onmouseover="this.style.background='#e50914';this.style.color='#fff'" onmouseout="this.style.background='#260a0a';this.style.color='#ff6b6b'">🚩</button>`;
+    let editEpBtn = (window.currentUserRole === "ADMIN")
+      ? `<button onclick="event.stopPropagation();openEditEpisodeModal('${item.firebaseId}',${originalIdx})" title="تعديل رابط البث" aria-label="تعديل رابط البث" style="background:#112233;color:#00d2ff;border:1px solid #1a3a5a;padding:12px 13px;border-radius:10px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0" onmouseover="this.style.background='#00d2ff';this.style.color='#000'" onmouseout="this.style.background='#112233';this.style.color='#00d2ff'">✏️</button>`
       : "";
-    return `<div style="display:flex;align-items:center;gap:6px;width:100%"><button class="episode-btn ${watchedClass}" id="ep-btn-${item.firebaseId}-${originalIdx}" style="flex:1" onclick="watchEpisode('${item.firebaseId}',${originalIdx})"><b style="display:flex;align-items:center">${checkMark}${ep.title}</b><span>${icon}</span></button>${editEpBtn}${delEpBtn}</div>`;
+    let delEpBtn = (window.currentUserRole === "ADMIN")
+      ? `<button onclick="event.stopPropagation();deleteEpisode('${item.firebaseId}',${originalIdx})" title="حذف الحلقة" aria-label="حذف الحلقة" style="background:#250505;color:#ff4444;border:1px solid #441111;padding:12px 13px;border-radius:10px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0" onmouseover="this.style.background='#e50914';this.style.color='#fff'" onmouseout="this.style.background='#250505';this.style.color='#ff4444'">🗑️</button>`
+      : "";
+    return `<div style="display:flex;align-items:center;gap:6px;width:100%"><button class="episode-btn ${watchedClass}" id="ep-btn-${item.firebaseId}-${originalIdx}" style="flex:1" onclick="watchEpisode('${item.firebaseId}',${originalIdx})"><b style="display:flex;align-items:center">${checkMark}${ep.title}</b><span>${icon}</span></button>${reportEpBtn}${editEpBtn}${delEpBtn}</div>`;
   }).join("") : `<div style="text-align:center;color:#666;padding:15px;font-size:14px">${t("no_episodes")}</div>`;
 
   let addEpBtn = (window.currentUserRole === "ADMIN") ? `<button class="episode-btn" style="border:1px dashed #444;color:#aaa" onclick="renderAddEpisodeForm('${item.firebaseId}')">${t("add_ep_btn")}</button>` : "";
@@ -2007,9 +2098,10 @@ window.openDetails=(fid)=>{
       </button>
     ` : "";
 
-    let editPosterDetailBtn = (window.currentUserRole === "ADMIN") ? `<div style="margin-top:10px"><button type="button" onclick="openEditPosterModal('${item.firebaseId}')" style="background:#1a2a3a;color:#00d2ff;border:1px solid #2a4a6a;padding:8px 16px;border-radius:10px;font-size:13px;font-weight:bold;cursor:pointer;display:inline-flex;align-items:center;gap:6px">🖼️ تعديل البوستر</button></div>` : "";
+    let editPosterDetailBtn = (window.currentUserRole === "ADMIN") ? `<button type="button" onclick="openEditPosterModal('${item.firebaseId}')" style="background:#1a2a3a;color:#00d2ff;border:1px solid #2a4a6a;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:bold;cursor:pointer;display:inline-flex;align-items:center;gap:6px">🖼️ تعديل البوستر</button>` : "";
+    let reportDetailBtn = `<button type="button" onclick="openReportProblemModal('${item.firebaseId}', -1)" style="background:#260a0a;color:#ff6b6b;border:1px solid #4a1515;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:bold;cursor:pointer;display:inline-flex;align-items:center;gap:6px">🚩 الإبلاغ عن مشكلة</button>`;
 
-    main.innerHTML=`<div class="page-header" style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px 4px 14px;margin-top:55px"><button class="back-btn" style="margin:0" onclick="goBack()">${t("back_btn")}</button>${orderBtnHtml}</div><div style="padding:15px;text-align:center"><img class="poster" data-poster-fid="${item.firebaseId}" src="${item.poster}" style="width:140px;height:140px;object-fit:contain;padding:10px;border-radius:18px">${editPosterDetailBtn}<h1 style="margin-top:12px">${item.title}</h1><p style="color:#888">${item.year} • ${categoryLabel}</p>${window.renderDescriptionHtml(item.firebaseId)}</div><div id="episodesListContainer" style="padding:12px;display:flex;flex-direction:column;gap:8px"></div>`;
+    main.innerHTML=`<div class="page-header" style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px 4px 14px;margin-top:55px"><button class="back-btn" style="margin:0" onclick="goBack()">${t("back_btn")}</button>${orderBtnHtml}</div><div style="padding:15px;text-align:center"><img class="poster" data-poster-fid="${item.firebaseId}" src="${item.poster}" style="width:140px;height:140px;object-fit:contain;padding:10px;border-radius:18px"><div style="margin-top:10px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap">${editPosterDetailBtn}${reportDetailBtn}</div><h1 style="margin-top:12px">${item.title}</h1><p style="color:#888">${item.year} • ${categoryLabel}</p>${window.renderDescriptionHtml(item.firebaseId)}</div><div id="episodesListContainer" style="padding:12px;display:flex;flex-direction:column;gap:8px"></div>`;
 
     window.renderEpisodesList(item.firebaseId);
   });
@@ -2049,7 +2141,7 @@ window.watchEpisode=(fid,idx)=>{
     }
     navigateTo("watch", () => {
       let v = `<video id="fallbackVideoPlayer" controls playsinline autoplay preload="metadata" src="${videoLink}" style="width:100%"></video>`;
-      main.innerHTML = `<div class="page-header"><button class="back-btn" onclick="goBack()">${t("back_btn")}</button></div><div style="padding:12px"><h2>${streamTitle}</h2><div style="margin-top:12px;background:#000;border-radius:10px;overflow:hidden">${v}</div></div>`;
+      main.innerHTML = `<div class="page-header" style="display:flex;justify-content:space-between;align-items:center"><button class="back-btn" style="margin:0" onclick="goBack()">${t("back_btn")}</button><button type="button" onclick="openReportProblemModal('${fid}', ${idx})" style="background:#260a0a;color:#ff6b6b;border:1px solid #4a1515;padding:8px 14px;border-radius:20px;font-size:13px;font-weight:bold;cursor:pointer">🚩 الإبلاغ عن مشكلة</button></div><div style="padding:12px"><h2>${streamTitle}</h2><div style="margin-top:12px;background:#000;border-radius:10px;overflow:hidden">${v}</div><div style="margin-top:12px;text-align:center"><button type="button" onclick="openReportProblemModal('${fid}', ${idx})" style="background:#260a0a;color:#ff6b6b;border:1px solid #4a1515;padding:10px 18px;border-radius:12px;font-size:13px;font-weight:bold;cursor:pointer;display:inline-flex;align-items:center;gap:6px">🚩 واجهت مشكلة في تشغيل الحلقة؟ أرسل بلاغًا للمشرف</button></div></div>`;
       window._lastDetailsFid = fid;
 
       let videoEl = document.getElementById("fallbackVideoPlayer");
@@ -2104,6 +2196,7 @@ window.showPage=(p)=>{
     else if(p==="favorites")renderFavorites();
     else if(p==="settings")renderSettingsPage();
     else if(p==="about")renderAboutPage();
+    else if(p==="reports")openAdminReportsPage(true);
     return;
   }
   historyStack.push(currentPage);
@@ -2114,6 +2207,7 @@ window.showPage=(p)=>{
   else if(p==="favorites")renderFavorites();
   else if(p==="settings")renderSettingsPage();
   else if(p==="about")renderAboutPage();
+  else if(p==="reports")openAdminReportsPage(true);
   window.scrollTo(0,0);
 };
 window.renderCurrentPage=()=>{
@@ -2129,6 +2223,14 @@ window.renderCurrentPage=()=>{
     if(window.currentUserRole!=="ADMIN"){historyStack=[];showPage('home');}
     else renderAddPage(true);
   }
+  else if(currentPage==="reports"){
+    if(window.currentUserRole!=="ADMIN"){historyStack=[];showPage('home');}
+    else renderAdminReportsPage();
+  }
+  else if(currentPage==="report_detail"){
+    if(window.currentUserRole!=="ADMIN"){historyStack=[];showPage('home');}
+    else renderReportDetailPage(window.currentViewingReportId);
+  }
 };
 window.goBack=()=>{
   if(!window.currentUserRole) return;
@@ -2141,11 +2243,13 @@ window.goBack=()=>{
   else if(prev==="favorites")renderFavorites();
   else if(prev==="settings")renderSettingsPage();
   else if(prev==="about")renderAboutPage();
-  else if(prev==="add" || prev==="select" || prev==="addep"){
+  else if(prev==="add" || prev==="select" || prev==="addep" || prev==="reports" || prev==="report_detail"){
     if(window.currentUserRole!=="ADMIN"){
       showPage('home');
     }else{
       if(prev==="add")renderAddPage(true);
+      else if(prev==="reports")renderAdminReportsPage();
+      else if(prev==="report_detail"&&window.currentViewingReportId)renderReportDetailPage(window.currentViewingReportId);
       else showPage('home');
     }
   }
@@ -2171,9 +2275,10 @@ window.openDetailsBack=()=>{
     </button>
   ` : "";
 
-  let editPosterDetailBtn = (window.currentUserRole === "ADMIN") ? `<div style="margin-top:10px"><button type="button" onclick="openEditPosterModal('${item.firebaseId}')" style="background:#1a2a3a;color:#00d2ff;border:1px solid #2a4a6a;padding:8px 16px;border-radius:10px;font-size:13px;font-weight:bold;cursor:pointer;display:inline-flex;align-items:center;gap:6px">🖼️ تعديل البوستر</button></div>` : "";
+  let editPosterDetailBtn = (window.currentUserRole === "ADMIN") ? `<button type="button" onclick="openEditPosterModal('${item.firebaseId}')" style="background:#1a2a3a;color:#00d2ff;border:1px solid #2a4a6a;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:bold;cursor:pointer;display:inline-flex;align-items:center;gap:6px">🖼️ تعديل البوستر</button>` : "";
+  let reportDetailBtn = `<button type="button" onclick="openReportProblemModal('${item.firebaseId}', -1)" style="background:#260a0a;color:#ff6b6b;border:1px solid #4a1515;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:bold;cursor:pointer;display:inline-flex;align-items:center;gap:6px">🚩 الإبلاغ عن مشكلة</button>`;
 
-  main.innerHTML=`<div class="page-header" style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px 4px 14px;margin-top:55px"><button class="back-btn" style="margin:0" onclick="goBack()">${t("back_btn")}</button>${orderBtnHtml}</div><div style="padding:15px;text-align:center"><img class="poster" data-poster-fid="${item.firebaseId}" src="${item.poster}" style="width:140px;height:140px;object-fit:contain;padding:10px;border-radius:18px">${editPosterDetailBtn}<h1>${item.title}</h1><p style="color:#888">${item.year} • ${categoryLabel}</p>${window.renderDescriptionHtml(item.firebaseId)}</div><div id="episodesListContainer" style="padding:12px;display:flex;flex-direction:column;gap:8px"></div>`;
+  main.innerHTML=`<div class="page-header" style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px 4px 14px;margin-top:55px"><button class="back-btn" style="margin:0" onclick="goBack()">${t("back_btn")}</button>${orderBtnHtml}</div><div style="padding:15px;text-align:center"><img class="poster" data-poster-fid="${item.firebaseId}" src="${item.poster}" style="width:140px;height:140px;object-fit:contain;padding:10px;border-radius:18px"><div style="margin-top:10px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap">${editPosterDetailBtn}${reportDetailBtn}</div><h1>${item.title}</h1><p style="color:#888">${item.year} • ${categoryLabel}</p>${window.renderDescriptionHtml(item.firebaseId)}</div><div id="episodesListContainer" style="padding:12px;display:flex;flex-direction:column;gap:8px"></div>`;
 
   window.renderEpisodesList(item.firebaseId);
 };
@@ -2245,7 +2350,10 @@ window.renderAddPage=(isBack=false)=>{
     ? `✅ آخر إشعار مُرسل: <b>${window.escapeDescHtml(latestNotif.title || "")}</b> — <span style="color:#4ade80">${window.escapeDescHtml(latestNotif.body || "")}</span> (وصل إلى <b>${Array.isArray(latestNotif.deliveredDevices) ? latestNotif.deliveredDevices.length : (latestNotif.deliveredCount || 1)}</b> من <b>${latestNotif.targetDevicesCount || activeDevCount}</b> جهاز)`
     : `📡 جاهز لبث الإشعارات الفورية والتلقائية عند إضافة أي حلقة جديدة إلى جميع الهواتف.`;
 
-  main.innerHTML=`<div class="page-header"><button class="back-btn" onclick="goBack()">← رجوع</button></div><h1 style="padding:16px">لوحة التحكم</h1><div style="padding:12px;display:flex;flex-direction:column;gap:10px"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button onclick="startSelectEpisodeMode()" style="background:#fff;color:#000;border:none;padding:12px;border-radius:10px;font-weight:bold;cursor:pointer">📺 إضافة بث / تعديل بوستر</button><button onclick="toggleDeleteMode()" style="background:${deleteMode?'#fff':'#e50914'};color:${deleteMode?'#000':'#fff'};border:none;padding:12px;border-radius:10px;font-weight:bold;cursor:pointer">${deleteMode?'إلغاء':'🗑️ حذف'}</button></div><div style="display:flex;gap:8px"><button onclick="showPage('home')" style="flex:1;background:#1a1a1a;color:#aaa;border:1px solid #333;padding:9px;border-radius:8px;cursor:pointer">🔒 إغلاق اللوحة</button><button onclick="confirmLogout()" style="flex:1;background:#250505;color:#ff6b6b;border:1px solid #441111;padding:9px;border-radius:8px;cursor:pointer;font-weight:bold">🚪 تسجيل الخروج</button></div><div style="background:#111;border:1px solid #222;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px"><div style="font-weight:bold;font-size:14px;color:#00d2ff;display:flex;align-items:center;justify-content:space-between"><span>🖼️ إدارة المحتوى وتعديل البوسترات (${(window.allContent||[]).length})</span></div><input class="input" placeholder="ابحث عن فيلم أو مسلسل أو أنمي لتعديل البوستر..." oninput="filterAdminManageList(this.value)" style="padding:9px 12px;font-size:13px"><div id="adminManageContentList" style="display:flex;flex-direction:column;gap:8px;max-height:320px;overflow-y:auto;padding-right:2px">${window.renderAdminManageListHtml("")}</div></div><div style="background:#111;border:1px solid #222;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px"><div style="font-weight:bold;font-size:14px;color:#00d2ff;display:flex;align-items:center;gap:6px">🔔 نظام إشعارات الهواتف (FCM + all_users)</div><span id="adminRegisteredDevicesBadge" style="background:#0d283a;color:#00d2ff;border:1px solid #1e4d6b;padding:3px 9px;border-radius:12px;font-size:11px;font-weight:bold">📱 الأجهزة المشتركة (all_users): ${activeDevCount} جهاز</span></div><p style="font-size:12px;color:#aaa;line-height:1.5">يتم إرسال إشعار تلقائي بالبوستر واسم العمل ورقم الحلقة لجميع الهواتف فور إضافة أي حلقة جديدة، كما يمكنك إرسال إشعار مخصص للجميع من الزر بالأسفل.</p><div id="adminLastBroadcastStatus" style="background:#0c141c;border:1px solid #1b2e40;padding:8px 10px;border-radius:8px;font-size:11px;color:#bbb;line-height:1.5">${latestNotifHtml}</div><div style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" onclick="copyFcmToken()" style="flex:1;background:#1a2a3a;color:#00d2ff;border:1px solid #2a4a6a;padding:9px;border-radius:8px;font-size:12px;font-weight:bold;cursor:pointer">📋 نسخ رمز FCM لهذا الجهاز</button><button type="button" onclick="requestNotifPermission()" style="background:#222;color:#fff;border:1px solid #333;padding:9px;border-radius:8px;font-size:12px;cursor:pointer">🔔 طلب إذن الإشعارات</button></div><button type="button" onclick="openTestNotificationModal()" style="background:linear-gradient(135deg,#0072ff,#00d2ff);color:#000;border:none;padding:10px;border-radius:8px;font-size:13px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">🚀 إرسال إشعار مخصص لجميع الهواتف (عنوان، بوستر، حلقة، أنمي)</button></div><hr style="border-color:#1f1f1f"><select id="addType" class="input"><option value="anime">أنمي</option><option value="animation">أنميشن</option></select><div style="display:flex;flex-direction:column;gap:6px"><label style="font-size:12px;color:#aaa">تصنيف الأنمي:</label><select id="addCategory" class="input"><option value="مسلسل">مسلسل</option><option value="فلم">فلم</option><option value="أوفا">أوفا</option><option value="خاصة">خاصة</option><option value="أونا">أونا</option></select><div style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" onclick="document.getElementById('addCategory').value='مسلسل'" style="background:#1f1f1f;color:#fff;border:1px solid #333;padding:5px 12px;border-radius:12px;font-size:12px;cursor:pointer">مسلسل</button><button type="button" onclick="document.getElementById('addCategory').value='فلم'" style="background:#1f1f1f;color:#fff;border:1px solid #333;padding:5px 12px;border-radius:12px;font-size:12px;cursor:pointer">فلم</button><button type="button" onclick="document.getElementById('addCategory').value='أوفا'" style="background:#1f1f1f;color:#fff;border:1px solid #333;padding:5px 12px;border-radius:12px;font-size:12px;cursor:pointer">أوفا</button><button type="button" onclick="document.getElementById('addCategory').value='خاصة'" style="background:#1f1f1f;color:#fff;border:1px solid #333;padding:5px 12px;border-radius:12px;font-size:12px;cursor:pointer">خاصة</button><button type="button" onclick="document.getElementById('addCategory').value='أونا'" style="background:#1f1f1f;color:#fff;border:1px solid #333;padding:5px 12px;border-radius:12px;font-size:12px;cursor:pointer">أونا</button></div></div><input id="addTitle" class="input" placeholder="اسم العمل / الأنمي"><input id="addYear" class="input" type="number" placeholder="السنة"><input id="addPoster" class="input" placeholder="رابط بوستر العمل"><div class="drop-zone" onclick="document.getElementById('posterFile').click()">📷 اختر بوستر<input type="file" id="posterFile" accept="image/*" hidden onchange="handlePosterFile(this.files[0])"><div id="posterPreview" style="margin-top:8px;color:#fff;font-size:12px"></div></div><input id="addVideo" class="input" placeholder="رابط البث M3U8 أو MP4 أو Pixeldrain"><div style="display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 6px 0"><button type="button" onclick="fillSamplePixeldrain()" style="background:#1f1f1f;color:#00d2ff;border:1px solid #333;padding:8px 12px;border-radius:8px;font-size:12px;cursor:pointer">⚡ تجربة رابط Pixeldrain: cnR9Z51</button><button type="button" onclick="testPlayPixeldrain()" style="background:#00d2ff;color:#000;border:none;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:bold;cursor:pointer">▶ تشغيل مباشر لتجربة الرابط</button></div><input id="addAltUrl" class="input" placeholder="رابط الموقع البديل (اختياري) - أدخل رابط موقع القناة أو YouTube أو Google"><div class="drop-zone" onclick="document.getElementById('videoFile').click()">🎬 اختر ملف فيديو<input type="file" id="videoFile" accept="video/*" hidden onchange="handleVideoFile(this.files[0])"><div id="videoPreview" style="margin-top:8px;color:#fff;font-size:12px"></div></div><input id="addDesc" class="input" placeholder="وصف العمل / القصة"><button id="addBtn" onclick="addNewContent()" style="background:#e50914;color:#fff;border:none;padding:13px;border-radius:10px;font-weight:bold;cursor:pointer">إضافة العمل وإشعار المستخدمين</button></div>`;
+  const newReportsCount = (window.allReportsList || []).filter(r => (r.status || "جديد") === "جديد").length;
+  const totalReportsCount = (window.allReportsList || []).length;
+
+  main.innerHTML=`<div class="page-header"><button class="back-btn" onclick="goBack()">← رجوع</button></div><h1 style="padding:16px">لوحة التحكم</h1><div style="padding:12px;display:flex;flex-direction:column;gap:10px"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button onclick="startSelectEpisodeMode()" style="background:#fff;color:#000;border:none;padding:12px;border-radius:10px;font-weight:bold;cursor:pointer">📺 إضافة بث / تعديل بوستر</button><button onclick="toggleDeleteMode()" style="background:${deleteMode?'#fff':'#e50914'};color:${deleteMode?'#000':'#fff'};border:none;padding:12px;border-radius:10px;font-weight:bold;cursor:pointer">${deleteMode?'إلغاء':'🗑️ حذف'}</button></div><button onclick="openAdminReportsPage()" style="width:100%;background:linear-gradient(135deg,#e50914,#99050d);color:#fff;border:1px solid #ff4d4d;padding:13px;border-radius:12px;font-size:15px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 15px rgba(229,9,20,0.35)"><span>📩 البلاغات</span><span style="background:rgba(0,0,0,0.35);padding:2px 10px;border-radius:12px;font-size:12px">${newReportsCount > 0 ? `${newReportsCount} جديد` : `${totalReportsCount} بلاغ`}</span></button><div style="display:flex;gap:8px"><button onclick="showPage('home')" style="flex:1;background:#1a1a1a;color:#aaa;border:1px solid #333;padding:9px;border-radius:8px;cursor:pointer">🔒 إغلاق اللوحة</button><button onclick="confirmLogout()" style="flex:1;background:#250505;color:#ff6b6b;border:1px solid #441111;padding:9px;border-radius:8px;cursor:pointer;font-weight:bold">🚪 تسجيل الخروج</button></div><div style="background:#111;border:1px solid #222;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px"><div style="font-weight:bold;font-size:14px;color:#00d2ff;display:flex;align-items:center;justify-content:space-between"><span>🖼️ إدارة المحتوى وتعديل البوسترات (${(window.allContent||[]).length})</span></div><input class="input" placeholder="ابحث عن فيلم أو مسلسل أو أنمي لتعديل البوستر..." oninput="filterAdminManageList(this.value)" style="padding:9px 12px;font-size:13px"><div id="adminManageContentList" style="display:flex;flex-direction:column;gap:8px;max-height:320px;overflow-y:auto;padding-right:2px">${window.renderAdminManageListHtml("")}</div></div><div style="background:#111;border:1px solid #222;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px"><div style="font-weight:bold;font-size:14px;color:#00d2ff;display:flex;align-items:center;gap:6px">🔔 نظام إشعارات الهواتف (FCM + all_users)</div><span id="adminRegisteredDevicesBadge" style="background:#0d283a;color:#00d2ff;border:1px solid #1e4d6b;padding:3px 9px;border-radius:12px;font-size:11px;font-weight:bold">📱 الأجهزة المشتركة (all_users): ${activeDevCount} جهاز</span></div><p style="font-size:12px;color:#aaa;line-height:1.5">يتم إرسال إشعار تلقائي بالبوستر واسم العمل ورقم الحلقة لجميع الهواتف فور إضافة أي حلقة جديدة، كما يمكنك إرسال إشعار مخصص للجميع من الزر بالأسفل.</p><div id="adminLastBroadcastStatus" style="background:#0c141c;border:1px solid #1b2e40;padding:8px 10px;border-radius:8px;font-size:11px;color:#bbb;line-height:1.5">${latestNotifHtml}</div><div style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" onclick="copyFcmToken()" style="flex:1;background:#1a2a3a;color:#00d2ff;border:1px solid #2a4a6a;padding:9px;border-radius:8px;font-size:12px;font-weight:bold;cursor:pointer">📋 نسخ رمز FCM لهذا الجهاز</button><button type="button" onclick="requestNotifPermission()" style="background:#222;color:#fff;border:1px solid #333;padding:9px;border-radius:8px;font-size:12px;cursor:pointer">🔔 طلب إذن الإشعارات</button></div><button type="button" onclick="openTestNotificationModal()" style="background:linear-gradient(135deg,#0072ff,#00d2ff);color:#000;border:none;padding:10px;border-radius:8px;font-size:13px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">🚀 إرسال إشعار مخصص لجميع الهواتف (عنوان، بوستر، حلقة، أنمي)</button></div><hr style="border-color:#1f1f1f"><select id="addType" class="input"><option value="anime">أنمي</option><option value="animation">أنميشن</option></select><div style="display:flex;flex-direction:column;gap:6px"><label style="font-size:12px;color:#aaa">تصنيف الأنمي:</label><select id="addCategory" class="input"><option value="مسلسل">مسلسل</option><option value="فلم">فلم</option><option value="أوفا">أوفا</option><option value="خاصة">خاصة</option><option value="أونا">أونا</option></select><div style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" onclick="document.getElementById('addCategory').value='مسلسل'" style="background:#1f1f1f;color:#fff;border:1px solid #333;padding:5px 12px;border-radius:12px;font-size:12px;cursor:pointer">مسلسل</button><button type="button" onclick="document.getElementById('addCategory').value='فلم'" style="background:#1f1f1f;color:#fff;border:1px solid #333;padding:5px 12px;border-radius:12px;font-size:12px;cursor:pointer">فلم</button><button type="button" onclick="document.getElementById('addCategory').value='أوفا'" style="background:#1f1f1f;color:#fff;border:1px solid #333;padding:5px 12px;border-radius:12px;font-size:12px;cursor:pointer">أوفا</button><button type="button" onclick="document.getElementById('addCategory').value='خاصة'" style="background:#1f1f1f;color:#fff;border:1px solid #333;padding:5px 12px;border-radius:12px;font-size:12px;cursor:pointer">خاصة</button><button type="button" onclick="document.getElementById('addCategory').value='أونا'" style="background:#1f1f1f;color:#fff;border:1px solid #333;padding:5px 12px;border-radius:12px;font-size:12px;cursor:pointer">أونا</button></div></div><input id="addTitle" class="input" placeholder="اسم العمل / الأنمي"><input id="addYear" class="input" type="number" placeholder="السنة"><input id="addPoster" class="input" placeholder="رابط بوستر العمل"><div class="drop-zone" onclick="document.getElementById('posterFile').click()">📷 اختر بوستر<input type="file" id="posterFile" accept="image/*" hidden onchange="handlePosterFile(this.files[0])"><div id="posterPreview" style="margin-top:8px;color:#fff;font-size:12px"></div></div><input id="addVideo" class="input" placeholder="رابط البث M3U8 أو MP4 أو Pixeldrain"><div style="display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 6px 0"><button type="button" onclick="fillSamplePixeldrain()" style="background:#1f1f1f;color:#00d2ff;border:1px solid #333;padding:8px 12px;border-radius:8px;font-size:12px;cursor:pointer">⚡ تجربة رابط Pixeldrain: cnR9Z51</button><button type="button" onclick="testPlayPixeldrain()" style="background:#00d2ff;color:#000;border:none;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:bold;cursor:pointer">▶ تشغيل مباشر لتجربة الرابط</button></div><input id="addAltUrl" class="input" placeholder="رابط الموقع البديل (اختياري) - أدخل رابط موقع القناة أو YouTube أو Google"><div class="drop-zone" onclick="document.getElementById('videoFile').click()">🎬 اختر ملف فيديو<input type="file" id="videoFile" accept="video/*" hidden onchange="handleVideoFile(this.files[0])"><div id="videoPreview" style="margin-top:8px;color:#fff;font-size:12px"></div></div><input id="addDesc" class="input" placeholder="وصف العمل / القصة"><button id="addBtn" onclick="addNewContent()" style="background:#e50914;color:#fff;border:none;padding:13px;border-radius:10px;font-weight:bold;cursor:pointer">إضافة العمل وإشعار المستخدمين</button></div>`;
 };
 window.handlePosterFile=(f)=>{if(!f)return;let r=new FileReader();r.onload=e=>{window.tempPosterData=e.target.result;document.getElementById("posterPreview").innerText="✅ "+f.name;};r.readAsDataURL(f);};
 window.handleVideoFile=(f)=>{if(!f)return;let r=new FileReader();r.onload=e=>{window.tempVideoData=e.target.result;document.getElementById("videoPreview").innerText="✅ "+f.name;};r.readAsDataURL(f);};
@@ -2402,6 +2510,951 @@ window.deleteEpisode=async(fid,idx)=>{
 window.askDeleteMovie=async(fid)=>{
   if(window.currentUserRole!=="ADMIN"){showPage('home');return;}
   if(confirm("حذف نهائي؟")){await deleteDoc(doc(db,"movies",fid));renderCurrentPage();}
+};
+
+/* ================= Integrated Issue Reporting & Admin Management System ================= */
+const reportsColRef = collection(db, "app_reports");
+window.allReportsList = [];
+window.currentReportingContext = {
+  fid: "",
+  episodeIdx: -1,
+  seasonNumber: "",
+  episodeNumber: "",
+  episodeTitle: "",
+  contentTitle: "",
+  category: "",
+  sources: []
+};
+window.reportsFilterState = {
+  status: "ALL",
+  issueType: "ALL",
+  searchQuery: "",
+  sortOrder: "desc"
+};
+window.currentViewingReportId = "";
+
+const REPORT_ISSUE_TYPES = [
+  "الحلقة لا تعمل",
+  "الفيديو لا يبدأ",
+  "رابط المشاهدة لا يعمل",
+  "مشكلة في جودة الفيديو",
+  "مشكلة في الصوت",
+  "مشكلة في الترجمة",
+  "الحلقة أو الأنمي مفقود",
+  "البوستر أو الصورة لا تظهر",
+  "معلومات الأنمي غير صحيحة",
+  "مشكلة في التنزيل",
+  "مشكلة أخرى"
+];
+
+const REPORT_STATUS_OPTIONS = [
+  "جديد",
+  "قيد المراجعة",
+  "تم الحل",
+  "غير قابل للحل حاليًا",
+  "مكرر",
+  "مرفوض"
+];
+
+window.getCurrentViewerOrDeviceId = function() {
+  if (window.AndroidBridge && typeof window.AndroidBridge.getDeviceId === "function") {
+    try {
+      const id = window.AndroidBridge.getDeviceId();
+      if (id && id.trim()) return id.trim();
+    } catch (e) {}
+  }
+  let localId = localStorage.getItem("viewer_unique_device_id") || "";
+  if (!localId) {
+    localId = "user_" + Math.random().toString(36).substring(2, 10);
+    localStorage.setItem("viewer_unique_device_id", localId);
+  }
+  return localId;
+};
+
+window.extractSeasonFromItem = function(item) {
+  if (!item) return "";
+  if (item.season !== undefined && item.season !== null && String(item.season).trim() !== "") {
+    return String(item.season).trim();
+  }
+  const title = String(item.title || "");
+  const arMatch = title.match(/الموسم\s*(\d+|الأول|الثاني|الثالث|الرابع|الخامس|السادس)/i);
+  if (arMatch && arMatch[1]) return `الموسم ${arMatch[1]}`;
+  const enMatch = title.match(/(?:season|s)\s*(\d+)/i);
+  if (enMatch && enMatch[1]) return `الموسم ${enMatch[1]}`;
+  const partMatch = title.match(/الجزء\s*(\d+|الأول|الثاني|الثالث|الرابع)/i);
+  if (partMatch && partMatch[1]) return `الجزء ${partMatch[1]}`;
+  return "";
+};
+
+window.extractEpisodeNumberLabel = function(epObj, idx) {
+  if (!epObj && (idx === undefined || idx < 0)) return "";
+  const rawTitle = (epObj && epObj.title) ? String(epObj.title).trim() : "";
+  if (rawTitle) {
+    const m = rawTitle.match(/\d+/);
+    if (m && m[0]) return m[0];
+    return rawTitle;
+  }
+  if (idx >= 0) return String(idx + 1);
+  return "";
+};
+
+window.getAvailableWatchSources = function(item, epIdx) {
+  if (!item) return [{ value: "المشغل الافتراضي", label: "المشغل الافتراضي" }];
+  const episodes = Array.isArray(item.episodes) && item.episodes.length > 0
+    ? item.episodes
+    : [{ title: "البث المباشر", video: item.video || "", altUrl: item.altUrl || "" }];
+  const ep = (epIdx >= 0 && epIdx < episodes.length) ? episodes[epIdx] : episodes[0];
+  const videoUrl = ep ? String(ep.video || "").trim() : String(item.video || "").trim();
+  const altUrl = ep ? String(ep.altUrl || item.altUrl || "").trim() : String(item.altUrl || "").trim();
+
+  const sources = [];
+  if (videoUrl) {
+    let serverType = "المشغل الأساسي (ExoPlayer)";
+    if (videoUrl.toLowerCase().includes("pixeldrain")) serverType = "المشغل الأساسي (Pixeldrain Direct)";
+    else if (videoUrl.toLowerCase().includes(".m3u8")) serverType = "المشغل الأساسي (بث HLS / M3U8)";
+    else if (videoUrl.toLowerCase().includes(".mp4")) serverType = "المشغل الأساسي (فيديو MP4 مباشر)";
+    sources.push({
+      value: `${serverType} — ${videoUrl}`,
+      label: serverType
+    });
+  }
+  if (altUrl) {
+    let altLabel = "الرابط البديل الخارجي";
+    if (altUrl.toLowerCase().includes("youtube") || altUrl.toLowerCase().includes("youtu.be")) {
+      altLabel = "الرابط البديل (YouTube)";
+    }
+    sources.push({
+      value: `${altLabel} — ${altUrl}`,
+      label: altLabel
+    });
+  }
+  if (sources.length === 0) {
+    sources.push({
+      value: "لا يوجد رابط مضاف حالياً",
+      label: "لا يوجد رابط مضاف حالياً"
+    });
+  }
+  return sources;
+};
+
+window.openReportModalFromActivePlayback = function(presetIssueType = "") {
+  const fid = (window.currentWatchingEpisode && window.currentWatchingEpisode.fid) || window._lastDetailsFid || "";
+  const idx = (window.currentWatchingEpisode && window.currentWatchingEpisode.idx >= 0) ? window.currentWatchingEpisode.idx : -1;
+  window.openReportProblemModal(fid, idx, presetIssueType);
+};
+
+window.openReportProblemModal = function(fid, episodeIdx = -1, presetIssueType = "") {
+  const item = fid ? getItemByFirebaseId(fid) : (window._lastDetailsFid ? getItemByFirebaseId(window._lastDetailsFid) : null);
+  if (!item) {
+    alert("يرجى اختيار العمل أولاً للإبلاغ عن مشكلته.");
+    return;
+  }
+
+  const episodes = Array.isArray(item.episodes) && item.episodes.length > 0
+    ? item.episodes
+    : (item.video || item.altUrl ? [{ title: "البث المباشر", video: item.video || "", altUrl: item.altUrl || "" }] : []);
+
+  const epObj = (episodeIdx >= 0 && episodeIdx < episodes.length) ? episodes[episodeIdx] : null;
+  const detectedSeason = window.extractSeasonFromItem(item);
+  const detectedEpNum = epObj ? window.extractEpisodeNumberLabel(epObj, episodeIdx) : "";
+  const sources = window.getAvailableWatchSources(item, episodeIdx);
+
+  window.currentReportingContext = {
+    fid: item.firebaseId,
+    episodeIdx: episodeIdx,
+    seasonNumber: detectedSeason,
+    episodeNumber: detectedEpNum,
+    episodeTitle: epObj ? (epObj.title || `الحلقة ${episodeIdx + 1}`) : "",
+    contentTitle: item.title || "",
+    category: item.category || "",
+    poster: item.poster || "",
+    sources: sources
+  };
+
+  const issueSelect = document.getElementById("reportIssueTypeSelect");
+  const titleInput = document.getElementById("reportContentTitleInput");
+  const seasonInput = document.getElementById("reportSeasonInput");
+  const epInput = document.getElementById("reportEpisodeInput");
+  const sourceSelect = document.getElementById("reportSourceSelect");
+  const descInput = document.getElementById("reportDescInput");
+  const feedbackEl = document.getElementById("reportStatusFeedback");
+  const submitBtn = document.getElementById("submitReportBtn");
+
+  if (issueSelect) {
+    issueSelect.value = presetIssueType || (episodeIdx >= 0 ? "الحلقة لا تعمل" : "");
+  }
+  if (titleInput) {
+    titleInput.value = item.title || "";
+  }
+  if (seasonInput) {
+    seasonInput.value = detectedSeason || "الموسم 1";
+  }
+  if (epInput) {
+    epInput.value = detectedEpNum ? (epObj && epObj.title ? `${detectedEpNum} (${epObj.title})` : String(detectedEpNum)) : "";
+  }
+  if (sourceSelect) {
+    sourceSelect.innerHTML = sources.map(s => `<option value="${window.escapeDescHtml(s.value)}">${window.escapeDescHtml(s.label)}</option>`).join("");
+  }
+  if (descInput) {
+    descInput.value = "";
+  }
+  if (feedbackEl) {
+    feedbackEl.style.display = "none";
+    feedbackEl.innerText = "";
+  }
+  if (submitBtn) {
+    submitBtn.disabled = false;
+    submitBtn.innerText = "📨 إرسال البلاغ";
+  }
+
+  window.onReportIssueTypeChanged(issueSelect ? issueSelect.value : "");
+
+  const modal = document.getElementById("reportProblemModal");
+  if (modal) modal.style.display = "flex";
+};
+
+window.closeReportProblemModal = function() {
+  const modal = document.getElementById("reportProblemModal");
+  if (modal) modal.style.display = "none";
+};
+
+window.onReportIssueTypeChanged = function(selectedType) {
+  const descLabel = document.getElementById("reportDescLabel");
+  const descInput = document.getElementById("reportDescInput");
+  if (!descLabel || !descInput) return;
+
+  if (selectedType === "مشكلة أخرى") {
+    descLabel.innerHTML = `6. وصف المشكلة <span style="color:#e50914">(مطلوب عند اختيار مشكلة أخرى *)</span>:`;
+    descInput.placeholder = "يرجى كتابة تفاصيل المشكلة هنا (إلزامي)...";
+  } else {
+    descLabel.innerHTML = `6. وصف المشكلة (اختياري):`;
+    descInput.placeholder = "اشرح المشكلة بالتفصيل لمساعدتنا على إصلاحها بسرعة...";
+  }
+};
+
+window.checkDuplicateReportCooldown = function(fid, epNum, issueType) {
+  try {
+    const history = JSON.parse(localStorage.getItem("user_submitted_reports_cooldown") || "{}");
+    const key = `${fid}_${epNum || "all"}_${issueType}`;
+    const lastTs = history[key] || 0;
+    const now = Date.now();
+    // Prevent sending the exact same report (same anime + episode + issue type) within 3 minutes (180,000 ms), while allowing different issues immediately
+    const COOLDOWN_MS = 3 * 60 * 1000;
+    if (now - lastTs < COOLDOWN_MS) {
+      const remainingSec = Math.ceil((COOLDOWN_MS - (now - lastTs)) / 1000);
+      return { blocked: true, remainingSec };
+    }
+    return { blocked: false, key };
+  } catch (e) {
+    return { blocked: false, key: `${fid}_${epNum}_${issueType}` };
+  }
+};
+
+window.recordSubmittedReportCooldown = function(key) {
+  try {
+    const history = JSON.parse(localStorage.getItem("user_submitted_reports_cooldown") || "{}");
+    history[key] = Date.now();
+    localStorage.setItem("user_submitted_reports_cooldown", JSON.stringify(history));
+  } catch (e) {}
+};
+
+window.submitUserReport = async function() {
+  const issueType = (document.getElementById("reportIssueTypeSelect")?.value || "").trim();
+  const contentTitle = (document.getElementById("reportContentTitleInput")?.value || window.currentReportingContext.contentTitle || "").trim();
+  const season = (document.getElementById("reportSeasonInput")?.value || window.currentReportingContext.seasonNumber || "").trim();
+  const episode = (document.getElementById("reportEpisodeInput")?.value || window.currentReportingContext.episodeNumber || "").trim();
+  const watchSource = (document.getElementById("reportSourceSelect")?.value || "").trim();
+  const description = (document.getElementById("reportDescInput")?.value || "").trim();
+  const feedbackEl = document.getElementById("reportStatusFeedback");
+  const submitBtn = document.getElementById("submitReportBtn");
+
+  const showFeedback = (msg, isError = true) => {
+    if (!feedbackEl) return;
+    feedbackEl.style.display = "block";
+    feedbackEl.style.background = isError ? "#2a0808" : "#062814";
+    feedbackEl.style.border = isError ? "1px solid #661a1a" : "1px solid #155e30";
+    feedbackEl.style.color = isError ? "#ff6b6b" : "#4ade80";
+    feedbackEl.innerText = msg;
+  };
+
+  // 1. Validate inputs
+  if (!issueType) {
+    showFeedback("⚠️ يرجى اختيار نوع المشكلة من القائمة أولاً.", true);
+    return;
+  }
+  if (issueType === "مشكلة أخرى" && description.length < 3) {
+    showFeedback("⚠️ يرجى كتابة وصف المشكلة بالتفصيل عند اختيار «مشكلة أخرى».", true);
+    document.getElementById("reportDescInput")?.focus();
+    return;
+  }
+  if (!contentTitle) {
+    showFeedback("⚠️ اسم العمل غير متوفر.", true);
+    return;
+  }
+
+  // Check network connection
+  if (typeof navigator !== "undefined" && navigator.onLine === false) {
+    showFeedback("❌ لا يوجد اتصال بالإنترنت حالياً. يرجى التحقق من الشبكة والمحاولة مرة أخرى.", true);
+    return;
+  }
+
+  const fid = window.currentReportingContext.fid || "";
+  const epIdx = window.currentReportingContext.episodeIdx;
+
+  // Anti-spam check for the exact same issue on the same episode/content
+  const cooldownCheck = window.checkDuplicateReportCooldown(fid, episode, issueType);
+  if (cooldownCheck.blocked) {
+    showFeedback(`⏳ لقد قمت بإرسال نفس هذا البلاغ مؤخراً. يمكنك الإبلاغ عن مشكلة أخرى أو الانتظار ${cooldownCheck.remainingSec} ثانية.`, true);
+    return;
+  }
+
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerText = "⏳ جاري حفظ وإرسال البلاغ...";
+  }
+  showFeedback("⏳ جاري إرسال البلاغ وحفظه في قاعدة البيانات المشتركة...", false);
+
+  const uniqueReportNumber = "REP-" + Date.now().toString(36).toUpperCase().slice(-5) + "-" + Math.floor(100 + Math.random() * 900);
+  const nowMs = Date.now();
+  const formattedDate = new Date(nowMs).toLocaleString("ar-EG", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+  const reporterId = window.getCurrentViewerOrDeviceId();
+  const reporterRole = window.currentUserRole || "USER";
+
+  try {
+    const reportPayload = {
+      reportNumber: uniqueReportNumber,
+      issueType: issueType,
+      description: description || "لم يتم إدخال وصف إضافي",
+      contentId: fid,
+      contentTitle: contentTitle,
+      contentPoster: window.currentReportingContext.poster || "",
+      category: window.currentReportingContext.category || "",
+      seasonNumber: season || "الموسم 1",
+      episodeNumber: episode || "غير محدد",
+      episodeIndex: typeof epIdx === "number" ? epIdx : -1,
+      watchSource: watchSource || "المشغل الافتراضي",
+      reporterId: reporterId,
+      reporterRole: reporterRole,
+      status: "جديد",
+      internalNote: "",
+      createdAtMs: nowMs,
+      createdAtFormatted: formattedDate,
+      updatedAtMs: nowMs,
+      createdAt: serverTimestamp()
+    };
+
+    const savedDoc = await addDoc(reportsColRef, reportPayload);
+    window.recordSubmittedReportCooldown(cooldownCheck.key);
+
+    // Notify Admin devices in real-time via app_notifications with targetAudience = "admin_only"
+    try {
+      const epText = episode ? ` (الحلقة ${episode})` : "";
+      await addDoc(notifsColRef, {
+        title: `📩 بلاغ جديد: ${issueType}`,
+        body: `${contentTitle}${epText} — رقم البلاغ: ${uniqueReportNumber}`,
+        message: `${contentTitle}${epText} — رقم البلاغ: ${uniqueReportNumber}`,
+        page: "report_detail",
+        firebaseId: savedDoc.id,
+        contentId: fid,
+        contentTitle: contentTitle,
+        episode: episode || "",
+        action: "details",
+        imageUrl: (window.currentReportingContext.poster && window.currentReportingContext.poster.startsWith("http")) ? window.currentReportingContext.poster : "",
+        topic: "admin_alerts",
+        targetAudience: "admin_only",
+        type: "new_user_report",
+        adminKey: "hamza2009",
+        senderDeviceId: reporterId,
+        targetDevicesCount: 1,
+        deliveredDevices: [],
+        deliveredCount: 0,
+        createdAtMs: Date.now(),
+        createdAt: serverTimestamp()
+      });
+    } catch (notifErr) {
+      console.warn("Could not send admin alert notification:", notifErr);
+    }
+
+    showFeedback("✅ تم إرسال بلاغك بنجاح، شكرًا لمساعدتنا في تحسين التطبيق", false);
+    setTimeout(() => {
+      window.closeReportProblemModal();
+      alert("✅ تم إرسال بلاغك بنجاح، شكرًا لمساعدتنا في تحسين التطبيق\n\nرقم البلاغ: " + uniqueReportNumber);
+    }, 550);
+  } catch (err) {
+    console.error("Failed to submit report:", err);
+    showFeedback("❌ تعذّر إرسال البلاغ بسبب مشكلة في الاتصال أو قاعدة البيانات: " + (err.message || "يرجى المحاولة لاحقاً"), true);
+    alert("❌ فشل إرسال البلاغ: تأكد من اتصالك بالإنترنت وحاول مجدداً.");
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerText = "📨 إرسال البلاغ";
+    }
+  }
+};
+
+// Real-time listener on `app_reports` for Admin dashboard & badge updates
+const reportsQuery = query(reportsColRef, orderBy("createdAtMs", "desc"), limit(300));
+onSnapshot(reportsQuery, (snap) => {
+  window.allReportsList = snap.docs.map(d => ({
+    firebaseReportId: d.id,
+    ...d.data()
+  }));
+
+  // Update badge on navbar and admin panel if Admin
+  const newCount = window.allReportsList.filter(r => (r.status || "جديد") === "جديد").length;
+  const navBadge = document.getElementById("navReportsBadge");
+  if (navBadge) {
+    if (window.currentUserRole === "ADMIN" && newCount > 0) {
+      navBadge.style.display = "inline-block";
+      navBadge.innerText = newCount > 99 ? "99+" : String(newCount);
+    } else {
+      navBadge.style.display = "none";
+    }
+  }
+
+  // Automatically refresh Admin Reports page or Report Detail page if currently open
+  if (window.currentUserRole === "ADMIN") {
+    if (currentPage === "reports") {
+      window.renderAdminReportsListDomOnly();
+    } else if (currentPage === "report_detail" && window.currentViewingReportId) {
+      const activeInput = document.activeElement;
+      if (!activeInput || activeInput.id !== "adminInternalNoteInput") {
+        window.renderReportDetailPage(window.currentViewingReportId);
+      }
+    }
+  }
+}, (err) => {
+  console.warn("app_reports realtime listener error:", err);
+});
+
+window.manualRefreshReports = async function() {
+  if (!window.isAdminAuthorized()) {
+    alert("عذراً، هذه الميزة مخصصة للمشرف فقط.");
+    return;
+  }
+  const refreshBtn = document.getElementById("manualRefreshReportsBtn");
+  if (refreshBtn) {
+    refreshBtn.disabled = true;
+    refreshBtn.innerText = "⏳ جاري التحديث...";
+  }
+  try {
+    const snap = await getDocs(reportsQuery);
+    window.allReportsList = snap.docs.map(d => ({
+      firebaseReportId: d.id,
+      ...d.data()
+    }));
+    if (currentPage === "reports") {
+      window.renderAdminReportsPage();
+    }
+  } catch (e) {
+    alert("❌ تعذر تحديث البلاغات، تحقق من اتصال الإنترنت: " + e.message);
+  } finally {
+    if (refreshBtn) {
+      refreshBtn.disabled = false;
+      refreshBtn.innerText = "🔄 تحديث";
+    }
+  }
+};
+
+window.getReportStatusBadgeStyle = function(status) {
+  const s = (status || "جديد").trim();
+  if (s === "جديد") return "background:rgba(229,9,20,0.18);color:#ff6b6b;border:1px solid rgba(229,9,20,0.45)";
+  if (s === "قيد المراجعة") return "background:rgba(245,158,11,0.18);color:#fbbf24;border:1px solid rgba(245,158,11,0.45)";
+  if (s === "تم الحل") return "background:rgba(34,197,94,0.18);color:#4ade80;border:1px solid rgba(34,197,94,0.45)";
+  if (s === "غير قابل للحل حاليًا") return "background:rgba(168,85,247,0.18);color:#c084fc;border:1px solid rgba(168,85,247,0.45)";
+  if (s === "مكرر") return "background:rgba(59,130,246,0.18);color:#60a5fa;border:1px solid rgba(59,130,246,0.45)";
+  if (s === "مرفوض") return "background:rgba(115,115,115,0.2);color:#a3a3a3;border:1px solid rgba(115,115,115,0.4)";
+  return "background:#222;color:#ccc;border:1px solid #444";
+};
+
+window.openAdminReportsPage = function(isFromShowPage = false) {
+  if (!window.isAdminAuthorized()) {
+    alert("⛔ عذراً، الوصول إلى إدارة البلاغات مخصص للمشرف فقط.");
+    showPage("home");
+    return;
+  }
+  if (!isFromShowPage && currentPage !== "reports") {
+    historyStack.push(currentPage);
+  }
+  currentPage = "reports";
+  setActiveNav("reports");
+  window.renderAdminReportsPage();
+  window.scrollTo(0, 0);
+};
+
+window.computeReportsStatistics = function() {
+  const list = window.allReportsList || [];
+  const total = list.length;
+  let newCount = 0;
+  let inReviewCount = 0;
+  let resolvedCount = 0;
+  let rejectedOrClosedCount = 0;
+
+  list.forEach(r => {
+    const st = (r.status || "جديد").trim();
+    if (st === "جديد") newCount++;
+    else if (st === "قيد المراجعة") inReviewCount++;
+    else if (st === "تم الحل") resolvedCount++;
+    else rejectedOrClosedCount++; // مرفوض، مكرر، غير قابل للحل حاليًا
+  });
+
+  return { total, newCount, inReviewCount, resolvedCount, rejectedOrClosedCount };
+};
+
+window.getFilteredAndSortedReports = function() {
+  const stFilter = window.reportsFilterState.status || "ALL";
+  const typeFilter = window.reportsFilterState.issueType || "ALL";
+  const q = (window.reportsFilterState.searchQuery || "").trim().toLowerCase();
+  const sortOrder = window.reportsFilterState.sortOrder || "desc";
+
+  let filtered = (window.allReportsList || []).filter(r => {
+    const status = (r.status || "جديد").trim();
+    if (stFilter !== "ALL") {
+      if (stFilter === "CLOSED_GROUP") {
+        if (status !== "مرفوض" && status !== "مكرر" && status !== "غير قابل للحل حاليًا") return false;
+      } else if (status !== stFilter) {
+        return false;
+      }
+    }
+    if (typeFilter !== "ALL" && (r.issueType || "") !== typeFilter) {
+      return false;
+    }
+    if (q) {
+      const titleMatch = (r.contentTitle || "").toLowerCase().includes(q);
+      const epMatch = String(r.episodeNumber || "").toLowerCase().includes(q);
+      const numMatch = (r.reportNumber || "").toLowerCase().includes(q);
+      const descMatch = (r.description || "").toLowerCase().includes(q);
+      if (!titleMatch && !epMatch && !numMatch && !descMatch) return false;
+    }
+    return true;
+  });
+
+  filtered.sort((a, b) => {
+    const tA = a.createdAtMs || 0;
+    const tB = b.createdAtMs || 0;
+    return sortOrder === "asc" ? (tA - tB) : (tB - tA);
+  });
+
+  return filtered;
+};
+
+window.buildReportsStatsHtml = function() {
+  const stats = window.computeReportsStatistics();
+  return `
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:12px">
+      <div onclick="setReportsStatusFilter('ALL')" style="cursor:pointer;background:#141414;border:1px solid ${window.reportsFilterState.status==='ALL'?'#00d2ff':'#262626'};border-radius:12px;padding:8px 4px;text-align:center">
+        <div style="font-size:17px;font-weight:900;color:#fff">${stats.total}</div>
+        <div style="font-size:10px;color:#aaa;margin-top:2px">الإجمالي</div>
+      </div>
+      <div onclick="setReportsStatusFilter('جديد')" style="cursor:pointer;background:#1a0909;border:1px solid ${window.reportsFilterState.status==='جديد'?'#ff6b6b':'#3a1212'};border-radius:12px;padding:8px 4px;text-align:center">
+        <div style="font-size:17px;font-weight:900;color:#ff6b6b">${stats.newCount}</div>
+        <div style="font-size:10px;color:#ffb4b4;margin-top:2px">جديدة</div>
+      </div>
+      <div onclick="setReportsStatusFilter('قيد المراجعة')" style="cursor:pointer;background:#1f1605;border:1px solid ${window.reportsFilterState.status==='قيد المراجعة'?'#fbbf24':'#42300b'};border-radius:12px;padding:8px 4px;text-align:center">
+        <div style="font-size:17px;font-weight:900;color:#fbbf24">${stats.inReviewCount}</div>
+        <div style="font-size:10px;color:#fde68a;margin-top:2px">قيد المراجعة</div>
+      </div>
+      <div onclick="setReportsStatusFilter('تم الحل')" style="cursor:pointer;background:#071f10;border:1px solid ${window.reportsFilterState.status==='تم الحل'?'#4ade80':'#124224'};border-radius:12px;padding:8px 4px;text-align:center">
+        <div style="font-size:17px;font-weight:900;color:#4ade80">${stats.resolvedCount}</div>
+        <div style="font-size:10px;color:#bbf7d0;margin-top:2px">تم حلها</div>
+      </div>
+      <div onclick="setReportsStatusFilter('CLOSED_GROUP')" style="cursor:pointer;background:#171717;border:1px solid ${window.reportsFilterState.status==='CLOSED_GROUP'?'#a3a3a3':'#2e2e2e'};border-radius:12px;padding:8px 4px;text-align:center">
+        <div style="font-size:17px;font-weight:900;color:#a3a3a3">${stats.rejectedOrClosedCount}</div>
+        <div style="font-size:10px;color:#999;margin-top:2px">مرفوضة/مغلقة</div>
+      </div>
+    </div>
+  `;
+};
+
+window.buildReportsCardsListHtml = function() {
+  const list = window.getFilteredAndSortedReports();
+  if (list.length === 0) {
+    return `
+      <div style="background:#111;border:1px solid #222;border-radius:16px;padding:32px 16px;text-align:center;color:#777">
+        <div style="font-size:34px;margin-bottom:8px">📭</div>
+        <div style="font-size:14px;font-weight:bold;color:#aaa">لا توجد بلاغات مطابقة حالياً</div>
+        <div style="font-size:12px;color:#666;margin-top:4px">أي بلاغ يرسله المشاهدون سيظهر هنا تلقائياً وفوراً</div>
+      </div>
+    `;
+  }
+
+  return list.map(r => {
+    const status = r.status || "جديد";
+    const badgeStyle = window.getReportStatusBadgeStyle(status);
+    const dateStr = r.createdAtFormatted || new Date(r.createdAtMs || Date.now()).toLocaleString("ar-EG");
+    const epBadge = (r.episodeNumber && r.episodeNumber !== "غير محدد") ? `الحلقة: ${window.escapeDescHtml(r.episodeNumber)}` : "العمل بشكل عام";
+    const seasonBadge = r.seasonNumber ? window.escapeDescHtml(r.seasonNumber) : "الموسم 1";
+
+    return `
+      <div style="background:#121212;border:1px solid #262626;border-radius:14px;padding:13px;display:flex;flex-direction:column;gap:9px;box-shadow:0 4px 12px rgba(0,0,0,0.35)">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;border-bottom:1px solid #1f1f1f;padding-bottom:8px">
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="background:#1c1c1c;color:#00d2ff;border:1px solid #2a3a4a;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:bold;font-family:monospace">#${window.escapeDescHtml(r.reportNumber || r.firebaseReportId.slice(0, 7))}</span>
+            <span style="font-size:11px;color:#888">🕒 ${window.escapeDescHtml(dateStr)}</span>
+          </div>
+          <span style="${badgeStyle};padding:3px 10px;border-radius:20px;font-size:11px;font-weight:bold">${window.escapeDescHtml(status)}</span>
+        </div>
+
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:14px;font-weight:900;color:#ff6b6b;margin-bottom:4px">⚠️ ${window.escapeDescHtml(r.issueType || "مشكلة")}</div>
+            <div style="font-size:14px;font-weight:bold;color:#fff;margin-bottom:4px">🎬 ${window.escapeDescHtml(r.contentTitle || "غير محدد")}</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">
+              <span style="background:#1a1a1a;color:#ccc;border:1px solid #2d2d2d;padding:2px 8px;border-radius:6px;font-size:11px">📦 ${seasonBadge}</span>
+              <span style="background:#1a1a1a;color:#00d2ff;border:1px solid #2d2d2d;padding:2px 8px;border-radius:6px;font-size:11px">📺 ${epBadge}</span>
+              ${r.reporterId ? `<span style="background:#1a1a1a;color:#888;border:1px solid #262626;padding:2px 8px;border-radius:6px;font-size:10px">👤 ${window.escapeDescHtml(String(r.reporterId).slice(0, 12))}</span>` : ""}
+            </div>
+            <div style="font-size:12px;color:#bbb;background:#0c0c0c;border:1px solid #1e1e1e;padding:8px 10px;border-radius:8px;line-height:1.5;word-break:break-word">${window.escapeDescHtml(r.description || "بدون وصف إضافي")}</div>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:2px">
+          <button type="button" onclick="openReportDetailPage('${r.firebaseReportId}')" style="flex:1;background:linear-gradient(135deg,#0072ff,#00d2ff);color:#000;border:none;padding:9px 14px;border-radius:10px;font-size:13px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">🔍 عرض التفاصيل وأدوات المعالجة</button>
+          <button type="button" onclick="confirmAndDeleteReport('${r.firebaseReportId}')" title="حذف البلاغ" style="background:#250505;color:#ff5555;border:1px solid #441111;padding:9px 12px;border-radius:10px;font-size:13px;font-weight:bold;cursor:pointer">🗑️</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+};
+
+window.renderAdminReportsListDomOnly = function() {
+  const statsContainer = document.getElementById("adminReportsStatsContainer");
+  const listContainer = document.getElementById("adminReportsCardsContainer");
+  if (statsContainer) statsContainer.innerHTML = window.buildReportsStatsHtml();
+  if (listContainer) listContainer.innerHTML = window.buildReportsCardsListHtml();
+};
+
+window.setReportsStatusFilter = function(statusVal) {
+  window.reportsFilterState.status = statusVal;
+  const sel = document.getElementById("reportsStatusFilterSelect");
+  if (sel) sel.value = statusVal;
+  window.renderAdminReportsListDomOnly();
+};
+
+window.setReportsIssueTypeFilter = function(typeVal) {
+  window.reportsFilterState.issueType = typeVal;
+  window.renderAdminReportsListDomOnly();
+};
+
+window.setReportsSearchQuery = function(qVal) {
+  window.reportsFilterState.searchQuery = qVal || "";
+  window.renderAdminReportsListDomOnly();
+};
+
+window.toggleReportsSortOrder = function() {
+  window.reportsFilterState.sortOrder = (window.reportsFilterState.sortOrder === "desc") ? "asc" : "desc";
+  const btn = document.getElementById("reportsSortToggleBtn");
+  if (btn) {
+    btn.innerText = window.reportsFilterState.sortOrder === "desc" ? "⬇️ الأحدث أولاً" : "⬆️ الأقدم أولاً";
+  }
+  window.renderAdminReportsListDomOnly();
+};
+
+window.renderAdminReportsPage = function() {
+  if (!window.isAdminAuthorized()) {
+    showPage("home");
+    return;
+  }
+  setActiveNav("reports");
+  const stFilter = window.reportsFilterState.status || "ALL";
+  const typeFilter = window.reportsFilterState.issueType || "ALL";
+  const searchVal = window.reportsFilterState.searchQuery || "";
+  const sortLabel = window.reportsFilterState.sortOrder === "asc" ? "⬆️ الأقدم أولاً" : "⬇️ الأحدث أولاً";
+
+  main.innerHTML = `
+    <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px 4px 14px;margin-top:55px">
+      <button class="back-btn" style="margin:0" onclick="goBack()">← رجوع</button>
+      <div style="display:flex;gap:6px">
+        <button id="manualRefreshReportsBtn" type="button" onclick="manualRefreshReports()" class="ep-order-btn" style="padding:7px 12px;font-size:12px">🔄 تحديث</button>
+        <button id="reportsSortToggleBtn" type="button" onclick="toggleReportsSortOrder()" class="ep-order-btn" style="padding:7px 12px;font-size:12px">${sortLabel}</button>
+      </div>
+    </div>
+
+    <div style="padding:12px 14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <h1 style="font-size:22px;font-weight:900;color:#fff;display:flex;align-items:center;gap:8px">📩 إدارة البلاغات</h1>
+        <span style="font-size:11px;color:#4ade80;background:#072412;border:1px solid #144926;padding:4px 9px;border-radius:12px;font-weight:bold">⚡ متصل لحظياً</span>
+      </div>
+
+      <!-- إحصائيات البلاغات -->
+      <div id="adminReportsStatsContainer">${window.buildReportsStatsHtml()}</div>
+
+      <!-- أدوات البحث والتصفية -->
+      <div style="background:#111;border:1px solid #222;border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:8px;margin-bottom:12px">
+        <input class="input" value="${window.escapeDescHtml(searchVal)}" placeholder="🔍 ابحث باسم الأنمي أو رقم الحلقة أو رقم البلاغ..." oninput="setReportsSearchQuery(this.value)" style="padding:10px 12px;font-size:13px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <select id="reportsStatusFilterSelect" class="input" onchange="setReportsStatusFilter(this.value)" style="padding:9px;font-size:12px">
+            <option value="ALL" ${stFilter === "ALL" ? "selected" : ""}>جميع الحالات</option>
+            <option value="جديد" ${stFilter === "جديد" ? "selected" : ""}>🔴 جديد</option>
+            <option value="قيد المراجعة" ${stFilter === "قيد المراجعة" ? "selected" : ""}>🟡 قيد المراجعة</option>
+            <option value="تم الحل" ${stFilter === "تم الحل" ? "selected" : ""}>🟢 تم الحل</option>
+            <option value="غير قابل للحل حاليًا" ${stFilter === "غير قابل للحل حاليًا" ? "selected" : ""}>🟣 غير قابل للحل حاليًا</option>
+            <option value="مكرر" ${stFilter === "مكرر" ? "selected" : ""}>🔵 مكرر</option>
+            <option value="مرفوض" ${stFilter === "مرفوض" ? "selected" : ""}>⚪ مرفوض</option>
+            <option value="CLOSED_GROUP" ${stFilter === "CLOSED_GROUP" ? "selected" : ""}>⬛ المرفوضة والمغلقة</option>
+          </select>
+
+          <select class="input" onchange="setReportsIssueTypeFilter(this.value)" style="padding:9px;font-size:12px">
+            <option value="ALL" ${typeFilter === "ALL" ? "selected" : ""}>جميع أنواع المشاكل</option>
+            ${REPORT_ISSUE_TYPES.map(t => `<option value="${t}" ${typeFilter === t ? "selected" : ""}>${t}</option>`).join("")}
+          </select>
+        </div>
+      </div>
+
+      <!-- قائمة بطاقات البلاغات -->
+      <div id="adminReportsCardsContainer" style="display:flex;flex-direction:column;gap:10px">
+        ${window.buildReportsCardsListHtml()}
+      </div>
+    </div>
+  `;
+};
+
+window.openReportDetailPage = function(reportFid) {
+  if (!window.isAdminAuthorized()) {
+    alert("⛔ عذراً، هذه الصفحة مخصصة للمشرف فقط.");
+    showPage("home");
+    return;
+  }
+  window.currentViewingReportId = reportFid;
+  navigateTo("report_detail", () => {
+    window.renderReportDetailPage(reportFid);
+  });
+};
+
+window.renderReportDetailPage = function(reportFid) {
+  if (!window.isAdminAuthorized()) {
+    showPage("home");
+    return;
+  }
+  const report = (window.allReportsList || []).find(r => r.firebaseReportId === reportFid);
+  if (!report) {
+    main.innerHTML = `
+      <div class="page-header"><button class="back-btn" onclick="goBack()">← رجوع</button></div>
+      <div style="padding:40px 16px;text-align:center;color:#888">لم يتم العثور على هذا البلاغ أو تم حذفه.</div>
+    `;
+    return;
+  }
+
+  const status = report.status || "جديد";
+  const badgeStyle = window.getReportStatusBadgeStyle(status);
+  const dateStr = report.createdAtFormatted || new Date(report.createdAtMs || Date.now()).toLocaleString("ar-EG");
+  const linkedItem = report.contentId ? getItemByFirebaseId(report.contentId) : window.findContentItem(report.contentId, report.contentTitle);
+  const resolvedFid = linkedItem ? linkedItem.firebaseId : (report.contentId || "");
+  const epIdx = (typeof report.episodeIndex === "number" && report.episodeIndex >= 0)
+    ? report.episodeIndex
+    : (linkedItem ? window.findEpisodeIndexForContent(linkedItem, report.episodeNumber) : 0);
+
+  main.innerHTML = `
+    <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px 4px 14px;margin-top:55px">
+      <button class="back-btn" style="margin:0" onclick="goBack()">← رجوع للبلاغات</button>
+      <span style="${badgeStyle};padding:5px 12px;border-radius:20px;font-size:12px;font-weight:bold">${window.escapeDescHtml(status)}</span>
+    </div>
+
+    <div style="padding:14px;display:flex;flex-direction:column;gap:12px">
+      <div style="background:#121212;border:1px solid #282828;border-radius:16px;padding:15px;display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #222;padding-bottom:10px">
+          <div>
+            <div style="font-size:12px;color:#888">رقم البلاغ المرجعي</div>
+            <div style="font-size:16px;font-weight:900;color:#00d2ff;font-family:monospace">#${window.escapeDescHtml(report.reportNumber || report.firebaseReportId)}</div>
+          </div>
+          <div style="text-align:left">
+            <div style="font-size:11px;color:#888">تاريخ ووقت الإرسال</div>
+            <div style="font-size:12px;color:#ccc;font-weight:bold">${window.escapeDescHtml(dateStr)}</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div style="background:#181818;border:1px solid #252525;border-radius:10px;padding:10px">
+            <div style="font-size:11px;color:#888">نوع المشكلة</div>
+            <div style="font-size:13px;font-weight:bold;color:#ff6b6b;margin-top:3px">⚠️ ${window.escapeDescHtml(report.issueType || "")}</div>
+          </div>
+          <div style="background:#181818;border:1px solid #252525;border-radius:10px;padding:10px">
+            <div style="font-size:11px;color:#888">العمل المرتبط</div>
+            <div style="font-size:13px;font-weight:bold;color:#fff;margin-top:3px">🎬 ${window.escapeDescHtml(report.contentTitle || "")}</div>
+          </div>
+          <div style="background:#181818;border:1px solid #252525;border-radius:10px;padding:10px">
+            <div style="font-size:11px;color:#888">الموسم / الحلقة</div>
+            <div style="font-size:13px;font-weight:bold;color:#00d2ff;margin-top:3px">${window.escapeDescHtml(report.seasonNumber || "الموسم 1")} • الحلقة: ${window.escapeDescHtml(report.episodeNumber || "غير محدد")}</div>
+          </div>
+          <div style="background:#181818;border:1px solid #252525;border-radius:10px;padding:10px">
+            <div style="font-size:11px;color:#888">معرّف المبلّغ</div>
+            <div style="font-size:12px;font-weight:bold;color:#ccc;margin-top:3px;word-break:break-all">👤 ${window.escapeDescHtml(report.reporterId || "غير معروف")}</div>
+          </div>
+        </div>
+
+        <div style="background:#181818;border:1px solid #252525;border-radius:10px;padding:10px">
+          <div style="font-size:11px;color:#888">مصدر المشاهدة المسجّل في البلاغ</div>
+          <div style="font-size:12px;color:#eab308;margin-top:3px;word-break:break-all;direction:ltr;text-align:right">${window.escapeDescHtml(report.watchSource || "المشغل الافتراضي")}</div>
+        </div>
+
+        <div style="background:#0c0c0c;border:1px solid #242424;border-radius:10px;padding:12px">
+          <div style="font-size:12px;color:#888;margin-bottom:4px;font-weight:bold">📝 وصف المشكلة المرسل من المشاهد:</div>
+          <div style="font-size:13px;color:#fff;line-height:1.6;white-space:pre-wrap;word-break:break-word">${window.escapeDescHtml(report.description || "لا يوجد وصف إضافي")}</div>
+        </div>
+      </div>
+
+      <!-- 4 & 5. فتح العمل المرتبط وأدوات معالجة المشكلة الحالية -->
+      <div style="background:#111a22;border:1px solid #1e3a52;border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:9px">
+        <div style="font-size:14px;font-weight:900;color:#00d2ff">🛠️ أدوات الفحص والإصلاح السريع (مرتبطة بأدوات الإدارة الحالية)</div>
+        ${linkedItem ? `
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <button type="button" onclick="openDetails('${resolvedFid}')" style="background:#1c2d3d;color:#fff;border:1px solid #2c4c6b;padding:10px;border-radius:10px;font-size:12px;font-weight:bold;cursor:pointer">📂 فتح صفحة العمل</button>
+            <button type="button" onclick="watchEpisode('${resolvedFid}', ${epIdx >= 0 ? epIdx : 0})" style="background:#1c2d3d;color:#4ade80;border:1px solid #2c4c6b;padding:10px;border-radius:10px;font-size:12px;font-weight:bold;cursor:pointer">▶ تجربة تشغيل الحلقة</button>
+            <button type="button" onclick="openEditEpisodeModal('${resolvedFid}', ${epIdx >= 0 ? epIdx : 0})" style="background:#00d2ff;color:#000;border:none;padding:10px;border-radius:10px;font-size:12px;font-weight:900;cursor:pointer">✏️ تعديل رابط الحلقة</button>
+            <button type="button" onclick="renderAddEpisodeForm('${resolvedFid}')" style="background:#1f2937;color:#fff;border:1px solid #374151;padding:10px;border-radius:10px;font-size:12px;font-weight:bold;cursor:pointer">📺 إدارة جميع حلقات العمل</button>
+          </div>
+          <button type="button" onclick="openEditPosterModal('${resolvedFid}')" style="width:100%;background:#16222f;color:#00d2ff;border:1px solid #26405c;padding:9px;border-radius:10px;font-size:12px;font-weight:bold;cursor:pointer">🖼️ تعديل بوستر العمل</button>
+        ` : `
+          <div style="font-size:12px;color:#aaa">⚠️ لم يتم العثور على العمل بالمعرف المباشر (ربما تم حذفه)، يمكنك البحث عنه في لوحة التحكم.</div>
+        `}
+      </div>
+
+      <!-- 1 & 2. تغيير حالة البلاغ + الملاحظات الداخلية للمشرف فقط -->
+      <div style="background:#121212;border:1px solid #282828;border-radius:16px;padding:15px;display:flex;flex-direction:column;gap:11px">
+        <div style="font-size:14px;font-weight:900;color:#fff">⚙️ تحديث حالة البلاغ والملاحظات الداخلية (للمشرف فقط)</div>
+
+        <div>
+          <label style="font-size:12px;color:#aaa;display:block;margin-bottom:5px">1. تغيير حالة البلاغ:</label>
+          <select id="adminReportStatusSelect" class="input">
+            ${REPORT_STATUS_OPTIONS.map(opt => `<option value="${opt}" ${status === opt ? "selected" : ""}>${opt}</option>`).join("")}
+          </select>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:7px">
+            ${REPORT_STATUS_OPTIONS.map(opt => `
+              <button type="button" onclick="quickUpdateReportStatus('${report.firebaseReportId}', '${opt}')" style="background:${status === opt ? '#e50914' : '#1c1c1c'};color:#fff;border:1px solid ${status === opt ? '#ff4d4d' : '#333'};padding:5px 10px;border-radius:8px;font-size:11px;font-weight:bold;cursor:pointer">${opt}</button>
+            `).join("")}
+          </div>
+        </div>
+
+        <div>
+          <label style="font-size:12px;color:#aaa;display:block;margin-bottom:5px">2. ملاحظة داخلية خاصة بالمشرف (لا تظهر للمشاهد أبداً):</label>
+          <textarea id="adminInternalNoteInput" class="input" rows="3" style="resize:vertical;min-height:70px;font-family:inherit;line-height:1.5" placeholder="مثال: تم إصلاح رابط الحلقة وتجربته...">${window.escapeDescHtml(report.internalNote || "")}</textarea>
+        </div>
+
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <button type="button" id="saveReportAdminChangesBtn" onclick="saveReportAdminChanges('${report.firebaseReportId}')" style="flex:1;background:linear-gradient(135deg,#22c55e,#15803d);color:#fff;border:none;padding:12px;border-radius:10px;font-size:14px;font-weight:900;cursor:pointer">💾 حفظ الحالة والملاحظة</button>
+          <button type="button" onclick="confirmAndDeleteReport('${report.firebaseReportId}', true)" style="background:#250505;color:#ff5555;border:1px solid #441111;padding:12px 16px;border-radius:10px;font-size:13px;font-weight:bold;cursor:pointer">🗑️ حذف البلاغ</button>
+        </div>
+      </div>
+    </div>
+  `;
+};
+
+window.quickUpdateReportStatus = async function(reportFid, newStatus) {
+  const sel = document.getElementById("adminReportStatusSelect");
+  if (sel) sel.value = newStatus;
+  await window.saveReportAdminChanges(reportFid);
+};
+
+window.saveReportAdminChanges = async function(reportFid) {
+  if (!window.isAdminAuthorized()) {
+    alert("⛔ غير مصرح لك بتعديل البلاغات. هذه العملية للمشرف فقط.");
+    return;
+  }
+
+  const report = (window.allReportsList || []).find(r => r.firebaseReportId === reportFid);
+  if (!report) return;
+
+  const newStatus = (document.getElementById("adminReportStatusSelect")?.value || report.status || "جديد").trim();
+  const internalNote = (document.getElementById("adminInternalNoteInput")?.value || "").trim();
+  const saveBtn = document.getElementById("saveReportAdminChangesBtn");
+
+  const previousStatus = report.status || "جديد";
+
+  if (saveBtn) {
+    saveBtn.disabled = true;
+    saveBtn.innerText = "⏳ جاري الحفظ...";
+  }
+
+  try {
+    await updateDoc(doc(db, "app_reports", reportFid), {
+      status: newStatus,
+      internalNote: internalNote,
+      updatedAtMs: Date.now(),
+      adminKey: "hamza2009"
+    });
+
+    report.status = newStatus;
+    report.internalNote = internalNote;
+
+    // If status changed (e.g. to "تم الحل" or "قيد المراجعة") and reporter has a device ID, send status notification to that reporter
+    if (newStatus !== previousStatus && report.reporterId) {
+      try {
+        const epPart = (report.episodeNumber && report.episodeNumber !== "غير محدد") ? ` (الحلقة ${report.episodeNumber})` : "";
+        await addDoc(notifsColRef, {
+          title: `🔔 تحديث حالة بلاغك: ${newStatus}`,
+          body: `بخصوص: ${report.contentTitle || ""}${epPart} — الحالة الآن: ${newStatus}`,
+          message: `بخصوص: ${report.contentTitle || ""}${epPart} — الحالة الآن: ${newStatus}`,
+          page: "details",
+          firebaseId: report.contentId || "",
+          contentId: report.contentId || "",
+          contentTitle: report.contentTitle || "",
+          episode: report.episodeNumber || "",
+          action: "details",
+          imageUrl: (report.contentPoster && report.contentPoster.startsWith("http")) ? report.contentPoster : "",
+          topic: "all_users",
+          targetAudience: "specific_device",
+          targetDeviceId: report.reporterId,
+          type: "report_status_update",
+          adminKey: "hamza2009",
+          senderDeviceId: "admin",
+          targetDevicesCount: 1,
+          deliveredDevices: [],
+          deliveredCount: 0,
+          createdAtMs: Date.now(),
+          createdAt: serverTimestamp()
+        });
+      } catch (notifErr) {
+        console.warn("Could not send reporter status notification:", notifErr);
+      }
+    }
+
+    alert(`✅ تم حفظ تعديلات البلاغ بنجاح!\n• الحالة الحالية: ${newStatus}`);
+    if (currentPage === "report_detail") {
+      window.renderReportDetailPage(reportFid);
+    } else if (currentPage === "reports") {
+      window.renderAdminReportsPage();
+    }
+  } catch (e) {
+    alert("❌ فشل حفظ التغييرات في قاعدة البيانات: " + e.message);
+  } finally {
+    if (saveBtn) {
+      saveBtn.disabled = false;
+      saveBtn.innerText = "💾 حفظ الحالة والملاحظة";
+    }
+  }
+};
+
+window.confirmAndDeleteReport = async function(reportFid, fromDetail = false) {
+  if (!window.isAdminAuthorized()) {
+    alert("⛔ عذراً، حذف البلاغات مسموح للمشرف فقط.");
+    return;
+  }
+
+  const report = (window.allReportsList || []).find(r => r.firebaseReportId === reportFid);
+  const label = report ? `#${report.reportNumber || reportFid.slice(0, 6)} (${report.contentTitle || ""})` : reportFid;
+
+  if (!confirm(`⚠️ تأكيد الحذف:\nهل أنت متأكد من رغبتك في حذف البلاغ ${label} نهائياً؟`)) {
+    return;
+  }
+
+  try {
+    await deleteDoc(doc(db, "app_reports", reportFid));
+    window.allReportsList = (window.allReportsList || []).filter(r => r.firebaseReportId !== reportFid);
+    alert("✅ تم حذف البلاغ نهائياً بنجاح.");
+    if (fromDetail || currentPage === "report_detail") {
+      openAdminReportsPage(true);
+    } else if (currentPage === "reports") {
+      window.renderAdminReportsListDomOnly();
+    }
+  } catch (e) {
+    alert("❌ تعذر حذف البلاغ: " + e.message);
+  }
 };
 
 /* ================= Edit Content Poster Link Logic (Admin Only) ================= */

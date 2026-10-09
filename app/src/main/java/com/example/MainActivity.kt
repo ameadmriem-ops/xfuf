@@ -595,6 +595,62 @@ class MainActivity : ComponentActivity() {
         }
         playerTopBar.addView(playerTitleTextView)
 
+        val reportPlayerButton = TextView(this).apply {
+            val padVertical = (7 * density).toInt()
+            val padHorizontal = (12 * density).toInt()
+            setPadding(padHorizontal, padVertical, padHorizontal, padVertical)
+
+            text = "🚩 إبلاغ"
+            setTextColor(Color.parseColor("#FFB4B4"))
+            textSize = 13f
+            typeface = Typeface.DEFAULT_BOLD
+            gravity = Gravity.CENTER
+            includeFontPadding = false
+
+            val normalBg = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                cornerRadius = 20 * density
+                setColor(Color.parseColor("#2A0808"))
+                setStroke((1 * density).toInt(), Color.parseColor("#661A1A"))
+            }
+
+            val pressedBg = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                cornerRadius = 20 * density
+                setColor(Color.parseColor("#440D0D"))
+                setStroke((1 * density).toInt(), Color.parseColor("#E50914"))
+            }
+
+            val stateList = StateListDrawable().apply {
+                addState(intArrayOf(android.R.attr.state_pressed), pressedBg)
+                addState(intArrayOf(android.R.attr.state_focused), pressedBg)
+                addState(intArrayOf(), normalBg)
+            }
+
+            val rippleColor = ColorStateList.valueOf(Color.parseColor("#33FF5555"))
+            background = RippleDrawable(rippleColor, stateList, null)
+
+            elevation = 4 * density
+            isClickable = true
+            isFocusable = true
+            contentDescription = "الإبلاغ عن مشكلة"
+
+            layoutParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            ).apply {
+                gravity = Gravity.CENTER_VERTICAL
+            }
+
+            setOnClickListener {
+                closeNativePlayer()
+                webView.post {
+                    webView.evaluateJavascript("if(window.openReportModalFromActivePlayback){window.openReportModalFromActivePlayback();}", null)
+                }
+            }
+        }
+        playerTopBar.addView(reportPlayerButton)
+
         playerContainer.addView(playerTopBar)
 
         // Buffering ProgressBar
@@ -678,6 +734,25 @@ class MainActivity : ComponentActivity() {
             }
         }
         buttonsRow.addView(closeButton)
+
+        val reportErrorButton = Button(this).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            ).apply {
+                marginStart = 20
+            }
+            text = "🚩 الإبلاغ عن مشكلة"
+            setTextColor(Color.WHITE)
+            setBackgroundColor(Color.parseColor("#8A1C1C"))
+            setOnClickListener {
+                closeNativePlayer()
+                webView.post {
+                    webView.evaluateJavascript("if(window.openReportModalFromActivePlayback){window.openReportModalFromActivePlayback('الحلقة لا تعمل');}", null)
+                }
+            }
+        }
+        buttonsRow.addView(reportErrorButton)
 
         playerErrorContainer.addView(buttonsRow)
         playerContainer.addView(playerErrorContainer)
@@ -1077,9 +1152,17 @@ class MainActivity : ComponentActivity() {
             prefs.edit().putString("user_role", norm).apply()
             if (norm == "ADMIN") {
                 prefs.edit().putString("admin_secret_token", "hamza2009_verified").apply()
+                if (MyFirebaseMessagingService.isAppNotificationsEnabled(activity)) {
+                    FirebaseMessaging.getInstance().subscribeToTopic("admin_alerts")
+                }
             } else {
                 prefs.edit().remove("admin_secret_token").apply()
+                FirebaseMessaging.getInstance().unsubscribeFromTopic("admin_alerts")
             }
+            MyFirebaseMessagingService.syncDeviceRegistrationInFirestore(
+                activity,
+                MyFirebaseMessagingService.getSavedToken(activity)
+            )
         }
 
         @JavascriptInterface
@@ -1092,15 +1175,32 @@ class MainActivity : ComponentActivity() {
                     .putString("user_role", "ADMIN")
                     .putString("admin_secret_token", "hamza2009_verified")
                     .apply()
+                if (MyFirebaseMessagingService.isAppNotificationsEnabled(activity)) {
+                    FirebaseMessaging.getInstance().subscribeToTopic("admin_alerts")
+                }
                 return true
             }
             return savedRole == "ADMIN" && savedToken == "hamza2009_verified"
         }
 
         @JavascriptInterface
+        fun getAdminAuthKey(): String {
+            return if (verifyAdminSession("")) "hamza2009" else ""
+        }
+
+        @JavascriptInterface
         fun clearUserRole() {
             val prefs = activity.getSharedPreferences("app_auth_prefs", Activity.MODE_PRIVATE)
             prefs.edit().remove("user_role").remove("admin_secret_token").apply()
+            try {
+                FirebaseMessaging.getInstance().unsubscribeFromTopic("admin_alerts")
+                MyFirebaseMessagingService.syncDeviceRegistrationInFirestore(
+                    activity,
+                    MyFirebaseMessagingService.getSavedToken(activity)
+                )
+            } catch (e: Exception) {
+                Log.w(TAG, "Error unsubscribing admin_alerts: ${e.message}")
+            }
         }
 
         @JavascriptInterface
