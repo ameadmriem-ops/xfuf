@@ -168,14 +168,362 @@ body.light-mode .auth-card,body.light-mode .ad-popup-card{background:#ffffff;bor
 body.light-mode .auth-title,body.light-mode .ad-popup-title{color:#111}
 body.light-mode .auth-logo-text span{color:#111}
 body.light-mode .auth-input{background:#f7f8fa;color:#111;border:1.5px solid #cfd4de}
+
+/* ================= Android TV, Google TV & Wide Landscape (16:9) Responsive Layout ================= */
+.tv-top-nav {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tv-top-nav::-webkit-scrollbar { display: none; }
+.tv-nav-btn {
+  background: rgba(255,255,255,0.06);
+  color: #ccc;
+  border: 2px solid transparent;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+.tv-nav-btn.active {
+  background: rgba(229,9,20,0.18);
+  color: #fff;
+  border-color: #e50914;
+  box-shadow: 0 0 14px rgba(229,9,20,0.35);
+}
+.tv-nav-btn:hover {
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+}
+.top-bar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  user-select: none;
+}
+.top-bar-brand b { color: #e50914; }
+.top-bar-brand span { color: #fff; }
+body.light-mode .top-bar-brand span { color: #111; }
+body.light-mode .tv-nav-btn { background: #eef0f4; color: #333; }
+body.light-mode .tv-nav-btn.active { background: #e50914; color: #fff; border-color: #e50914; }
+
+.top-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.top-action-btn {
+  background: #141414;
+  border: 1.5px solid #282828;
+  color: #fff;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  font-size: 20px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+body.light-mode .top-action-btn {
+  background: #f0f2f6;
+  border-color: #d5d9e2;
+  color: #111;
+}
+
+/* Horizontal Shelf Rows for TV & Wide Screens */
+.tv-sections-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 18px 20px 36px 20px;
+}
+.tv-row-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.tv-row-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 6px;
+}
+.tv-row-title {
+  font-size: 20px;
+  font-weight: 900;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-right: 4px solid #e50914;
+  padding-right: 10px;
+}
+html[dir="ltr"] .tv-row-title {
+  border-right: none;
+  border-left: 4px solid #e50914;
+  padding-right: 0;
+  padding-left: 10px;
+}
+body.light-mode .tv-row-title { color: #111; }
+.tv-row-more-btn {
+  background: #181818;
+  color: #ccc;
+  border: 1px solid #333;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+}
+body.light-mode .tv-row-more-btn { background: #fff; color: #222; border-color: #ccc; }
+
+.tv-horizontal-row {
+  display: flex;
+  flex-direction: row;
+  gap: 18px;
+  overflow-x: auto;
+  overflow-y: visible;
+  padding: 12px 8px 16px 8px;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: #e50914 #161616;
+}
+.tv-horizontal-row::-webkit-scrollbar { height: 6px; }
+.tv-horizontal-row::-webkit-scrollbar-track { background: #141414; border-radius: 8px; }
+.tv-horizontal-row::-webkit-scrollbar-thumb { background: #e50914; border-radius: 8px; }
+.tv-horizontal-row .movie-card {
+  flex: 0 0 185px;
+  width: 185px;
+  max-width: 185px;
+}
+
+/* Enhanced Remote Focus Ring for TV & Keyboard D-Pad */
+button:focus,
+button:focus-visible,
+.movie-card:focus,
+.movie-card:focus-visible,
+input:focus,
+select:focus,
+textarea:focus,
+.episode-btn:focus,
+.back-btn:focus,
+.settings-card:focus,
+.tv-nav-btn:focus,
+[tabindex="0"]:focus {
+  outline: 3.5px solid #e50914 !important;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(229, 9, 20, 0.35), 0 10px 28px rgba(0, 0, 0, 0.85) !important;
+  border-color: #ff4d4d !important;
+  z-index: 60;
+}
+.movie-card:focus, .movie-card:focus-visible {
+  transform: translateY(-4px) scale(1.05);
+  background: #1a1a1a;
+}
+body.light-mode .movie-card:focus {
+  background: #fff;
+}
+
+/* Details Page Responsive Layout */
+.details-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 15px;
+}
+.details-info-panel {
+  text-align: center;
+}
+.details-episodes-panel {
+  width: 100%;
+}
+
+/* Wide Screens, Landscape Tablets, Android TV & Google TV (1280x720, 1920x1080, 16:9) */
+@media screen and (min-width: 700px), screen and (orientation: landscape) and (min-width: 640px) {
+  #app {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 0 3vw 40px 3vw !important;
+  }
+  .top-bar {
+    max-width: 100% !important;
+    width: 100% !important;
+    height: 68px;
+    padding: 0 3vw;
+    background: rgba(8, 8, 8, 0.96);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid #1f1f1f;
+  }
+  body.light-mode .top-bar {
+    background: rgba(255, 255, 255, 0.96);
+  }
+  .tv-top-nav {
+    display: flex !important;
+  }
+  .bottom-nav {
+    display: none !important;
+  }
+  .hero {
+    margin-top: 68px;
+    height: 230px;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid #1f1f1f;
+  }
+  .hero h1 {
+    font-size: 46px;
+    letter-spacing: 1px;
+  }
+  .page-header {
+    margin-top: 74px !important;
+    padding: 10px 6px !important;
+  }
+  .back-btn {
+    margin-top: 74px;
+    font-size: 15px;
+    padding: 10px 22px;
+  }
+  .page-header .back-btn {
+    margin-top: 0 !important;
+  }
+  .movies-grid {
+    grid-template-columns: repeat(auto-fill, minmax(185px, 1fr)) !important;
+    gap: 20px !important;
+    padding: 18px 8px !important;
+    justify-items: stretch !important;
+  }
+  .movie-card {
+    max-width: 100% !important;
+    padding: 12px;
+    border-radius: 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .poster {
+    width: 100% !important;
+    height: 215px !important;
+    max-width: 195px;
+    object-fit: contain;
+    border-radius: 14px;
+  }
+  .tv-horizontal-row .movie-card {
+    flex: 0 0 195px;
+    width: 195px;
+    max-width: 195px;
+  }
+  .tv-horizontal-row .poster {
+    height: 210px !important;
+  }
+  .movie-card h3 {
+    font-size: 15px;
+    min-height: 40px;
+    line-height: 20px;
+    margin-top: 10px;
+  }
+  .movie-card p {
+    font-size: 13px;
+  }
+  /* Side-by-Side Details Page on TV & Landscape */
+  .details-layout {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 28px;
+    padding: 18px 10px;
+  }
+  .details-info-panel {
+    flex: 0 0 340px;
+    max-width: 360px;
+    background: #111;
+    border: 1px solid #222;
+    border-radius: 20px;
+    padding: 20px;
+    position: sticky;
+    top: 84px;
+  }
+  body.light-mode .details-info-panel {
+    background: #fff;
+    border-color: #dde1e8;
+  }
+  .details-episodes-panel {
+    flex: 1;
+    min-width: 0;
+  }
+  #episodesListContainer {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)) !important;
+    gap: 12px !important;
+  }
+  .settings-container {
+    max-width: 960px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 14px;
+  }
+  .notif-note-box {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Explicit TV Mode Class (triggered automatically on Android TV / Google TV) */
+body.tv-mode #app {
+  max-width: 100% !important;
+  width: 100% !important;
+  padding: 0 3.5vw 44px 3.5vw !important;
+}
+body.tv-mode .top-bar {
+  max-width: 100% !important;
+  width: 100% !important;
+  height: 72px;
+  padding: 0 3.5vw;
+}
+body.tv-mode .tv-top-nav {
+  display: flex !important;
+}
+body.tv-mode .bottom-nav {
+  display: none !important;
+}
 </style>
 <script type="importmap">{"imports":{"firebase/app":"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js","firebase/firestore":"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"}}</script>
 </head>
 <body>
 <div id="app">
   <header class="top-bar">
-    <button id="topSearchBtn" onclick="openSearch()" style="background:none;border:none;font-size:22px;cursor:pointer" title="بحث" aria-label="بحث">🔍</button>
-    <button id="topSettingsBtn" onclick="openSettings()" style="background:none;border:none;font-size:22px;cursor:pointer" title="الإعدادات" aria-label="الإعدادات">⚙️</button>
+    <div style="display:flex;align-items:center;gap:14px">
+      <button id="topSearchBtn" class="top-action-btn" onclick="openSearch()" title="بحث" aria-label="بحث">🔍</button>
+      <div class="top-bar-brand tv-top-nav" onclick="showPage('home')" tabindex="0" role="button" aria-label="BLACK ANIME">
+        <b>BLACK</b><span>ANIME</span>
+      </div>
+    </div>
+
+    <nav class="tv-top-nav" aria-label="التنقل الرئيسي للتلفاز">
+      <button type="button" onclick="showPage('home')" id="tv-nav-home" class="tv-nav-btn active">⌂ <span data-i18n="nav_home">الرئيسية</span></button>
+      <button type="button" onclick="showPage('animation')" id="tv-nav-animation" class="tv-nav-btn">🎬 <span data-i18n="nav_animation">الأنميشن</span></button>
+      <button type="button" onclick="showPage('anime')" id="tv-nav-anime" class="tv-nav-btn">⚡ <span data-i18n="nav_anime">الأنمي</span></button>
+      <button type="button" onclick="showPage('favorites')" id="tv-nav-favorites" class="tv-nav-btn">♥ <span data-i18n="nav_favorites">مفضلتي</span></button>
+      <button type="button" onclick="renderAddPage()" id="tv-nav-add" class="tv-nav-btn" style="display:none">＋ <span data-i18n="nav_add">إضافة</span></button>
+      <button type="button" onclick="openAdminReportsPage()" id="tv-nav-reports" class="tv-nav-btn" style="display:none;position:relative">📩 <span>البلاغات</span><b id="tvNavReportsBadge" style="display:none;background:#e50914;color:#fff;font-size:10px;padding:1px 6px;border-radius:10px;margin-right:4px">0</b></button>
+    </nav>
+
+    <div class="top-bar-actions">
+      <button id="topSettingsBtn" class="top-action-btn" onclick="openSettings()" title="الإعدادات" aria-label="الإعدادات">⚙️</button>
+    </div>
   </header>
 
   <main id="main-content">
@@ -458,45 +806,261 @@ const app=initializeApp(firebaseConfig);
 const db=getFirestore(app);
 const colRef=collection(db,"movies");
 
-// Android TV D-Pad Remote Control Navigation Listener
-window.addEventListener('keydown', (e) => {
+// ================= Android TV / Google TV Detection & 2D Spatial D-Pad Remote Navigation =================
+window.isTvMode = false;
+
+window.detectAndApplyTvMode = function(forceTv = null) {
+  let detected = Boolean(forceTv);
+  if (forceTv === null && window.AndroidBridge && typeof window.AndroidBridge.isTvDevice === "function") {
+    try {
+      detected = Boolean(window.AndroidBridge.isTvDevice());
+    } catch (e) {}
+  }
+  const isWideLandscape = window.innerWidth >= 700 || (window.innerWidth >= 640 && window.innerWidth > window.innerHeight);
+  window.isTvMode = detected || isWideLandscape;
+  if (window.isTvMode) {
+    document.body.classList.add("tv-mode");
+  } else {
+    document.body.classList.remove("tv-mode");
+  }
+};
+
+window.onNativeTvModeDetected = function(isTv) {
+  window.detectAndApplyTvMode(Boolean(isTv));
+  if (window.currentUserRole) {
+    renderCurrentPage();
+  }
+};
+
+window.addEventListener("resize", () => {
+  const prevTv = window.isTvMode;
+  window.detectAndApplyTvMode(null);
+  if (prevTv !== window.isTvMode && window.currentUserRole && currentPage === "home") {
+    renderHome();
+  }
+});
+
+window.detectAndApplyTvMode(null);
+
+window.getVisibleModalElement = function() {
+  const modalIds = [
+    "reportProblemModal",
+    "testNotificationModal",
+    "editPosterModal",
+    "editEpisodeModal",
+    "adDailyPopup",
+    "authScreen"
+  ];
+  for (const id of modalIds) {
+    const el = document.getElementById(id);
+    if (el && el.style.display !== "none" && window.getComputedStyle(el).display !== "none") {
+      return el;
+    }
+  }
+  return null;
+};
+
+window.handleAndroidBackRequest = function() {
+  // 1. Close open modals first on Back press
+  const openModal = window.getVisibleModalElement();
+  if (openModal) {
+    if (openModal.id === "reportProblemModal") { window.closeReportProblemModal(); return true; }
+    if (openModal.id === "testNotificationModal") { window.closeTestNotificationModal(); return true; }
+    if (openModal.id === "editPosterModal") { window.closeEditPosterModal(); return true; }
+    if (openModal.id === "editEpisodeModal") { window.closeEditEpisodeModal(); return true; }
+    if (openModal.id === "adDailyPopup") { window.dismissDailyAdPopup(); return true; }
+    if (openModal.id === "authScreen") { return false; }
+  }
+  // 2. Pop page history stack if available
+  if (window.historyStack && window.historyStack.length > 0) {
+    window.goBack();
+    return true;
+  }
+  // 3. If not on home page, return to home page instead of exiting app immediately
+  if (window.currentUserRole && window.currentPage !== "home") {
+    window.showPage("home");
+    return true;
+  }
+  return false;
+};
+
+window.getFocusableElements = function() {
+  const openModal = window.getVisibleModalElement();
+  const root = openModal || document;
+  const selector = 'button, [tabindex="0"], input, select, textarea, a, video, .movie-card, .episode-btn, .settings-card';
+  return Array.from(root.querySelectorAll(selector)).filter(el => {
+    if (el.disabled) return false;
+    const style = window.getComputedStyle(el);
+    if (style.display === "none" || style.visibility === "hidden" || parseFloat(style.opacity) === 0) return false;
+    const rect = el.getBoundingClientRect();
+    return rect.width > 4 && rect.height > 4;
+  });
+};
+
+window.findBestSpatialTarget = function(currentEl, direction, candidates) {
+  if (!currentEl || !candidates.length) return candidates[0] || null;
+  const curRect = currentEl.getBoundingClientRect();
+  const curCx = curRect.left + curRect.width / 2;
+  const curCy = curRect.top + curRect.height / 2;
+
+  let bestCandidate = null;
+  let bestScore = Infinity;
+
+  for (const el of candidates) {
+    if (el === currentEl || currentEl.contains(el) || el.contains(currentEl)) continue;
+    const r = el.getBoundingClientRect();
+    const cx = r.left + r.width / 2;
+    const cy = r.top + r.height / 2;
+    const dx = cx - curCx;
+    const dy = cy - curCy;
+
+    let isValidDirection = false;
+    let primaryDist = 0;
+    let crossDist = 0;
+
+    if (direction === "ArrowRight") {
+      if (dx > 8) {
+        isValidDirection = true;
+        primaryDist = dx;
+        crossDist = Math.abs(dy);
+      }
+    } else if (direction === "ArrowLeft") {
+      if (dx < -8) {
+        isValidDirection = true;
+        primaryDist = -dx;
+        crossDist = Math.abs(dy);
+      }
+    } else if (direction === "ArrowDown") {
+      if (dy > 8) {
+        isValidDirection = true;
+        primaryDist = dy;
+        crossDist = Math.abs(dx);
+      }
+    } else if (direction === "ArrowUp") {
+      if (dy < -8) {
+        isValidDirection = true;
+        primaryDist = -dy;
+        crossDist = Math.abs(dx);
+      }
+    }
+
+    if (!isValidDirection) continue;
+
+    // Prioritize items in the same horizontal shelf/row when moving left/right
+    const sameRowBonus = (direction === "ArrowLeft" || direction === "ArrowRight") && Math.abs(dy) < curRect.height * 0.75 ? 0 : 1200;
+    const weightCross = (direction === "ArrowLeft" || direction === "ArrowRight") ? 3.5 : 1.6;
+    const score = primaryDist + (crossDist * weightCross) + sameRowBonus;
+
+    if (score < bestScore) {
+      bestScore = score;
+      bestCandidate = el;
+    }
+  }
+
+  return bestCandidate;
+};
+
+window.activateFocusedElement = function(el) {
+  if (!el || el === document.body) return false;
+  if (el.classList && el.classList.contains("movie-card")) {
+    const innerClickable = el.querySelector("div[onclick]");
+    if (innerClickable) {
+      innerClickable.click();
+      return true;
+    }
+  }
+  el.click();
+  return true;
+};
+
+window.handleTvRemoteKey = function(keyName) {
+  const active = document.activeElement;
+  const isTextInput = active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA" || active.isContentEditable);
+
+  // Allow natural text editing inside inputs except Up/Down navigation out of single-line inputs
+  if (isTextInput) {
+    if (keyName === "Enter" && active.id === "authCodeInput") {
+      window.submitAuthCode();
+      return true;
+    }
+    if (keyName === "ArrowLeft" || keyName === "ArrowRight") {
+      return false;
+    }
+    if (active.tagName === "TEXTAREA" && (keyName === "ArrowUp" || keyName === "ArrowDown")) {
+      return false;
+    }
+  }
+
+  const focusable = window.getFocusableElements();
+  if (!focusable.length) return false;
+
+  if (keyName === "ArrowUp" || keyName === "ArrowDown" || keyName === "ArrowLeft" || keyName === "ArrowRight") {
+    if (!active || active === document.body || !focusable.includes(active)) {
+      const firstCard = focusable.find(el => el.classList.contains("movie-card")) || focusable[0];
+      firstCard?.focus();
+      firstCard?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
+      return true;
+    }
+    const nextEl = window.findBestSpatialTarget(active, keyName, focusable);
+    if (nextEl) {
+      nextEl.focus();
+      nextEl.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
+      return true;
+    }
+    // Fallback linear navigation if spatial didn't match
+    const idx = focusable.indexOf(active);
+    if (keyName === "ArrowDown" || keyName === "ArrowLeft") {
+      const next = focusable[Math.min(focusable.length - 1, idx + 1)];
+      next?.focus();
+      next?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
+    } else {
+      const prev = focusable[Math.max(0, idx - 1)];
+      prev?.focus();
+      prev?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
+    }
+    return true;
+  }
+
+  if (keyName === "Enter" || keyName === "Select") {
+    if (active && active !== document.body && !isTextInput) {
+      return window.activateFocusedElement(active);
+    }
+  }
+
+  return false;
+};
+
+// Keyboard & Remote Control Listener
+window.addEventListener("keydown", (e) => {
   const target = e.target;
   const active = document.activeElement;
-  const isInput = (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) ||
-                  (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable));
+  const isInput = (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)) ||
+                  (active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA" || active.isContentEditable));
 
-  // If user is typing in any input field or search bar, NEVER intercept keys (especially Backspace / Delete)!
-  if (isInput) {
+  if (e.key === "Escape" || e.key === "XF86Back" || e.key === "BrowserBack") {
+    e.preventDefault();
+    window.handleAndroidBackRequest();
     return;
   }
 
-  const focusable = Array.from(document.querySelectorAll('button, [tabindex="0"], input, a, video')).filter(el => !el.disabled && el.offsetParent !== null);
-  let index = focusable.indexOf(active);
+  if (isInput) {
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      if (active && active.tagName !== "TEXTAREA") {
+        e.preventDefault();
+        window.handleTvRemoteKey(e.key);
+      }
+    }
+    return;
+  }
 
-  if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+  if (e.key === "ArrowUp" || e.key === "ArrowDown" || e.key === "ArrowLeft" || e.key === "ArrowRight") {
     e.preventDefault();
-    if (index === -1 || index >= focusable.length - 1) {
-      focusable[0]?.focus();
-    } else {
-      focusable[index + 1]?.focus();
-    }
-    document.activeElement?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
-    e.preventDefault();
-    if (index <= 0) {
-      focusable[focusable.length - 1]?.focus();
-    } else {
-      focusable[index - 1]?.focus();
-    }
-    document.activeElement?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  } else if (e.key === 'Enter' || e.key === 'Select') {
+    window.handleTvRemoteKey(e.key);
+  } else if (e.key === "Enter" || e.key === "Select" || e.key === " ") {
     if (active && active !== document.body) {
       e.preventDefault();
-      active.click();
+      window.activateFocusedElement(active);
     }
-  } else if (e.key === 'Escape' || e.key === 'XF86Back') {
-    e.preventDefault();
-    goBack();
   }
 });
 
@@ -774,6 +1338,11 @@ window.applyLanguage = function(lang, rerender = true) {
   if (navAdd) navAdd.innerText = t("nav_add");
   if (navFav) navFav.innerText = t("nav_favorites");
 
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    const k = el.getAttribute("data-i18n");
+    if (k) el.innerText = t(k);
+  });
+
   const searchBtn = document.getElementById("topSearchBtn");
   const settingsBtn = document.getElementById("topSettingsBtn");
   if (searchBtn) { searchBtn.title = t("search_title"); searchBtn.setAttribute("aria-label", t("search_title")); }
@@ -945,7 +1514,7 @@ window.renderSettingsPage = function() {
       </div>
 
       <!-- 3. Notifications -->
-      <div class="settings-card" onclick="toggleAppNotifications()">
+      <div class="settings-card" tabindex="0" role="button" onclick="toggleAppNotifications()">
         <div class="settings-left">
           <div class="settings-icon">🔔</div>
           <div class="settings-text-wrap">
@@ -966,7 +1535,7 @@ window.renderSettingsPage = function() {
       </div>
 
       <!-- 4. Official Website -->
-      <div class="settings-card" onclick="openOfficialWebsite()">
+      <div class="settings-card" tabindex="0" role="button" onclick="openOfficialWebsite()">
         <div class="settings-left">
           <div class="settings-icon">🌍</div>
           <div class="settings-text-wrap">
@@ -980,7 +1549,7 @@ window.renderSettingsPage = function() {
       </div>
 
       <!-- 5. Share Application -->
-      <div class="settings-card" onclick="handleShareApp()">
+      <div class="settings-card" tabindex="0" role="button" onclick="handleShareApp()">
         <div class="settings-left">
           <div class="settings-icon">📤</div>
           <div class="settings-text-wrap">
@@ -994,7 +1563,7 @@ window.renderSettingsPage = function() {
       </div>
 
       <!-- 6. App Information -->
-      <div class="settings-card" onclick="openAboutPage()">
+      <div class="settings-card" tabindex="0" role="button" onclick="openAboutPage()">
         <div class="settings-left">
           <div class="settings-icon">ℹ️</div>
           <div class="settings-text-wrap">
@@ -1690,10 +2259,18 @@ window.applyUserRole = function(role) {
   if (addNavBtn) {
     addNavBtn.style.display = (role === "ADMIN") ? "flex" : "none";
   }
+  const tvAddNavBtn = document.getElementById("tv-nav-add");
+  if (tvAddNavBtn) {
+    tvAddNavBtn.style.display = (role === "ADMIN") ? "inline-flex" : "none";
+  }
 
   const reportsNavBtn = document.getElementById("nav-reports");
   if (reportsNavBtn) {
     reportsNavBtn.style.display = (role === "ADMIN") ? "flex" : "none";
+  }
+  const tvReportsNavBtn = document.getElementById("tv-nav-reports");
+  if (tvReportsNavBtn) {
+    tvReportsNavBtn.style.display = (role === "ADMIN") ? "inline-flex" : "none";
   }
 
   // Protect Admin pages: if non-admin is in add, reports, or episode form, kick back to home
@@ -1822,9 +2399,13 @@ window.logout = function() {
 
   const addNavBtn = document.getElementById("nav-add");
   if (addNavBtn) addNavBtn.style.display = "none";
+  const tvAddNavBtn = document.getElementById("tv-nav-add");
+  if (tvAddNavBtn) tvAddNavBtn.style.display = "none";
 
   const reportsNavBtn = document.getElementById("nav-reports");
   if (reportsNavBtn) reportsNavBtn.style.display = "none";
+  const tvReportsNavBtn = document.getElementById("tv-nav-reports");
+  if (tvReportsNavBtn) tvReportsNavBtn.style.display = "none";
 
   showAuthScreen();
 };
@@ -1854,9 +2435,30 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-const q=query(colRef,orderBy("createdAt","desc"),limit(500));
-onSnapshot(q,(s)=>{
-  window.allContent=s.docs.map(d=>({firebaseId:d.id,...d.data()}));
+// ================= Firebase Content Loading, Error Handling & Retry System =================
+window.contentLoadState = {
+  isLoading: true,
+  hasError: false,
+  errorMessage: "",
+  errorCode: "",
+  lastUpdatedMs: 0
+};
+let moviesUnsubscribe = null;
+
+window.processLoadedMoviesDocs = function(docs) {
+  const mapped = docs.map(d => ({ firebaseId: d.id, ...d.data() }));
+  // Sort newest first safely even for documents that may not have a createdAt field
+  mapped.sort((a, b) => {
+    const tA = (a.createdAt && typeof a.createdAt.toMillis === "function") ? a.createdAt.toMillis() : (a.createdAtMs || 0);
+    const tB = (b.createdAt && typeof b.createdAt.toMillis === "function") ? b.createdAt.toMillis() : (b.createdAtMs || 0);
+    return tB - tA;
+  });
+  window.allContent = mapped;
+  window.contentLoadState.isLoading = false;
+  window.contentLoadState.hasError = false;
+  window.contentLoadState.errorMessage = "";
+  window.contentLoadState.lastUpdatedMs = Date.now();
+
   if (window._pendingFcmNotification) {
     const pending = window._pendingFcmNotification;
     window._pendingFcmNotification = null;
@@ -1867,7 +2469,122 @@ onSnapshot(q,(s)=>{
   if (window.currentUserRole) {
     renderCurrentPage();
   }
-});
+};
+
+window.startMoviesRealtimeSync = function() {
+  window.contentLoadState.isLoading = true;
+  window.contentLoadState.hasError = false;
+  if (window.currentUserRole && window.allContent.length === 0) {
+    renderCurrentPage();
+  }
+
+  if (typeof moviesUnsubscribe === "function") {
+    try { moviesUnsubscribe(); } catch (e) {}
+    moviesUnsubscribe = null;
+  }
+
+  // Subscribe to the full `movies` collection so documents with or without `createdAt` are all fetched reliably
+  const moviesQuery = query(colRef, limit(500));
+  moviesUnsubscribe = onSnapshot(moviesQuery, (snapshot) => {
+    window.processLoadedMoviesDocs(snapshot.docs);
+  }, (err) => {
+    console.error("Firestore movies onSnapshot error:", err);
+    window.contentLoadState.isLoading = false;
+    window.contentLoadState.hasError = true;
+    window.contentLoadState.errorCode = err.code || "unknown";
+    if (err.code === "permission-denied") {
+      window.contentLoadState.errorMessage = "تم رفض الوصول من قواعد صلاحيات قاعدة البيانات (Permission Denied).";
+    } else if (err.code === "unavailable" || (typeof navigator !== "undefined" && navigator.onLine === false)) {
+      window.contentLoadState.errorMessage = "تعذّر الاتصال بخوادم Firebase. يرجى التحقق من اتصال الإنترنت على جهازك أو التلفاز.";
+    } else {
+      window.contentLoadState.errorMessage = err.message || "حدث خطأ أثناء تحميل قائمة الأفلام والمسلسلات والأنمي.";
+    }
+    if (window.currentUserRole) {
+      renderCurrentPage();
+    }
+  });
+};
+
+window.retryLoadFirebaseContent = async function() {
+  const retryBtn = document.getElementById("firebaseRetryBtn");
+  if (retryBtn) {
+    retryBtn.disabled = true;
+    retryBtn.innerText = "⏳ جاري إعادة الاتصال والتحميل...";
+  }
+  window.contentLoadState.isLoading = true;
+  window.contentLoadState.hasError = false;
+  if (window.currentUserRole) {
+    renderCurrentPage();
+  }
+  try {
+    const snap = await getDocs(query(colRef, limit(500)));
+    window.processLoadedMoviesDocs(snap.docs);
+    window.startMoviesRealtimeSync();
+  } catch (err) {
+    console.error("Manual retry getDocs error:", err);
+    window.contentLoadState.isLoading = false;
+    window.contentLoadState.hasError = true;
+    window.contentLoadState.errorCode = err.code || "retry_failed";
+    window.contentLoadState.errorMessage = (typeof navigator !== "undefined" && navigator.onLine === false)
+      ? "لا يوجد اتصال بالإنترنت حالياً. تأكد من توصيل التلفاز أو الجهاز بالشبكة."
+      : (err.message || "فشل الاتصال بقاعدة البيانات، يرجى المحاولة مرة أخرى.");
+    if (window.currentUserRole) {
+      renderCurrentPage();
+    }
+  }
+};
+
+window.startMoviesRealtimeSync();
+
+// Fallback SVG data URI when an external poster URL fails to load on Android TV
+window.DEFAULT_POSTER_FALLBACK = "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(
+  `<svg xmlns="http://www.w3.org/2000/svg" width="300" height="420" viewBox="0 0 300 420">
+    <rect width="300" height="420" rx="22" fill="#141414"/>
+    <rect x="8" y="8" width="284" height="404" rx="18" fill="none" stroke="#2a2a2a" stroke-width="2"/>
+    <circle cx="150" cy="175" r="44" fill="#e50914" fill-opacity="0.18" stroke="#e50914" stroke-width="2"/>
+    <polygon points="140,155 140,195 172,175" fill="#e50914"/>
+    <text x="150" y="255" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="20" font-weight="bold">BLACK ANIME</text>
+    <text x="150" y="282" text-anchor="middle" fill="#888888" font-family="Arial, sans-serif" font-size="13">صورة البوستر غير متاحة</text>
+  </svg>`
+);
+
+window.handlePosterImgError = function(imgEl) {
+  if (!imgEl || imgEl.dataset.fallbackApplied === "true") return;
+  imgEl.dataset.fallbackApplied = "true";
+  imgEl.src = window.DEFAULT_POSTER_FALLBACK;
+};
+
+window.renderContentStatusBoxHtml = function() {
+  if (window.contentLoadState.isLoading && (!window.allContent || window.allContent.length === 0)) {
+    return `
+      <div style="background:#111;border:1px solid #242424;border-radius:18px;padding:40px 20px;margin:20px auto;max-width:560px;text-align:center">
+        <div class="ad-loader-spinner" style="margin:0 auto 16px auto"></div>
+        <div style="font-size:17px;font-weight:900;color:#fff;margin-bottom:6px">⏳ جاري تحميل الأفلام والمسلسلات والأنمي...</div>
+        <div style="font-size:13px;color:#888">يتم الآن جلب أحدث البيانات من قاعدة بيانات Firebase</div>
+      </div>
+    `;
+  }
+  if (window.contentLoadState.hasError && (!window.allContent || window.allContent.length === 0)) {
+    return `
+      <div style="background:#180909;border:1.5px solid #521818;border-radius:18px;padding:32px 22px;margin:20px auto;max-width:600px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,0.6)">
+        <div style="font-size:42px;margin-bottom:10px">⚠️</div>
+        <div style="font-size:18px;font-weight:900;color:#ff6b6b;margin-bottom:8px">تعذّر تحميل المحتوى من قاعدة البيانات</div>
+        <div style="font-size:13px;color:#ddd;line-height:1.6;margin-bottom:18px">${window.escapeDescHtml(window.contentLoadState.errorMessage || "يرجى التحقق من اتصال الإنترنت والمحاولة مجدداً")}</div>
+        <button id="firebaseRetryBtn" type="button" tabindex="0" onclick="retryLoadFirebaseContent()" style="background:linear-gradient(135deg,#e50914,#b80610);color:#fff;border:none;padding:12px 26px;border-radius:12px;font-size:15px;font-weight:900;cursor:pointer;box-shadow:0 4px 15px rgba(229,9,20,0.4)">🔄 إعادة المحاولة</button>
+      </div>
+    `;
+  }
+  if (!window.allContent || window.allContent.length === 0) {
+    return `
+      <div style="background:#111;border:1px solid #242424;border-radius:18px;padding:34px 20px;margin:20px auto;max-width:540px;text-align:center">
+        <div style="font-size:38px;margin-bottom:10px">🎬</div>
+        <div style="font-size:16px;font-weight:bold;color:#ccc;margin-bottom:8px">لا توجد أعمال مضافة حالياً</div>
+        <button type="button" tabindex="0" onclick="retryLoadFirebaseContent()" style="background:#1f1f1f;color:#00d2ff;border:1px solid #333;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:bold;cursor:pointer;margin-top:8px">🔄 تحديث القائمة</button>
+      </div>
+    `;
+  }
+  return "";
+};
 
 window.getItemByFirebaseId=(fid)=>window.allContent.find(i=>i.firebaseId===fid);
 window.isFavorite=(id)=>window.favorites.includes(id);
@@ -1878,19 +2595,22 @@ window.toggleFavorite=(id)=>{
   renderCurrentPage();
 };
 window.setActiveNav=(p)=>{
-  document.querySelectorAll(".bottom-nav button").forEach(b=>b.classList.remove("active"));
+  document.querySelectorAll(".bottom-nav button, .tv-top-nav .tv-nav-btn").forEach(b=>b.classList.remove("active"));
   let target = (p === "animation" || p === "arabic" || p === "sports") ? "animation" : (p === "anime" || p === "foreign" || p === "news") ? "anime" : p;
   let n = document.getElementById("nav-" + target) || document.getElementById("nav-" + p);
   if(n) n.classList.add("active");
+  let tvN = document.getElementById("tv-nav-" + target) || document.getElementById("tv-nav-" + p);
+  if(tvN) tvN.classList.add("active");
 };
 window.createCard=(item)=>{
   let fav=window.isFavorite(item.id);
   let click=(window.currentUserRole==="ADMIN"&&window.selectEpisodeMode)?`renderAddEpisodeForm('${item.firebaseId}')`:(window.currentUserRole==="ADMIN"&&window.deleteMode)?`askDeleteMovie('${item.firebaseId}')`:`openDetails('${item.firebaseId}')`;
-  let del=(window.currentUserRole==="ADMIN"&&window.deleteMode)?`<button tabindex="0" style="position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:50%;border:none;background:#e50914;color:#fff;z-index:3" onclick="event.stopPropagation();askDeleteMovie('${item.firebaseId}')">✕</button>`:"";
+  let del=(window.currentUserRole==="ADMIN"&&window.deleteMode)?`<button tabindex="0" style="position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;border:none;background:#e50914;color:#fff;z-index:3" onclick="event.stopPropagation();askDeleteMovie('${item.firebaseId}')">✕</button>`:"";
   let editPosterBtn=(window.currentUserRole==="ADMIN")?`<button type="button" tabindex="0" style="width:100%;margin-top:8px;background:#1a2a3a;color:#00d2ff;border:1px solid #2a4a6a;padding:6px 8px;border-radius:8px;font-size:11px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px" onclick="event.stopPropagation();openEditPosterModal('${item.firebaseId}')">🖼️ تعديل البوستر</button>`:"";
   let isAnimation = item.type === "animation" || item.type === "arabic" || item.type === "sports";
   let categoryLabel = window.translateCategoryLabel(item.category, isAnimation);
-  return`<div class="movie-card" tabindex="0"><button tabindex="0" class="favorite-btn ${fav?"active":""}" onclick="event.stopPropagation();toggleFavorite('${item.id}')">♥</button>${del}<div onclick="${click}"><img class="poster" data-poster-fid="${item.firebaseId}" src="${item.poster}" loading="lazy" decoding="async"><h3>${item.title}</h3><p>${item.year} • ${categoryLabel}</p></div>${editPosterBtn}</div>`;
+  let safePoster = (item.poster && String(item.poster).trim()) ? item.poster : window.DEFAULT_POSTER_FALLBACK;
+  return`<div class="movie-card" tabindex="0" role="button" aria-label="${window.escapeDescHtml(item.title || '')}" onkeydown="if(event.key==='Enter'||event.key==='Select'){event.preventDefault();${click};}"><button tabindex="0" class="favorite-btn ${fav?"active":""}" onclick="event.stopPropagation();toggleFavorite('${item.id}')" title="المفضلة">♥</button>${del}<div onclick="${click}"><img class="poster" data-poster-fid="${item.firebaseId}" src="${safePoster}" alt="${window.escapeDescHtml(item.title || '')}" onerror="handlePosterImgError(this)" loading="lazy" decoding="async"><h3>${item.title}</h3><p>${item.year || ""} • ${categoryLabel}</p></div>${editPosterBtn}</div>`;
 };
 window.getOfficialAnimeList = function() {
   let list = window.allContent.filter(x => {
@@ -1940,9 +2660,70 @@ setInterval(() => {
   }
 }, 30000);
 
+window.buildTvHorizontalShelfHtml = function(title, items, morePage = "") {
+  if (!items || items.length === 0) return "";
+  const moreBtn = morePage
+    ? `<button type="button" tabindex="0" class="tv-row-more-btn" onclick="showPage('${morePage}')">عرض الكل ‹</button>`
+    : "";
+  return `
+    <section class="tv-row-section">
+      <div class="tv-row-header">
+        <h2 class="tv-row-title">${title} <span style="font-size:13px;color:#888;font-weight:normal">(${items.length})</span></h2>
+        ${moreBtn}
+      </div>
+      <div class="tv-horizontal-row">
+        ${items.map(createCard).join("")}
+      </div>
+    </section>
+  `;
+};
+
 window.renderHome=()=>{
+  window.detectAndApplyTvMode(null);
+  const statusBox = window.renderContentStatusBoxHtml();
+  if (statusBox) {
+    main.innerHTML = `<div class="hero"><h1>BLACK ANIME</h1></div>${statusBox}`;
+    setActiveNav("home");
+    return;
+  }
+
   const hourlyItems = window.getHourlyRotatingAnimes(50);
-  main.innerHTML=`<div class="hero"><h1>BLACK ANIME</h1></div><div class="movies-grid">${hourlyItems.map(createCard).join("")}</div>`;
+
+  if (window.isTvMode) {
+    const animeItems = window.allContent.filter(x => x.type === "anime" || x.type === "foreign" || x.type === "news" || x.type === "entertainment");
+    const animationItems = window.allContent.filter(x => x.type === "animation" || x.type === "arabic" || x.type === "sports");
+    const moviesOnly = window.allContent.filter(x => {
+      const cat = String(x.category || "").trim();
+      return cat === "فلم" || cat === "فيلم" || cat.toLowerCase() === "movie" || cat.toLowerCase() === "film";
+    });
+    const seriesOnly = window.allContent.filter(x => {
+      const cat = String(x.category || "").trim();
+      return cat === "مسلسل" || cat.toLowerCase() === "series";
+    });
+
+    const shelvesHtml = [
+      window.buildTvHorizontalShelfHtml("🔥 مختارات الصفحة الرئيسية", hourlyItems.slice(0, 24), ""),
+      window.buildTvHorizontalShelfHtml("⚡ قسم الأنمي", animeItems.slice(0, 30), "anime"),
+      window.buildTvHorizontalShelfHtml("🎬 قسم الأنميشن والكرتون", animationItems.slice(0, 30), "animation"),
+      moviesOnly.length > 0 ? window.buildTvHorizontalShelfHtml("🍿 الأفلام", moviesOnly.slice(0, 25), "") : "",
+      seriesOnly.length > 0 ? window.buildTvHorizontalShelfHtml("📺 المسلسلات والحلقات", seriesOnly.slice(0, 25), "") : ""
+    ].filter(Boolean).join("");
+
+    main.innerHTML = `
+      <div class="hero"><h1>BLACK ANIME</h1></div>
+      <div class="tv-sections-wrapper">
+        ${shelvesHtml}
+        <section class="tv-row-section">
+          <div class="tv-row-header">
+            <h2 class="tv-row-title">📚 جميع الأعمال المتوفرة <span style="font-size:13px;color:#888;font-weight:normal">(${window.allContent.length})</span></h2>
+          </div>
+          <div class="movies-grid">${hourlyItems.map(createCard).join("")}</div>
+        </section>
+      </div>
+    `;
+  } else {
+    main.innerHTML=`<div class="hero"><h1>BLACK ANIME</h1></div><div class="movies-grid">${hourlyItems.map(createCard).join("")}</div>`;
+  }
   setActiveNav("home");
 };
 window.renderCategory=(type)=>{
@@ -1952,7 +2733,10 @@ window.renderCategory=(type)=>{
     return x.type === "anime" || x.type === "foreign" || x.type === "news" || x.type === "entertainment";
   });
   let catTitle = isAnimation ? t("cat_animation") : t("cat_anime");
-  main.innerHTML=`<div class="page-header"><button class="back-btn" onclick="goBack()">${t("back_btn")}</button></div><div class="hero" style="height:100px;margin-top:0"><h1 style="font-size:26px">${catTitle}</h1></div><div class="movies-grid">${items.map(createCard).join("")}</div>`;
+  let statusOrGrid = (items.length === 0 && (window.contentLoadState.isLoading || window.contentLoadState.hasError))
+    ? window.renderContentStatusBoxHtml()
+    : `<div class="movies-grid">${items.map(createCard).join("")}</div>`;
+  main.innerHTML=`<div class="page-header"><button class="back-btn" onclick="goBack()">${t("back_btn")}</button></div><div class="hero" style="height:100px;margin-top:0"><h1 style="font-size:26px">${catTitle}</h1></div>${statusOrGrid}`;
   setActiveNav(isAnimation ? "animation" : "anime");
 };
 window.navigateTo=(next,renderFn)=>{
@@ -2100,8 +2884,9 @@ window.openDetails=(fid)=>{
 
     let editPosterDetailBtn = (window.currentUserRole === "ADMIN") ? `<button type="button" onclick="openEditPosterModal('${item.firebaseId}')" style="background:#1a2a3a;color:#00d2ff;border:1px solid #2a4a6a;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:bold;cursor:pointer;display:inline-flex;align-items:center;gap:6px">🖼️ تعديل البوستر</button>` : "";
     let reportDetailBtn = `<button type="button" onclick="openReportProblemModal('${item.firebaseId}', -1)" style="background:#260a0a;color:#ff6b6b;border:1px solid #4a1515;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:bold;cursor:pointer;display:inline-flex;align-items:center;gap:6px">🚩 الإبلاغ عن مشكلة</button>`;
+    let safePoster = (item.poster && String(item.poster).trim()) ? item.poster : window.DEFAULT_POSTER_FALLBACK;
 
-    main.innerHTML=`<div class="page-header" style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px 4px 14px;margin-top:55px"><button class="back-btn" style="margin:0" onclick="goBack()">${t("back_btn")}</button>${orderBtnHtml}</div><div style="padding:15px;text-align:center"><img class="poster" data-poster-fid="${item.firebaseId}" src="${item.poster}" style="width:140px;height:140px;object-fit:contain;padding:10px;border-radius:18px"><div style="margin-top:10px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap">${editPosterDetailBtn}${reportDetailBtn}</div><h1 style="margin-top:12px">${item.title}</h1><p style="color:#888">${item.year} • ${categoryLabel}</p>${window.renderDescriptionHtml(item.firebaseId)}</div><div id="episodesListContainer" style="padding:12px;display:flex;flex-direction:column;gap:8px"></div>`;
+    main.innerHTML=`<div class="page-header" style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px 4px 14px;margin-top:55px"><button class="back-btn" style="margin:0" onclick="goBack()">${t("back_btn")}</button>${orderBtnHtml}</div><div class="details-layout"><div class="details-info-panel"><img class="poster" data-poster-fid="${item.firebaseId}" src="${safePoster}" onerror="handlePosterImgError(this)" style="width:160px;height:200px;object-fit:contain;padding:10px;border-radius:18px"><div style="margin-top:10px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap">${editPosterDetailBtn}${reportDetailBtn}</div><h1 style="margin-top:12px;font-size:22px">${item.title}</h1><p style="color:#888;margin-top:4px">${item.year || ""} • ${categoryLabel}</p>${window.renderDescriptionHtml(item.firebaseId)}</div><div class="details-episodes-panel"><div id="episodesListContainer" style="padding:12px;display:flex;flex-direction:column;gap:8px"></div></div></div>`;
 
     window.renderEpisodesList(item.firebaseId);
   });
@@ -2277,8 +3062,9 @@ window.openDetailsBack=()=>{
 
   let editPosterDetailBtn = (window.currentUserRole === "ADMIN") ? `<button type="button" onclick="openEditPosterModal('${item.firebaseId}')" style="background:#1a2a3a;color:#00d2ff;border:1px solid #2a4a6a;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:bold;cursor:pointer;display:inline-flex;align-items:center;gap:6px">🖼️ تعديل البوستر</button>` : "";
   let reportDetailBtn = `<button type="button" onclick="openReportProblemModal('${item.firebaseId}', -1)" style="background:#260a0a;color:#ff6b6b;border:1px solid #4a1515;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:bold;cursor:pointer;display:inline-flex;align-items:center;gap:6px">🚩 الإبلاغ عن مشكلة</button>`;
+  let safePoster = (item.poster && String(item.poster).trim()) ? item.poster : window.DEFAULT_POSTER_FALLBACK;
 
-  main.innerHTML=`<div class="page-header" style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px 4px 14px;margin-top:55px"><button class="back-btn" style="margin:0" onclick="goBack()">${t("back_btn")}</button>${orderBtnHtml}</div><div style="padding:15px;text-align:center"><img class="poster" data-poster-fid="${item.firebaseId}" src="${item.poster}" style="width:140px;height:140px;object-fit:contain;padding:10px;border-radius:18px"><div style="margin-top:10px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap">${editPosterDetailBtn}${reportDetailBtn}</div><h1>${item.title}</h1><p style="color:#888">${item.year} • ${categoryLabel}</p>${window.renderDescriptionHtml(item.firebaseId)}</div><div id="episodesListContainer" style="padding:12px;display:flex;flex-direction:column;gap:8px"></div>`;
+  main.innerHTML=`<div class="page-header" style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px 4px 14px;margin-top:55px"><button class="back-btn" style="margin:0" onclick="goBack()">${t("back_btn")}</button>${orderBtnHtml}</div><div class="details-layout"><div class="details-info-panel"><img class="poster" data-poster-fid="${item.firebaseId}" src="${safePoster}" onerror="handlePosterImgError(this)" style="width:160px;height:200px;object-fit:contain;padding:10px;border-radius:18px"><div style="margin-top:10px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap">${editPosterDetailBtn}${reportDetailBtn}</div><h1 style="margin-top:12px;font-size:22px">${item.title}</h1><p style="color:#888;margin-top:4px">${item.year || ""} • ${categoryLabel}</p>${window.renderDescriptionHtml(item.firebaseId)}</div><div class="details-episodes-panel"><div id="episodesListContainer" style="padding:12px;display:flex;flex-direction:column;gap:8px"></div></div></div>`;
 
   window.renderEpisodesList(item.firebaseId);
 };
@@ -2915,6 +3701,15 @@ onSnapshot(reportsQuery, (snap) => {
       navBadge.innerText = newCount > 99 ? "99+" : String(newCount);
     } else {
       navBadge.style.display = "none";
+    }
+  }
+  const tvNavBadge = document.getElementById("tvNavReportsBadge");
+  if (tvNavBadge) {
+    if (window.currentUserRole === "ADMIN" && newCount > 0) {
+      tvNavBadge.style.display = "inline-block";
+      tvNavBadge.innerText = newCount > 99 ? "99+" : String(newCount);
+    } else {
+      tvNavBadge.style.display = "none";
     }
   }
 

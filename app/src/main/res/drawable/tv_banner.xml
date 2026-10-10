@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="320dp"
+    android:height="180dp"
+    android:viewportWidth="320"
+    android:viewportHeight="180">
+
+    <!-- Dark Gradient Background -->
+    <path
+        android:fillColor="#080808"
+        android:pathData="M0,0h320v180h-320z" />
+
+    <!-- Subtle Red Accent Glow Top-Right & Bottom-Left -->
+    <path
+        android:fillColor="#1AE50914"
+        android:pathData="M220,0L320,0L320,180L140,180Z" />
+    <path
+        android:fillColor="#12E50914"
+        android:pathData="M0,0L130,0L70,180L0,180Z" />
+
+    <!-- Red Accent Top & Bottom Borders -->
+    <path
+        android:fillColor="#E50914"
+        android:pathData="M0,0h320v4h-320z" />
+    <path
+        android:fillColor="#E50914"
+        android:pathData="M0,176h320v4h-320z" />
+
+    <!-- Center Play Badge Circle -->
+    <path
+        android:fillColor="#E50914"
+        android:pathData="M160,44A28,28 0 1,1 160,100A28,28 0 1,1 160,44Z" />
+
+    <!-- Play Triangle inside Badge -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M153,59L153,85L174,72Z" />
+
+    <!-- Stylized Brand Bars ("BLACK ANIME" TV Emblem) -->
+    <path
+        android:fillColor="#E50914"
+        android:pathData="M86,118h68v10h-68z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M162,118h72v10h-72z" />
+    <path
+        android:fillColor="#66FFFFFF"
+        android:pathData="M112,136h96v5h-96z" />
+</vector>

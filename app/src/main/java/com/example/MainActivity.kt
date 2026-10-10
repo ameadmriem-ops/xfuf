@@ -3,6 +3,7 @@ package com.example
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.UiModeManager
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -25,6 +26,7 @@ import android.os.Looper
 import android.text.TextUtils
 import android.util.Log
 import android.view.Gravity
+import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
@@ -142,8 +144,28 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    fun isTelevisionDevice(): Boolean {
+        val uiModeManager = getSystemService(Context.UI_MODE_SERVICE) as? UiModeManager
+        if (uiModeManager?.currentModeType == Configuration.UI_MODE_TYPE_TELEVISION) {
+            return true
+        }
+        val pm = packageManager
+        if (pm.hasSystemFeature(PackageManager.FEATURE_LEANBACK) ||
+            pm.hasSystemFeature(PackageManager.FEATURE_TELEVISION) ||
+            !pm.hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN)
+        ) {
+            return true
+        }
+        return false
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Ensure landscape orientation on Android TV / Google TV while preserving sensor orientation on phones
+        if (isTelevisionDevice()) {
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+        }
         
         // Enable true edge-to-edge immersive full-screen mode across the entire application
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -386,6 +408,10 @@ class MainActivity : ComponentActivity() {
                 ViewGroup.LayoutParams.MATCH_PARENT
             )
             setBackgroundColor(Color.BLACK)
+            isFocusable = true
+            isFocusableInTouchMode = true
+            isVerticalScrollBarEnabled = false
+            isHorizontalScrollBarEnabled = false
 
             settings.apply {
                 javaScriptEnabled = true
@@ -397,6 +423,10 @@ class MainActivity : ComponentActivity() {
                 mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
                 useWideViewPort = true
                 loadWithOverviewMode = true
+                textZoom = 100
+                setSupportZoom(false)
+                builtInZoomControls = false
+                displayZoomControls = false
                 cacheMode = WebSettings.LOAD_DEFAULT
             }
 
@@ -414,6 +444,12 @@ class MainActivity : ComponentActivity() {
                     super.onPageFinished(view, url)
                     applyImmersiveFullScreen()
                     isWebViewLoaded = true
+                    val isTv = isTelevisionDevice()
+                    view?.requestFocus()
+                    view?.evaluateJavascript(
+                        "if(window.onNativeTvModeDetected){window.onNativeTvModeDetected($isTv);}",
+                        null
+                    )
                     pendingFcmNotification?.let { navData ->
                         dispatchFcmNavigation(navData)
                         pendingFcmNotification = null
@@ -980,11 +1016,96 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        // When native ExoPlayer is open on Android TV, allow D-Pad Center/OK or Media Play/Pause to show controller or toggle playback
+        if (playerContainer.visibility == View.VISIBLE && event.action == KeyEvent.ACTION_DOWN) {
+            when (event.keyCode) {
+                KeyEvent.KEYCODE_DPAD_CENTER,
+                KeyEvent.KEYCODE_ENTER -> {
+                    if (!playerView.isControllerFullyVisible) {
+                        playerView.showController()
+                        return true
+                    }
+                }
+                KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE -> {
+                    exoPlayer?.let { player ->
+                        if (player.isPlaying) player.pause() else player.play()
+                    }
+                    playerView.showController()
+                    return true
+                }
+                KeyEvent.KEYCODE_MEDIA_PLAY -> {
+                    exoPlayer?.play()
+                    playerView.showController()
+                    return true
+                }
+                KeyEvent.KEYCODE_MEDIA_PAUSE -> {
+                    exoPlayer?.pause()
+                    playerView.showController()
+                    return true
+                }
+                KeyEvent.KEYCODE_MEDIA_FAST_FORWARD -> {
+                    exoPlayer?.seekForward()
+                    playerView.showController()
+                    return true
+                }
+                KeyEvent.KEYCODE_MEDIA_REWIND -> {
+                    exoPlayer?.seekBack()
+                    playerView.showController()
+                    return true
+                }
+            }
+        }
+
+        // When WebView is visible, ensure D-Pad keys and OK/Center reach the WebView for spatial remote navigation
+        if (webView.visibility == View.VISIBLE && playerContainer.visibility != View.VISIBLE && customView == null) {
+            if (!webView.hasFocus()) {
+                webView.requestFocus()
+            }
+            if (event.action == KeyEvent.ACTION_DOWN) {
+                val jsKey = when (event.keyCode) {
+                    KeyEvent.KEYCODE_DPAD_UP -> "ArrowUp"
+                    KeyEvent.KEYCODE_DPAD_DOWN -> "ArrowDown"
+                    KeyEvent.KEYCODE_DPAD_LEFT -> "ArrowLeft"
+                    KeyEvent.KEYCODE_DPAD_RIGHT -> "ArrowRight"
+                    KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_NUMPAD_ENTER -> "Enter"
+                    else -> null
+                }
+                // For DPAD_CENTER, Android WebView sometimes doesn't synthesize 'Enter' keydown on all TV firmwares unless handled
+                if (event.keyCode == KeyEvent.KEYCODE_DPAD_CENTER && isWebViewLoaded) {
+                    webView.evaluateJavascript(
+                        "if(window.handleTvRemoteKey){window.handleTvRemoteKey('Enter');}",
+                        null
+                    )
+                    return true
+                }
+                if (jsKey != null && isTelevisionDevice() && isWebViewLoaded) {
+                    // Let WebView handle if it's an input; otherwise route via our spatial TV navigator
+                    webView.evaluateJavascript(
+                        "(function(){ return window.handleTvRemoteKey ? window.handleTvRemoteKey('$jsKey') : false; })()"
+                    ) { handled ->
+                        // Handled inside JS spatial navigator
+                    }
+                    if (event.keyCode in listOf(
+                            KeyEvent.KEYCODE_DPAD_UP,
+                            KeyEvent.KEYCODE_DPAD_DOWN,
+                            KeyEvent.KEYCODE_DPAD_LEFT,
+                            KeyEvent.KEYCODE_DPAD_RIGHT
+                        )
+                    ) {
+                        return true
+                    }
+                }
+            }
+        }
+        return super.dispatchKeyEvent(event)
+    }
+
     private fun setupBackNavigation() {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (playerContainer.visibility == View.VISIBLE) {
-                    if (isPlayerFullscreen) {
+                    if (isPlayerFullscreen && !isTelevisionDevice()) {
                         exitFullscreen()
                     } else {
                         closeNativePlayer()
@@ -992,7 +1113,9 @@ class MainActivity : ComponentActivity() {
                 } else if (customView != null) {
                     webView.webChromeClient?.onHideCustomView()
                 } else {
-                    webView.evaluateJavascript("if(window.historyStack && window.historyStack.length > 0){ window.goBack(); true; } else { false; }") { result ->
+                    webView.evaluateJavascript(
+                        "(function(){ if(window.handleAndroidBackRequest){ return window.handleAndroidBackRequest(); } if(window.historyStack && window.historyStack.length > 0){ window.goBack(); return true; } return false; })()"
+                    ) { result ->
                         if (result == "false" || result == null) {
                             isEnabled = false
                             onBackPressedDispatcher.onBackPressed()
@@ -1022,7 +1145,11 @@ class MainActivity : ComponentActivity() {
     private fun exitFullscreen() {
         if (!isPlayerFullscreen) return
         isPlayerFullscreen = false
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        requestedOrientation = if (isTelevisionDevice()) {
+            ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+        } else {
+            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
         applyImmersiveFullScreen()
         val density = resources.displayMetrics.density
         playerTopBar.setPadding(
@@ -1125,6 +1252,9 @@ class MainActivity : ComponentActivity() {
 
         @JavascriptInterface
         fun isAvailable(): Boolean = true
+
+        @JavascriptInterface
+        fun isTvDevice(): Boolean = activity.isTelevisionDevice()
 
         @JavascriptInterface
         fun isNativePlayerAvailable(): Boolean = true
